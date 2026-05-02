@@ -1,7 +1,7 @@
 # Next Steps
 
 ## Current Status
-Project initialized. Phase 0 not yet started.
+ARCH-001 complete. ARCH-002 (Define All ABCs) is next.
 
 ## Up Next
 - [ ] ENV-001: Verify environment (run verify_env.py with chinese-ocr conda env active)
@@ -10,9 +10,7 @@ Project initialized. Phase 0 not yet started.
   - ℹ️ CUDA 13.1 driver — GPU working despite version mismatch. See KNOWN_ISSUES.md.
   - ℹ️ Missing packages: PySide6, pynput, pycorrector, datasketch, sentence-transformers, gitpython, openai, opencc, jieba.
   - ℹ️ PaddlePaddle 3.3.0 API change: `use_gpu` → `device=`, `use_angle_cls` → `use_textline_orientation`.
-- [ ] ARCH-001: Core Registry System (core/registry.py, core/vram_manager.py, core/event_bus.py)
-- [ ] ARCH-002: Define All ABCs
-- [ ] ARCH-003: VRAM Tier Configuration
-
+- [ ] ARCH-002: Define All ABCs (OCREngine, PostProcessStage, OutputFormatter, InputSource, LLMProvider + module stubs)
+- [ ] ARCH-003: VRAM Tier Configuration (ConfigManager, file_utils, logging, data files)
 ## Completed
-(none yet)
+- [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
