@@ -79,7 +79,7 @@ class MainWindow(QMainWindow):
         self._capture_overlay: CaptureOverlay | None = None
 
         self.setWindowTitle("Simplified Chinese OCR")
-        self.setMinimumSize(520, 380)
+        self.setMinimumSize(560, 480)
 
         self._build_menu()
         self._build_central_widget()
@@ -204,14 +204,21 @@ class MainWindow(QMainWindow):
 
         self._preview_pane = QTextEdit()
         self._preview_pane.setReadOnly(True)
-        self._preview_pane.setMaximumHeight(200)
+        self._preview_pane.setMinimumHeight(80)
+        self._preview_pane.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+        )
         self._preview_pane.setPlaceholderText("OCR results will appear here after running OCR…")
         root_layout.addWidget(self._preview_pane)
 
         # Log panel (collapsed by default)
         self._log_panel = QTextEdit()
         self._log_panel.setReadOnly(True)
-        self._log_panel.setMaximumHeight(160)
+        self._log_panel.setMinimumHeight(60)
+        self._log_panel.setMaximumHeight(200)
+        self._log_panel.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.MinimumExpanding
+        )
         self._log_panel.setVisible(False)
         self._log_panel.setPlaceholderText("OCR log output will appear here…")
         font = self._log_panel.font()

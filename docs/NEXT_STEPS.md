@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-copy-results complete. 723 passed, 68 skipped. Ready for FEAT-min-window-size (Enforce sensible minimum window size and add resize policy to preview/log panels).
+FEAT-min-window-size complete. 732 passed, 74 skipped. Ready for FEAT-keyboard-shortcuts-display (Show current hotkey bindings in a read-only table in SettingsDialog Hotkeys tab).
 
 ## Up Next
-- [ ] FEAT-min-window-size: Review and set appropriate minimum window size; make preview and log panels use QSizePolicy.Expanding so the window is resizable
+- [ ] FEAT-keyboard-shortcuts-display: Replace plain QLineEdit fields in SettingsDialog Hotkeys tab with a QTableWidget showing action, default key, and current override
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -34,3 +34,4 @@ FEAT-copy-results complete. 723 passed, 68 skipped. Ready for FEAT-min-window-si
 - [x] FEAT-results-preview: QTextEdit preview pane (read-only, 200px max) + label showing block count below action row. _populate_preview groups by image_id with section headers; _clear_preview resets label to "—". Called from _on_ocr_results, _start_new_session, _trigger_new_section. 12 source-scan + 11 logic + 7 @gui+@skip. (687 passed, 56 skipped).
 - [x] FEAT-about-dialog: gui/about_dialog.py — AboutDialog(QDialog): APP_NAME/APP_VERSION/GITHUB_URL constants; shows app name, version, Python version, PySide6 version, clickable GitHub link, Close button. Wired to MainWindow Help > About… action. 14 source-scan + 5 constant + 6 MainWindow wiring + 6 @gui+@skip. (712 passed, 62 skipped).
 - [x] FEAT-copy-results: "Copy to Clipboard" QPushButton in preview header row, initially disabled. Enabled in _populate_preview, disabled in _clear_preview. _copy_results_to_clipboard slot guards empty text, calls QApplication.clipboard().setText(), shows timed status bar message. 11 source-scan + 6 @gui+@skip. (723 passed, 68 skipped).
+- [x] FEAT-min-window-size: setMinimumSize(560, 480); preview pane: setMinimumHeight(80) + QSizePolicy.Expanding both axes, no fixed max height; log panel: setMinimumHeight(60) + setMaximumHeight(200) + QSizePolicy.MinimumExpanding vertically. Fixed test_results_preview.py to match new sizing API. 9 source-scan + 6 @gui+@skip. (732 passed, 74 skipped).

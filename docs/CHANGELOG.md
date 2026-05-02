@@ -100,3 +100,6 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_about_dialog.py` — 14 source-scan + 5 constant + 6 MainWindow wiring + 6 @gui+@skip. (712 passed, 62 skipped).
 - **FEAT-copy-results** `gui/main_window.py` — `_copy_btn` (`QPushButton("Copy to Clipboard")`) in preview header, initially disabled; `_populate_preview` enables it, `_clear_preview` disables it; `_copy_results_to_clipboard()` slot guards empty text, calls `QApplication.clipboard().setText(text)`, shows `showMessage(…, 3000)` timed status bar notice.
 - `tests/gui/test_copy_results.py` — 11 source-scan + 6 @gui+@skip. (723 passed, 68 skipped).
+- **FEAT-min-window-size** `gui/main_window.py` — `setMinimumSize(560, 480)` (was 520×380); preview pane: replaced `setMaximumHeight(200)` with `setMinimumHeight(80)` + `QSizePolicy.Expanding` on both axes so it grows with the window; log panel: `setMinimumHeight(60)` + `setMaximumHeight(200)` + `QSizePolicy.MinimumExpanding` vertically.
+- `tests/gui/test_results_preview.py` — updated `test_preview_pane_max_height_set` → `test_preview_pane_minimum_height_set` to match new API.
+- `tests/gui/test_window_sizing.py` — 9 source-scan + 6 @gui+@skip. (732 passed, 74 skipped).
