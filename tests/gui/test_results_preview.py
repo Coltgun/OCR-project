@@ -64,8 +64,8 @@ class TestResultsPreviewSource:
     def test_preview_pane_is_readonly(self) -> None:
         assert "self._preview_pane.setReadOnly(True)" in _MW_SRC
 
-    def test_preview_pane_max_height_set(self) -> None:
-        assert "self._preview_pane.setMaximumHeight" in _MW_SRC
+    def test_preview_pane_minimum_height_set(self) -> None:
+        assert "self._preview_pane.setMinimumHeight" in _MW_SRC
 
     def test_preview_pane_placeholder_set(self) -> None:
         assert "self._preview_pane.setPlaceholderText" in _MW_SRC
