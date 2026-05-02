@@ -42,3 +42,6 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - **FEAT-pipeline** `ocr/stages/rule_corrections.py` — `RuleCorrectionsStage(register_as="rule_corrections")`: confusion table JSON load + reverse lookup, character substitution, decimal-point pattern fix, lazy load + reload_tables().
 - **FEAT-pipeline** `ocr/pipeline.py` — `Pipeline` orchestrator: `PIPELINE_MODES` dict (6 modes), `process()`, unregistered stages skipped gracefully, stage exception isolation.
 - `tests/ocr/test_cleanup.py`, `test_rule_corrections.py`, `test_pipeline.py` — 81 new tests. (318 total passing).
+- **FEAT-epub** `output/epub_formatter.py` — `EpubFormatter(register_as="epub")`: P0 numeric chapter sort, CSS injection, chapter HTML (no XML decl — ebooklib adds it), in-memory BytesIO output, configurable title/language/identifier/CSS.
+- **FEAT-epub** Bug: ebooklib `get_body_content()` returns empty when content includes `<?xml ...?>` declaration (lxml parse limitation). Fix: omit XML declaration from input; ebooklib adds it during write.
+- `tests/output/test_epub_formatter.py` — 30 tests: registry, valid ZIP, CSS, chapter content, multiline br, numeric P0 ordering (chapters 1–11 shuffled), metadata (OPF). (348 total passing).
