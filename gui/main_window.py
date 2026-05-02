@@ -31,7 +31,9 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QProgressBar,
     QPushButton,
+    QSizePolicy,
     QStatusBar,
+    QTextEdit,
     QVBoxLayout,
     QWidget,
 )
@@ -42,6 +44,7 @@ from capture.session import CaptureSession
 from capture.state import AppState, StateMachine
 from core.types import Chapter, OCRResult
 from gui.overlay import CaptureOverlay, RegionBorderOverlay
+from gui.qt_log_handler import QtLogHandler
 from gui.session_dialog import SessionDialog
 from gui.settings_dialog import SettingsDialog
 from ocr.pipeline import Pipeline
@@ -81,6 +84,7 @@ class MainWindow(QMainWindow):
         self._build_central_widget()
         self._build_status_bar()
         self._connect_signals()
+        self._install_log_handler()
 
         self._hotkeys.start()
         self._update_ui_for_state(AppState.IDLE)
@@ -108,6 +112,12 @@ class MainWindow(QMainWindow):
         self._toggle_border_action = QAction("Toggle Region Border (F7)", self)
         self._toggle_border_action.triggered.connect(self._toggle_border_overlay)
         view_menu.addAction(self._toggle_border_action)
+
+        self._toggle_log_action = QAction("Show Log Panel", self)
+        self._toggle_log_action.setCheckable(True)
+        self._toggle_log_action.setChecked(False)
+        self._toggle_log_action.triggered.connect(self._toggle_log_panel)
+        view_menu.addAction(self._toggle_log_action)
 
         tools_menu = menu_bar.addMenu("&Tools")
         settings_action = QAction("&Settings…", self)
@@ -175,6 +185,18 @@ class MainWindow(QMainWindow):
         self._export_btn.setEnabled(False)
         action_row.addWidget(self._export_btn)
         root_layout.addLayout(action_row)
+
+        # Log panel (collapsed by default)
+        self._log_panel = QTextEdit()
+        self._log_panel.setReadOnly(True)
+        self._log_panel.setMaximumHeight(160)
+        self._log_panel.setVisible(False)
+        self._log_panel.setPlaceholderText("OCR log output will appear here…")
+        font = self._log_panel.font()
+        font.setFamily("Courier New")
+        font.setPointSize(9)
+        self._log_panel.setFont(font)
+        root_layout.addWidget(self._log_panel)
 
     def _build_status_bar(self) -> None:
         self._status_bar = QStatusBar()
@@ -461,6 +483,30 @@ class MainWindow(QMainWindow):
             if self._capture_region is not None:
                 self._border_overlay.show()
 
+    def _install_log_handler(self) -> None:
+        """Attach a QtLogHandler to the root logger for the log panel."""
+        self._log_handler = QtLogHandler(level=logging.INFO)
+        fmt = logging.Formatter("%(asctime)s [%(levelname)-8s] %(name)s: %(message)s",
+                                datefmt="%H:%M:%S")
+        self._log_handler.setFormatter(fmt)
+        self._log_handler.emitter.message_logged.connect(self._append_log)
+        logging.getLogger().addHandler(self._log_handler)
+
+    @Slot(bool)
+    def _toggle_log_panel(self, checked: bool) -> None:
+        """Show or hide the log panel; keep menu action label in sync."""
+        self._log_panel.setVisible(checked)
+        self._toggle_log_action.setText(
+            "Hide Log Panel" if checked else "Show Log Panel"
+        )
+
+    @Slot(str)
+    def _append_log(self, message: str) -> None:
+        """Append *message* to the log panel and auto-scroll to bottom."""
+        self._log_panel.append(message)
+        sb = self._log_panel.verticalScrollBar()
+        sb.setValue(sb.maximum())
+
     @Slot()
     def _on_open_export_folder(self) -> None:
         """Open the folder containing the last exported EPUB in Explorer."""
@@ -532,6 +578,7 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event: QCloseEvent) -> None:
         self._hotkeys.stop()
+        logging.getLogger().removeHandler(self._log_handler)
         self._border_overlay.close()
         if self._capture_overlay is not None:
             self._capture_overlay.close()

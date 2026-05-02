@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-hotkey-config complete. 638 passed, 40 skipped. Ready for FEAT-ocr-log-panel (Scrollable log panel in MainWindow showing OCR stage output).
+FEAT-ocr-log-panel complete. 664 passed, 49 skipped. Ready for FEAT-results-preview (Show OCR results in a read-only QTextEdit preview pane before export).
 
 ## Up Next
-- [ ] FEAT-ocr-log-panel: Add a collapsible QTextEdit log panel below the action buttons in MainWindow; OCR stage log messages forwarded via signal
+- [ ] FEAT-results-preview: After OCR completes, display a read-only QTextEdit preview of the OCR text in MainWindow; updates on each results_ready signal
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
 - [x] ARCH-002: Define All ABCs — OCREngine, PostProcessStage, OutputFormatter, InputSource, LLMProvider + 4 module stubs (77 tests passing)
@@ -29,3 +29,4 @@ FEAT-hotkey-config complete. 638 passed, 40 skipped. Ready for FEAT-ocr-log-pane
 - [x] FEAT-pipeline-config: OCRWorker.run() reads ocr_pipeline_mode from config, runs Pipeline(mode, config).process() on flat OCR results before emitting results_ready; unknown mode falls back to LOCAL_FAST with warning; pipeline failure falls back to raw results. 9 source-scan + 11 integration tests. (598 passed, 28 skipped).
 - [x] FEAT-session-export-ui: _trigger_export persists epub_output_dir to ConfigManager after file dialog; status bar shows filename only; "Open folder" QPushButton appears in status bar after success, hidden on any state change away from IDLE; _on_open_export_folder uses os.startfile. 10 source-scan + 5 config-logic + 7 @gui+@skip tests. (613 passed, 35 skipped).
 - [x] FEAT-hotkey-config: HotkeyListener.reload(config) rebuilds key map live without restarting thread. SettingsDialog Hotkeys tab (5th tab): QLineEdit per action, placeholder = default, blank = omit. _save_values writes keybindings sub-dict. MainWindow._open_settings calls self._hotkeys.reload(self._cfg) on accept. 8 source-scan (hotkeys.py) + 10 source-scan (settings_dialog/main_window) + 5 config-logic + 5 @gui+@skip tests. (638 passed, 40 skipped).
+- [x] FEAT-ocr-log-panel: gui/qt_log_handler.py — QtLogHandler(logging.Handler) with _LogEmitter(QObject) carrying message_logged Signal(str). MainWindow: QTextEdit log panel (hidden, max 160px, monospace); _install_log_handler adds to root logger; _toggle_log_panel toggles visibility + menu label; _append_log appends + auto-scrolls; handler removed on closeEvent. View menu "Show Log Panel" checkable action. 7 handler source-scan + 19 main_window source-scan + 9 @gui+@skip. (664 passed, 49 skipped).
