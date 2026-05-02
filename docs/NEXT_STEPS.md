@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-min-window-size complete. 732 passed, 74 skipped. Ready for FEAT-keyboard-shortcuts-display (Show current hotkey bindings in a read-only table in SettingsDialog Hotkeys tab).
+FEAT-keyboard-shortcuts-display complete. 752 passed, 82 skipped. Ready for FEAT-status-bar-icons (Add status-indicator icons / coloured dots to the status bar for current AppState).
 
 ## Up Next
-- [ ] FEAT-keyboard-shortcuts-display: Replace plain QLineEdit fields in SettingsDialog Hotkeys tab with a QTableWidget showing action, default key, and current override
+- [ ] FEAT-status-bar-icons: Add a small coloured QLabel indicator dot in the status bar that changes colour per AppState (grey=idle, yellow=running, red=error)
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -35,3 +35,4 @@ FEAT-min-window-size complete. 732 passed, 74 skipped. Ready for FEAT-keyboard-s
 - [x] FEAT-about-dialog: gui/about_dialog.py — AboutDialog(QDialog): APP_NAME/APP_VERSION/GITHUB_URL constants; shows app name, version, Python version, PySide6 version, clickable GitHub link, Close button. Wired to MainWindow Help > About… action. 14 source-scan + 5 constant + 6 MainWindow wiring + 6 @gui+@skip. (712 passed, 62 skipped).
 - [x] FEAT-copy-results: "Copy to Clipboard" QPushButton in preview header row, initially disabled. Enabled in _populate_preview, disabled in _clear_preview. _copy_results_to_clipboard slot guards empty text, calls QApplication.clipboard().setText(), shows timed status bar message. 11 source-scan + 6 @gui+@skip. (723 passed, 68 skipped).
 - [x] FEAT-min-window-size: setMinimumSize(560, 480); preview pane: setMinimumHeight(80) + QSizePolicy.Expanding both axes, no fixed max height; log panel: setMinimumHeight(60) + setMaximumHeight(200) + QSizePolicy.MinimumExpanding vertically. Fixed test_results_preview.py to match new sizing API. 9 source-scan + 6 @gui+@skip. (732 passed, 74 skipped).
+- [x] FEAT-keyboard-shortcuts-display: SettingsDialog Hotkeys tab rebuilt as QTableWidget (6 rows × 3 cols: Action/Default/Override). Action + Default columns non-editable; Default shown uppercase; Override column uses QLineEdit cell widget. Column 0 stretches, 1+2 resize-to-contents. Vertical header hidden. NoSelection + NoEditTriggers. _ACTION_LABELS promoted to class attribute. _hotkey_edits dict interface unchanged — load/save untouched. 20 source-scan + 8 @gui+@skip. (752 passed, 82 skipped).
