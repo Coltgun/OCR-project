@@ -243,6 +243,10 @@ class SettingsDialog(QDialog):
         self._working_root.setPlaceholderText("sessions")
         session_form.addRow("Working root dir:", self._working_root)
 
+        self._export_filename_template = QLineEdit()
+        self._export_filename_template.setPlaceholderText("{session}_{timestamp}")
+        session_form.addRow("Export filename template:", self._export_filename_template)
+
         layout.addWidget(session_group)
 
         display_group = QGroupBox("Display")
@@ -384,6 +388,9 @@ class SettingsDialog(QDialog):
         self._working_root.setText(
             cfg.get_str("working_root_dir", "sessions")
         )
+        self._export_filename_template.setText(
+            cfg.get_str("export_filename_template", "{session}_{timestamp}")
+        )
         self._preview_font_size.setValue(
             int(cfg.get("preview_font_size", 11))
         )
@@ -418,6 +425,10 @@ class SettingsDialog(QDialog):
         cfg.set("embedding_batch_size", self._embed_batch_size.value())
 
         cfg.set("working_root_dir", self._working_root.text().strip() or "sessions")
+        cfg.set(
+            "export_filename_template",
+            self._export_filename_template.text().strip() or "{session}_{timestamp}",
+        )
         cfg.set("preview_font_size", self._preview_font_size.value())
 
         # Hotkeys

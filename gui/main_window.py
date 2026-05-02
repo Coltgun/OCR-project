@@ -564,7 +564,9 @@ class MainWindow(QMainWindow):
             "md": "Save Markdown",
         }
         ext = _EXT_MAP.get(fmt, "epub")
-        default_name = f"{session_name}_{timestamp}.{ext}"
+        template = str(self._cfg.get("export_filename_template", "{session}_{timestamp}"))
+        default_stem = template.replace("{session}", session_name).replace("{timestamp}", timestamp)
+        default_name = f"{default_stem}.{ext}"
         file_filter = _FILTER_MAP.get(fmt, "EPUB files (*.epub)")
         dialog_title = _TITLE_MAP.get(fmt, "Save EPUB")
         save_path, _ = QFileDialog.getSaveFileName(
