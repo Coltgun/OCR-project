@@ -28,6 +28,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QMainWindow,
     QMessageBox,
+    QProgressBar,
     QPushButton,
     QStatusBar,
     QVBoxLayout,
@@ -177,6 +178,13 @@ class MainWindow(QMainWindow):
     def _build_status_bar(self) -> None:
         self._status_bar = QStatusBar()
         self.setStatusBar(self._status_bar)
+
+        self._progress_bar = QProgressBar()
+        self._progress_bar.setFixedWidth(200)
+        self._progress_bar.setTextVisible(True)
+        self._progress_bar.setVisible(False)
+        self._status_bar.addPermanentWidget(self._progress_bar)
+
         self._state_label = QLabel("IDLE")
         self._status_bar.addPermanentWidget(self._state_label)
         self._status_bar.showMessage("Ready. Start a new session to begin.")
@@ -356,6 +364,7 @@ class MainWindow(QMainWindow):
         self._ocr_results = results
         self._export_btn.setEnabled(True)
         self._state_machine.ocr_done()
+        self._progress_bar.setVisible(False)
         self._status_bar.showMessage(
             f"OCR complete: {len(results)} text block(s) extracted."
         )
@@ -365,6 +374,7 @@ class MainWindow(QMainWindow):
     def _on_ocr_error(self, message: str) -> None:
         logger.error("MainWindow: OCR error: %s", message)
         self._state_machine.trigger("error")
+        self._progress_bar.setVisible(False)
         self._status_bar.showMessage(f"OCR error: {message}")
         QMessageBox.critical(self, "OCR Error", message)
         self._update_ui_for_state(AppState.IDLE)
@@ -372,6 +382,10 @@ class MainWindow(QMainWindow):
     @Slot(int, int)
     def _on_ocr_progress(self, done: int, total: int) -> None:
         self._status_bar.showMessage(f"OCR: processing image {done}/{total}…")
+        if total > 0:
+            self._progress_bar.setRange(0, total)
+            self._progress_bar.setValue(done)
+            self._progress_bar.setVisible(True)
 
     @Slot()
     def _trigger_export(self) -> None:
@@ -396,15 +410,19 @@ class MainWindow(QMainWindow):
             return
 
         chapters = self._build_chapters_from_results()
+        self._progress_bar.setRange(0, 0)
+        self._progress_bar.setVisible(True)
         try:
             formatter = EpubFormatter()
             epub_bytes = formatter.format(chapters, self._cfg)
             Path(save_path).write_bytes(epub_bytes)
             logger.info("MainWindow: EPUB saved to '%s'.", save_path)
+            self._progress_bar.setVisible(False)
             self._status_bar.showMessage(f"EPUB saved: {save_path}")
             self._state_machine.export_done()
         except Exception as exc:
             logger.error("MainWindow: EPUB export failed: %s", exc)
+            self._progress_bar.setVisible(False)
             QMessageBox.critical(self, "Export Error", str(exc))
             self._state_machine.trigger("error")
         self._update_ui_for_state(AppState.IDLE)
