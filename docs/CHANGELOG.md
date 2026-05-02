@@ -38,3 +38,7 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - **FEAT-ocr-engine** `ocr/engines/paddle_engine.py` — `PaddleOCREngine(register_as="paddleocr")`: initialize/recognize/unload, VRAM alloc/release, PP-OCRv5 result parsing, quad_to_bbox, updated API (device=, use_textline_orientation).
 - **FEAT-ocr-engine** `ocr/worker.py` — `OCRWorker(QRunnable)`: subprocess-per-image OCR dispatch, `OCRWorkerSignals` (results_ready, error_occurred, progress), JSON result serialisation.
 - `tests/ocr/test_paddle_engine.py` — 22 tests: registry, VRAM lifecycle, parse_results, quad_to_bbox, recognize output; all mocked (no real GPU). (237 total passing).
+- **FEAT-pipeline** `ocr/stages/cleanup.py` — `CleanupStage(register_as="cleanup")`: NFC normalization, fullwidth→halfwidth (alphanum only, Chinese punctuation preserved), CJK space removal, punctuation normalization, garbage filtering (confidence threshold, CJK ratio, repeated chars).
+- **FEAT-pipeline** `ocr/stages/rule_corrections.py` — `RuleCorrectionsStage(register_as="rule_corrections")`: confusion table JSON load + reverse lookup, character substitution, decimal-point pattern fix, lazy load + reload_tables().
+- **FEAT-pipeline** `ocr/pipeline.py` — `Pipeline` orchestrator: `PIPELINE_MODES` dict (6 modes), `process()`, unregistered stages skipped gracefully, stage exception isolation.
+- `tests/ocr/test_cleanup.py`, `test_rule_corrections.py`, `test_pipeline.py` — 81 new tests. (318 total passing).
