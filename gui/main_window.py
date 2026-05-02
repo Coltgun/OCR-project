@@ -196,6 +196,10 @@ class MainWindow(QMainWindow):
         preview_header = QHBoxLayout()
         self._preview_label = QLabel("<b>OCR Results:</b> —")
         preview_header.addWidget(self._preview_label, stretch=1)
+        self._copy_btn = QPushButton("Copy to Clipboard")
+        self._copy_btn.setEnabled(False)
+        self._copy_btn.clicked.connect(self._copy_results_to_clipboard)
+        preview_header.addWidget(self._copy_btn)
         root_layout.addLayout(preview_header)
 
         self._preview_pane = QTextEdit()
@@ -575,11 +579,21 @@ class MainWindow(QMainWindow):
         self._preview_pane.setPlainText("\n".join(lines))
         n = len(results)
         self._preview_label.setText(f"<b>OCR Results:</b> {n} block{'s' if n != 1 else ''}")
+        self._copy_btn.setEnabled(True)
 
     def _clear_preview(self) -> None:
         """Clear the preview pane and reset its label."""
         self._preview_pane.setPlainText("")
         self._preview_label.setText("<b>OCR Results:</b> —")
+        self._copy_btn.setEnabled(False)
+
+    @Slot()
+    def _copy_results_to_clipboard(self) -> None:
+        """Copy the current preview text to the system clipboard."""
+        text = self._preview_pane.toPlainText()
+        if text:
+            QApplication.clipboard().setText(text)
+            self._status_bar.showMessage("OCR text copied to clipboard.", 3000)
 
     def _build_chapters_from_results(self) -> list[Chapter]:
         """Group OCRResults into Chapter objects by image_id prefix."""

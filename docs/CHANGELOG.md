@@ -98,3 +98,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - **FEAT-about-dialog** `gui/about_dialog.py` — new file: `AboutDialog(QDialog)` with `APP_NAME`, `APP_VERSION`, `GITHUB_URL` module constants; shows title, version, Python + PySide6 runtime versions, clickable GitHub `QLabel` (`setOpenExternalLinks`), `StandardButton.Close`.
 - `gui/main_window.py` — imports `AboutDialog`; Help menu with `&About…` action wired to `_open_about()` slot calling `AboutDialog(parent=self).exec()`.
 - `tests/gui/test_about_dialog.py` — 14 source-scan + 5 constant + 6 MainWindow wiring + 6 @gui+@skip. (712 passed, 62 skipped).
+- **FEAT-copy-results** `gui/main_window.py` — `_copy_btn` (`QPushButton("Copy to Clipboard")`) in preview header, initially disabled; `_populate_preview` enables it, `_clear_preview` disables it; `_copy_results_to_clipboard()` slot guards empty text, calls `QApplication.clipboard().setText(text)`, shows `showMessage(…, 3000)` timed status bar notice.
+- `tests/gui/test_copy_results.py` — 11 source-scan + 6 @gui+@skip. (723 passed, 68 skipped).
