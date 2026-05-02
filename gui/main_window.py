@@ -177,6 +177,17 @@ class MainWindow(QMainWindow):
         section_row.addWidget(self._new_section_btn)
         root_layout.addLayout(section_row)
 
+        # Session notes
+        notes_header = QHBoxLayout()
+        notes_header.addWidget(QLabel("<b>Session notes:</b>"))
+        root_layout.addLayout(notes_header)
+        self._notes_edit = QTextEdit()
+        self._notes_edit.setMaximumHeight(80)
+        self._notes_edit.setPlaceholderText("Optional notes for this session…")
+        self._notes_edit.setEnabled(False)
+        self._notes_edit.textChanged.connect(self._on_notes_changed)
+        root_layout.addWidget(self._notes_edit)
+
         # Image count row
         count_row = QHBoxLayout()
         count_row.addWidget(QLabel("<b>Images captured:</b>"))
@@ -345,6 +356,7 @@ class MainWindow(QMainWindow):
         self._session = CaptureSession(dlg.session_root, resume=dlg.resume)
         self._ocr_results = []
         self._clear_preview()
+        self._load_notes()
         self._update_session_labels()
         self._export_btn.setEnabled(False)
         logger.info(
@@ -634,6 +646,37 @@ class MainWindow(QMainWindow):
         font = self._preview_pane.font()
         font.setPointSize(max(8, min(size, 24)))
         self._preview_pane.setFont(font)
+
+    def _load_notes(self) -> None:
+        """Load notes.txt from the session root into the notes widget."""
+        if self._session is None:
+            self._notes_edit.setEnabled(False)
+            self._notes_edit.blockSignals(True)
+            self._notes_edit.setPlainText("")
+            self._notes_edit.blockSignals(False)
+            return
+        self._notes_edit.setEnabled(True)
+        notes_path = self._session.root / "notes.txt"
+        self._notes_edit.blockSignals(True)
+        try:
+            text = notes_path.read_text(encoding="utf-8") if notes_path.exists() else ""
+        except OSError:
+            text = ""
+        self._notes_edit.setPlainText(text)
+        self._notes_edit.blockSignals(False)
+
+    @Slot()
+    def _on_notes_changed(self) -> None:
+        """Auto-save notes to session_root/notes.txt on every change."""
+        if self._session is None:
+            return
+        notes_path = self._session.root / "notes.txt"
+        try:
+            notes_path.write_text(
+                self._notes_edit.toPlainText(), encoding="utf-8"
+            )
+        except OSError as exc:
+            logger.warning("MainWindow: could not save notes: %s", exc)
 
     def _populate_preview(self, results: list[OCRResult]) -> None:
         """Fill the preview pane with OCR results grouped by image_id."""
