@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-capture-counter-reset complete. 918 passed, 124 skipped. Ready for FEAT-ocr-confidence-filter (Add a minimum confidence threshold setting to SettingsDialog; filter out low-confidence OCR results before pipeline/preview).
+FEAT-ocr-confidence-filter complete. 935 passed, 129 skipped. Ready for FEAT-session-summary (Show a summary dialog after OCR completes: total blocks, filtered blocks, sections, average confidence).
 
 ## Up Next
-- [ ] FEAT-ocr-confidence-filter: Add a QDoubleSpinBox (0.0–1.0, default 0.0, step 0.05) to SettingsDialog Pipeline tab; filter OCR results below threshold in _on_ocr_results before passing to pipeline/preview
+- [ ] FEAT-session-summary: After OCR in _on_ocr_results, show a non-modal status bar summary: total raw blocks, kept blocks after filter, average confidence of kept blocks
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -44,3 +44,4 @@ FEAT-capture-counter-reset complete. 918 passed, 124 skipped. Ready for FEAT-ocr
 - [x] FEAT-export-formats: output/plain_text_formatter.py — PlainTextFormatter(OutputFormatter, register_as="txt"): format() sorts numerically, emits "── Chapter N ──" headers + text lines + blank lines, encode("utf-8"); file_extension() = "txt". MainWindow: QComboBox import; _export_fmt_combo (EPUB/Plain Text); _trigger_export dispatches on currentData() — sets ext, file_filter, dialog_title, formatter. Export btn label → "Export…". 6 formatter source-scan + 10 MW source-scan + 10 unit + 3 @gui+@skip. (879 passed, 117 skipped).
 - [x] FEAT-markdown-formatter: output/markdown_formatter.py — MarkdownFormatter(OutputFormatter, register_as="md"): format() sorts numerically, emits "## Chapter N" heading + blank line + text lines (each followed by blank), encode("utf-8"); file_extension() = "md"; no separator lines. MainWindow: import MarkdownFormatter; add "Markdown"/"md" combo item; extend _EXT_MAP/_FILTER_MAP/_TITLE_MAP/_FORMATTER_MAP with "md" key. Fixed 3 stale source-scan assertions in test_plain_text_formatter.py after refactor to dict dispatch. 7 formatter source-scan + 5 MW source-scan + 11 unit + 2 @gui+@skip. (903 passed, 119 skipped).
 - [x] FEAT-capture-counter-reset: _reset_count_btn QPushButton ("Reset Count", initially disabled) in count row. _reset_capture_count(): guards is_idle + session not None; clears _ocr_results, sets count label "0", disables export btn, calls _clear_preview(), shows status message. _update_ui_for_state enables btn when is_idle + has_session. 12 source-scan + 3 logic + 5 @gui+@skip. (918 passed, 124 skipped).
+- [x] FEAT-ocr-confidence-filter: SettingsDialog Pipeline tab: new "OCR Confidence Filter" QGroupBox with _ocr_min_confidence QDoubleSpinBox(0.0–1.0, step 0.05, decimals 2). _load_values reads ocr_min_confidence (default 0.0); _save_values writes it. MainWindow _on_ocr_results: reads min_conf; if > 0.0 filters results list by r.confidence >= min_conf before storing. 5 settings source-scan + 4 MW source-scan + 8 logic + 5 @gui+@skip. (935 passed, 129 skipped).
