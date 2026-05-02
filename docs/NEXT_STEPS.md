@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-word-wrap-toggle complete. 1076 passed, 159 skipped. Ready for FEAT-copy-section-only (Add a "Copy Section" button next to "Copy to Clipboard" that copies only OCR results from the current section folder).
+FEAT-copy-section-only complete. 1094 passed, 163 skipped. Ready for FEAT-result-search (Add a QLineEdit search bar above the preview pane; filters displayed results to lines containing the search string, live as user types).
 
 ## Up Next
-- [ ] FEAT-copy-section-only: Add a QPushButton "Copy Section" next to the existing Copy button; copies only _ocr_results whose image_id maps to an image in the current section folder (current_folder); disabled until session active + results present
+- [ ] FEAT-result-search: Add a QLineEdit (placeholder "Search results…") above the preview pane; on textChanged filter _ocr_results text lines containing the query (case-insensitive) and refresh the pane; empty query restores full view
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -53,3 +53,4 @@ FEAT-word-wrap-toggle complete. 1076 passed, 159 skipped. Ready for FEAT-copy-se
 - [x] FEAT-auto-new-section: SettingsDialog Capture tab: "Auto Section" QGroupBox with _auto_section_threshold QSpinBox (0-99, default 0, SpecialValueText "Disabled", suffix " captures"). _load_values reads auto_new_section_threshold; _save_values writes it. _trigger_capture: after successful save, reads threshold; if > 0 and current-section image_count >= threshold, calls _trigger_new_section. 9 settings source-scan + 4 MW source-scan + 8 logic + 4 @gui+@skip. (1044 passed, 152 skipped).
 - [x] FEAT-ocr-progress-detail: _ocr_start_time datetime initialised in __init__ and re-stamped before QThreadPool.start. _on_ocr_progress: computes elapsed = (now - start).total_seconds(), pct = done/total*100 (guard 0), status bar: "OCR: image N / M  (pct%)  —  Xs elapsed". 10 source-scan + 6 logic + 3 @gui+@skip. (1060 passed, 155 skipped).
 - [x] FEAT-word-wrap-toggle: View menu: _word_wrap_action QAction (checkable) → _toggle_word_wrap(checked): persists preview_word_wrap, calls _apply_word_wrap. _apply_word_wrap(enabled): sets QTextEdit.LineWrapMode.WidgetWidth or NoWrap on _preview_pane. Loaded on init (default True). 13 source-scan + 3 logic + 4 @gui+@skip. (1076 passed, 159 skipped).
+- [x] FEAT-copy-section-only: _copy_section_btn QPushButton ("Copy Section", disabled, tooltip) next to _copy_btn. _copy_section_to_clipboard(): guards None session, gets current_folder, filters _ocr_results by folder_path/image_id.png exists or image_id prefix, joins text, sets clipboard, shows status message. Enabled in _populate_preview when session+results; disabled in _clear_preview. 13 source-scan + 5 logic + 4 @gui+@skip. (1094 passed, 163 skipped).
