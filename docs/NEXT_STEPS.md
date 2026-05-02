@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-markdown-formatter complete. 903 passed, 119 skipped. Ready for FEAT-capture-counter-reset (Add a "Reset Count" button next to the image counter that clears the image count label and resets the internal counter).
+FEAT-capture-counter-reset complete. 918 passed, 124 skipped. Ready for FEAT-ocr-confidence-filter (Add a minimum confidence threshold setting to SettingsDialog; filter out low-confidence OCR results before pipeline/preview).
 
 ## Up Next
-- [ ] FEAT-capture-counter-reset: Add a "Reset Count" QPushButton next to the images-captured label; resets self._ocr_results and the count label to 0 while keeping the session and region active
+- [ ] FEAT-ocr-confidence-filter: Add a QDoubleSpinBox (0.0–1.0, default 0.0, step 0.05) to SettingsDialog Pipeline tab; filter OCR results below threshold in _on_ocr_results before passing to pipeline/preview
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -43,3 +43,4 @@ FEAT-markdown-formatter complete. 903 passed, 119 skipped. Ready for FEAT-captur
 - [x] FEAT-recent-sessions: File > Recent Sessions submenu. _record_recent_session(path): deduplicates, prepends, caps at _MAX_RECENT=5, saves to config["recent_sessions"], rebuilds menu. _update_recent_menu(): clears + populates from config, shows disabled placeholder when empty. _open_recent_session(path): guards is_idle + path.exists(), resumes CaptureSession, loads notes, records. Called on init and from _start_new_session. 18 source-scan + 7 logic + 6 @gui+@skip. (853 passed, 114 skipped).
 - [x] FEAT-export-formats: output/plain_text_formatter.py — PlainTextFormatter(OutputFormatter, register_as="txt"): format() sorts numerically, emits "── Chapter N ──" headers + text lines + blank lines, encode("utf-8"); file_extension() = "txt". MainWindow: QComboBox import; _export_fmt_combo (EPUB/Plain Text); _trigger_export dispatches on currentData() — sets ext, file_filter, dialog_title, formatter. Export btn label → "Export…". 6 formatter source-scan + 10 MW source-scan + 10 unit + 3 @gui+@skip. (879 passed, 117 skipped).
 - [x] FEAT-markdown-formatter: output/markdown_formatter.py — MarkdownFormatter(OutputFormatter, register_as="md"): format() sorts numerically, emits "## Chapter N" heading + blank line + text lines (each followed by blank), encode("utf-8"); file_extension() = "md"; no separator lines. MainWindow: import MarkdownFormatter; add "Markdown"/"md" combo item; extend _EXT_MAP/_FILTER_MAP/_TITLE_MAP/_FORMATTER_MAP with "md" key. Fixed 3 stale source-scan assertions in test_plain_text_formatter.py after refactor to dict dispatch. 7 formatter source-scan + 5 MW source-scan + 11 unit + 2 @gui+@skip. (903 passed, 119 skipped).
+- [x] FEAT-capture-counter-reset: _reset_count_btn QPushButton ("Reset Count", initially disabled) in count row. _reset_capture_count(): guards is_idle + session not None; clears _ocr_results, sets count label "0", disables export btn, calls _clear_preview(), shows status message. _update_ui_for_state enables btn when is_idle + has_session. 12 source-scan + 3 logic + 5 @gui+@skip. (918 passed, 124 skipped).

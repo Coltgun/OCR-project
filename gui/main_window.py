@@ -202,6 +202,10 @@ class MainWindow(QMainWindow):
         self._capture_btn = QPushButton("Capture (F9)")
         self._capture_btn.clicked.connect(self._trigger_capture)
         count_row.addWidget(self._capture_btn)
+        self._reset_count_btn = QPushButton("Reset Count")
+        self._reset_count_btn.setEnabled(False)
+        self._reset_count_btn.clicked.connect(self._reset_capture_count)
+        count_row.addWidget(self._reset_count_btn)
         root_layout.addLayout(count_row)
 
         root_layout.addStretch()
@@ -336,6 +340,7 @@ class MainWindow(QMainWindow):
         self._capture_btn.setEnabled(
             is_idle and has_session and has_region
         )
+        self._reset_count_btn.setEnabled(is_idle and has_session)
         self._new_section_btn.setEnabled(is_idle and has_session)
         self._ocr_btn.setEnabled(
             is_idle and has_session
@@ -739,6 +744,18 @@ class MainWindow(QMainWindow):
             f"Session resumed: {path}  |  Section {self._session.current_folder}"
         )
         self._update_ui_for_state(AppState.IDLE)
+
+    @Slot()
+    def _reset_capture_count(self) -> None:
+        """Clear OCR results, reset count label, disable export, clear preview."""
+        if not self._state_machine.is_idle or self._session is None:
+            return
+        self._ocr_results = []
+        self._count_label.setText("0")
+        self._export_btn.setEnabled(False)
+        self._clear_preview()
+        self._status_bar.showMessage("Capture count reset.")
+        logger.info("MainWindow: capture count reset.")
 
     def _load_notes(self) -> None:
         """Load notes.txt from the session root into the notes widget."""
