@@ -261,6 +261,15 @@ class SettingsDialog(QDialog):
 
         layout.addWidget(auto_group)
 
+        rotation_group = QGroupBox("Image Rotation")
+        rotation_form = QFormLayout(rotation_group)
+
+        self._rotation_mode = QComboBox()
+        self._rotation_mode.addItems(["none", "90cw", "90ccw", "180"])
+        rotation_form.addRow("Rotate captured image:", self._rotation_mode)
+
+        layout.addWidget(rotation_group)
+
         display_group = QGroupBox("Display")
         display_form = QFormLayout(display_group)
 
@@ -406,6 +415,9 @@ class SettingsDialog(QDialog):
         self._auto_section_threshold.setValue(
             int(cfg.get("auto_new_section_threshold", 0))
         )
+        rot = cfg.get_str("rotation_mode", "none")
+        idx = self._rotation_mode.findText(rot)
+        self._rotation_mode.setCurrentIndex(max(0, idx))
         self._preview_font_size.setValue(
             int(cfg.get("preview_font_size", 11))
         )
@@ -445,6 +457,7 @@ class SettingsDialog(QDialog):
             self._export_filename_template.text().strip() or "{session}_{timestamp}",
         )
         cfg.set("auto_new_section_threshold", self._auto_section_threshold.value())
+        cfg.set("rotation_mode", self._rotation_mode.currentText())
         cfg.set("preview_font_size", self._preview_font_size.value())
 
         # Hotkeys
