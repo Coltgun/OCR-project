@@ -95,3 +95,6 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_ocr_log_panel.py` — 7 handler source-scan + 19 main_window source-scan + 9 @gui+@skip tests. (664 passed, 49 skipped).
 - **FEAT-results-preview** `gui/main_window.py` — preview pane (`QTextEdit`, read-only, 200px max, placeholder) + `_preview_label` below action row. `_populate_preview(results)`: groups by `image_id`, inserts `── <id> ──` section headers, calls `setPlainText`, updates label with block count (singular/plural). `_clear_preview()`: clears pane + resets label to "—". Called from `_on_ocr_results`, `_start_new_session`, `_trigger_new_section`.
 - `tests/gui/test_results_preview.py` — 12 source-scan + 11 logic (empty/single/multi/grouping/order/mixed-ids) + 7 @gui+@skip. (687 passed, 56 skipped).
+- **FEAT-about-dialog** `gui/about_dialog.py` — new file: `AboutDialog(QDialog)` with `APP_NAME`, `APP_VERSION`, `GITHUB_URL` module constants; shows title, version, Python + PySide6 runtime versions, clickable GitHub `QLabel` (`setOpenExternalLinks`), `StandardButton.Close`.
+- `gui/main_window.py` — imports `AboutDialog`; Help menu with `&About…` action wired to `_open_about()` slot calling `AboutDialog(parent=self).exec()`.
+- `tests/gui/test_about_dialog.py` — 14 source-scan + 5 constant + 6 MainWindow wiring + 6 @gui+@skip. (712 passed, 62 skipped).
