@@ -130,3 +130,20 @@ def make_vram_manager(config: dict) -> VRAMManager:
 
 
 vram_manager: VRAMManager = VRAMManager(total_mb=VRAM_TIER_DEFAULTS["8gb"])
+
+
+def init_from_config(config: dict) -> None:
+    """Re-initialise the module-level singleton from the application config.
+
+    Call this once in main.py after loading config, before any model loads.
+
+    Args:
+        config: Full application config dict (from ConfigManager.data).
+    """
+    global vram_manager
+    vram_manager = make_vram_manager(config)
+    logger.info(
+        "VRAMManager singleton re-initialised: %d MB (tier=%s).",
+        vram_manager.total_mb,
+        config.get("vram_tier", "8gb"),
+    )
