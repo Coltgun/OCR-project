@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-embedding-dedup complete. 453 passed, 9 skipped. Ready for FEAT-bert-correction (MacBERT Chinese Spell Correction stage).
+FEAT-bert-correction complete. 477 passed, 9 skipped. Ready for FEAT-llm-correction (LLM-based correction stage via Ollama).
 
 ## Up Next
-- [ ] FEAT-bert-correction: MacBERT CSC stage — pycorrector MacBertCorrector, subprocess-isolated (torch), PostProcessStage(register_as="bert_correction")
+- [ ] FEAT-llm-correction: LLM correction stage — Ollama local API, PostProcessStage(register_as="llm_correction"), no subprocess needed (openai library, no torch)
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
 - [x] ARCH-002: Define All ABCs — OCREngine, PostProcessStage, OutputFormatter, InputSource, LLMProvider + 4 module stubs (77 tests passing)
@@ -19,3 +19,4 @@ FEAT-embedding-dedup complete. 453 passed, 9 skipped. Ready for FEAT-bert-correc
 - [x] FEAT-single-ocr: FlatInputSource (register_as="flat"), single/list path init, numeric sort with non-numeric fallback, all chapter 1, 27 tests incl. P0 regression. (410 passed, 9 skipped).
 - [x] FEAT-dedup: MinHashDeduplicationStage (register_as="minhash_dedup"), char-bigram shingles, MinHashLSH, confidence-winner group resolution, reading-order preserved. Updated test_pipeline.py to reflect minhash_dedup now registered. (431 passed, 9 skipped).
 - [x] FEAT-embedding-dedup: EmbeddingDeduplicationStage (register_as="embedding_dedup"), BGE-M3 subprocess isolation, pairwise cosine similarity, group resolution, graceful fallback on subprocess failure. 22 tests. (453 passed, 9 skipped).
+- [x] FEAT-bert-correction: BertCorrectionStage (register_as="bert_correction"), MacBertCorrector subprocess isolation, text replacement with field preservation, length-mismatch + failure fallback. Updated test_pipeline.py. 23 tests. (477 passed, 9 skipped).
