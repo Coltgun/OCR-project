@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-config-ui complete. 568 passed, 22 skipped. Ready for FEAT-progress-ui (Progress bar / status updates during OCR and export).
+FEAT-progress-ui complete. 578 passed, 28 skipped. Ready for FEAT-pipeline-config (Pipeline reads ocr_pipeline_mode from config and applies it at run time).
 
 ## Up Next
-- [ ] FEAT-progress-ui: Progress reporting — QProgressBar in status bar, OCRWorker/EpubFormatter emit progress signals, MainWindow displays them
+- [ ] FEAT-pipeline-config: MainWindow passes ocr_pipeline_mode from ConfigManager into Pipeline at OCR run time, replacing the hardcoded mode
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
 - [x] ARCH-002: Define All ABCs — OCREngine, PostProcessStage, OutputFormatter, InputSource, LLMProvider + 4 module stubs (77 tests passing)
@@ -25,3 +25,4 @@ FEAT-config-ui complete. 568 passed, 22 skipped. Ready for FEAT-progress-ui (Pro
 - [x] FEAT-hybrid-correction: HybridCorrectionStage (register_as="hybrid_correction"), confidence-tier routing (high/mid/low), delegates to bert_correction/llm_correction via _apply_stage(), merge preserves reading order, invalid-threshold fallback. Updated test_pipeline.py. 17 tests. (538 passed, 9 skipped).
 - [x] FEAT-openrouter-dedup: OpenRouterDeduplicationStage (register_as="openrouter_dedup"), LLM group-assignment protocol, _request_assignments() (fence strip, range validation), _resolve_groups() confidence winner, graceful fallback. test_pipeline.py skip test upgraded to patch PIPELINE_MODES. 22 tests. (561 passed, 9 skipped).
 - [x] FEAT-config-ui: SettingsDialog (4-tab QDialog: Pipeline/API Keys/VRAM/Capture), wired into MainWindow Tools menu (Ctrl+,), _open_settings slot reloads live config on accept. 6 headless tests + 13 @gui+@skip tests. (568 passed, 22 skipped).
+- [x] FEAT-progress-ui: QProgressBar (200px, permanent in status bar, hidden when idle). OCR: shown on first progress(int,int) signal, value tracks done/total, hidden on results_ready or error. Export: indeterminate (0,0) during format, hidden on success or error. 10 headless + 6 @gui+@skip tests. (578 passed, 28 skipped).
