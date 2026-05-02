@@ -457,6 +457,10 @@ class MainWindow(QMainWindow):
             self._refresh_section_count_list()
             self._update_thumbnail(save_path)
             self._state_machine.capture_done()
+            threshold = int(self._cfg.get("auto_new_section_threshold", 0))
+            if threshold > 0 and self._session.image_count(self._session.current_folder) >= threshold:
+                logger.info("MainWindow: auto new section (threshold=%d).", threshold)
+                self._trigger_new_section()
         except Exception as exc:
             logger.error("MainWindow: capture failed: %s", exc)
             self._status_bar.showMessage(f"Capture error: {exc}")

@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-section-image-count complete. 1023 passed, 148 skipped. Ready for FEAT-auto-new-section (Config toggle to automatically start a new section after a configurable number of captures).
+FEAT-auto-new-section complete. 1044 passed, 152 skipped. Ready for FEAT-ocr-progress-detail (Show per-image OCR progress in the status bar: "OCR: image N / M").
 
 ## Up Next
-- [ ] FEAT-auto-new-section: Add a QSpinBox (0 = disabled, 1-99) to SettingsDialog Capture tab; after each capture _trigger_capture checks if current-section count >= threshold and, if so, auto-calls _trigger_new_section
+- [ ] FEAT-ocr-progress-detail: Connect OCRWorker progress signal to a slot that updates the status bar with "OCR: image N / M"; wire _on_ocr_progress to show this message alongside the progress bar
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -50,3 +50,4 @@ FEAT-section-image-count complete. 1023 passed, 148 skipped. Ready for FEAT-auto
 - [x] FEAT-image-thumbnail-preview: _thumbnail_label QLabel (120×90, AlignCenter, border stylesheet, tooltip) below count row. _update_thumbnail(path): loads QPixmap, scales KeepAspectRatio+SmoothTransformation, guards isNull. _clear_thumbnail(): clears label. Called: _update_thumbnail after successful capture; _clear_thumbnail on new session, session resume, new section, reset count. QPixmap added to QtGui imports. 16 source-scan + 3 logic + 4 @gui+@skip. (987 passed, 140 skipped).
 - [x] FEAT-export-filename-template: SettingsDialog Capture tab: _export_filename_template QLineEdit in Session Storage group; placeholder "{session}_{timestamp}"; _load_values reads export_filename_template; _save_values writes it (fallback to default on empty). _trigger_export: reads template, substitutes {session} and {timestamp}, builds default_stem, default_name. 6 settings source-scan + 4 MW source-scan + 8 logic + 4 @gui+@skip. (1005 passed, 144 skipped).
 - [x] FEAT-section-image-count: _section_count_list QListWidget (max 70px, initially disabled, tooltip) below section row. _refresh_section_count_list(): clears, guards None session (disables), iterates range(1, current_folder+1), adds "Section N: M image(s)" items. Called from _update_session_labels, after capture, after new section. QListWidget added to imports. 14 source-scan + 4 logic + 4 @gui+@skip. (1023 passed, 148 skipped).
+- [x] FEAT-auto-new-section: SettingsDialog Capture tab: "Auto Section" QGroupBox with _auto_section_threshold QSpinBox (0-99, default 0, SpecialValueText "Disabled", suffix " captures"). _load_values reads auto_new_section_threshold; _save_values writes it. _trigger_capture: after successful save, reads threshold; if > 0 and current-section image_count >= threshold, calls _trigger_new_section. 9 settings source-scan + 4 MW source-scan + 8 logic + 4 @gui+@skip. (1044 passed, 152 skipped).

@@ -249,6 +249,18 @@ class SettingsDialog(QDialog):
 
         layout.addWidget(session_group)
 
+        auto_group = QGroupBox("Auto Section")
+        auto_form = QFormLayout(auto_group)
+
+        self._auto_section_threshold = QSpinBox()
+        self._auto_section_threshold.setRange(0, 99)
+        self._auto_section_threshold.setValue(0)
+        self._auto_section_threshold.setSpecialValueText("Disabled")
+        self._auto_section_threshold.setSuffix(" captures")
+        auto_form.addRow("New section after:", self._auto_section_threshold)
+
+        layout.addWidget(auto_group)
+
         display_group = QGroupBox("Display")
         display_form = QFormLayout(display_group)
 
@@ -391,6 +403,9 @@ class SettingsDialog(QDialog):
         self._export_filename_template.setText(
             cfg.get_str("export_filename_template", "{session}_{timestamp}")
         )
+        self._auto_section_threshold.setValue(
+            int(cfg.get("auto_new_section_threshold", 0))
+        )
         self._preview_font_size.setValue(
             int(cfg.get("preview_font_size", 11))
         )
@@ -429,6 +444,7 @@ class SettingsDialog(QDialog):
             "export_filename_template",
             self._export_filename_template.text().strip() or "{session}_{timestamp}",
         )
+        cfg.set("auto_new_section_threshold", self._auto_section_threshold.value())
         cfg.set("preview_font_size", self._preview_font_size.value())
 
         # Hotkeys
