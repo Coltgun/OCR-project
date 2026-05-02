@@ -151,3 +151,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_result_search.py` — 11 source-scan + 7 logic + 4 @gui+@skip. (1112 passed, 167 skipped).
 - **FEAT-status-bar-session-info** `gui/main_window.py` — `_session_info_label` `QLabel` (tooltip `"Current session and total image count"`) added as permanent widget after `_pipeline_mode_label`. `_update_session_info_label()`: guards `None` session (sets `""`); otherwise sets `f"Session: {root.name}  |  {total} image(s)"`. Called from `_update_session_labels` and after each successful capture.
 - `tests/gui/test_status_bar_session_info.py` — 10 source-scan + 5 logic + 3 @gui+@skip. (1127 passed, 170 skipped).
+- **FEAT-rotation-mode-ui** `gui/settings_dialog.py` — Capture tab: `"Image Rotation"` `QGroupBox`; `_rotation_mode` `QComboBox` with items `["none", "90cw", "90ccw", "180"]`; row `"Rotate captured image:"`. `_load_values`: `get_str("rotation_mode","none")`, `findText`, `setCurrentIndex(max(0,idx))`. `_save_values`: `set("rotation_mode", currentText())`.
+- `tests/gui/test_rotation_mode_ui.py` — 8 source-scan + 6 logic + 4 @gui+@skip. (1141 passed, 174 skipped).
