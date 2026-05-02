@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-ocr-confidence-filter complete. 935 passed, 129 skipped. Ready for FEAT-session-summary (Show a summary dialog after OCR completes: total blocks, filtered blocks, sections, average confidence).
+FEAT-session-summary complete. 955 passed, 132 skipped. Ready for FEAT-pipeline-mode-indicator (Show the active pipeline mode name in the status bar whenever OCR completes or the setting changes).
 
 ## Up Next
-- [ ] FEAT-session-summary: After OCR in _on_ocr_results, show a non-modal status bar summary: total raw blocks, kept blocks after filter, average confidence of kept blocks
+- [ ] FEAT-pipeline-mode-indicator: After OCR completes and when settings are accepted, update a permanent QLabel in the status bar showing the current pipeline mode (e.g. "Mode: LOCAL_FAST")
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -45,3 +45,4 @@ FEAT-ocr-confidence-filter complete. 935 passed, 129 skipped. Ready for FEAT-ses
 - [x] FEAT-markdown-formatter: output/markdown_formatter.py — MarkdownFormatter(OutputFormatter, register_as="md"): format() sorts numerically, emits "## Chapter N" heading + blank line + text lines (each followed by blank), encode("utf-8"); file_extension() = "md"; no separator lines. MainWindow: import MarkdownFormatter; add "Markdown"/"md" combo item; extend _EXT_MAP/_FILTER_MAP/_TITLE_MAP/_FORMATTER_MAP with "md" key. Fixed 3 stale source-scan assertions in test_plain_text_formatter.py after refactor to dict dispatch. 7 formatter source-scan + 5 MW source-scan + 11 unit + 2 @gui+@skip. (903 passed, 119 skipped).
 - [x] FEAT-capture-counter-reset: _reset_count_btn QPushButton ("Reset Count", initially disabled) in count row. _reset_capture_count(): guards is_idle + session not None; clears _ocr_results, sets count label "0", disables export btn, calls _clear_preview(), shows status message. _update_ui_for_state enables btn when is_idle + has_session. 12 source-scan + 3 logic + 5 @gui+@skip. (918 passed, 124 skipped).
 - [x] FEAT-ocr-confidence-filter: SettingsDialog Pipeline tab: new "OCR Confidence Filter" QGroupBox with _ocr_min_confidence QDoubleSpinBox(0.0–1.0, step 0.05, decimals 2). _load_values reads ocr_min_confidence (default 0.0); _save_values writes it. MainWindow _on_ocr_results: reads min_conf; if > 0.0 filters results list by r.confidence >= min_conf before storing. 5 settings source-scan + 4 MW source-scan + 8 logic + 5 @gui+@skip. (935 passed, 129 skipped).
+- [x] FEAT-session-summary: _on_ocr_results computes raw_count, kept_count (after confidence filter), avg_conf (0.0 if empty), filtered_note (only shown if raw != kept). Status bar message: "OCR complete: N block(s) kept  (X filtered)  |  avg confidence: 0.XX". 10 source-scan + 10 logic + 3 @gui+@skip. (955 passed, 132 skipped).

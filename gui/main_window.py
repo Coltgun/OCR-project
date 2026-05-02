@@ -483,15 +483,26 @@ class MainWindow(QMainWindow):
 
     @Slot(list)
     def _on_ocr_results(self, results: list[OCRResult]) -> None:
+        raw_count = len(results)
         min_conf = float(self._cfg.get("ocr_min_confidence", 0.0))
         if min_conf > 0.0:
             results = [r for r in results if r.confidence >= min_conf]
+        kept_count = len(results)
+        avg_conf = (
+            sum(r.confidence for r in results) / kept_count
+            if kept_count > 0
+            else 0.0
+        )
         self._ocr_results = results
         self._export_btn.setEnabled(True)
         self._state_machine.ocr_done()
         self._progress_bar.setVisible(False)
+        filtered_note = (
+            f"  ({raw_count - kept_count} filtered)" if raw_count != kept_count else ""
+        )
         self._status_bar.showMessage(
-            f"OCR complete: {len(results)} text block(s) extracted."
+            f"OCR complete: {kept_count} block(s) kept{filtered_note}"
+            f"  |  avg confidence: {avg_conf:.2f}"
         )
         self._populate_preview(results)
         self._update_ui_for_state(AppState.IDLE)
