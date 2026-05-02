@@ -6,7 +6,7 @@ Sections:
   API Keys    — OpenRouter API key (password field), Ollama base URL
   VRAM        — VRAM tier selector (8gb / 16gb)
   Capture     — working root dir
-  Hotkeys     — key binding fields for each action (F1-F12 / escape)
+  Hotkeys     — 3-column QTableWidget (Action | Default | Override) for each binding
 
 Reads current values from ConfigManager on open; writes back and calls
 save() only when the user accepts.  Cancel leaves config unchanged.
@@ -25,12 +25,15 @@ from PySide6.QtWidgets import (
     QDoubleSpinBox,
     QFormLayout,
     QGroupBox,
+    QHeaderView,
     QLabel,
     QLineEdit,
     QPushButton,
     QScrollArea,
     QSpinBox,
     QTabWidget,
+    QTableWidget,
+    QTableWidgetItem,
     QVBoxLayout,
     QWidget,
 )
@@ -237,39 +240,58 @@ class SettingsDialog(QDialog):
 
     # --- Hotkeys tab ----------------------------------------------------
 
+    _ACTION_LABELS: dict[str, str] = {
+        "capture": "Capture screenshot",
+        "new_section": "New section",
+        "send_to_ocr": "Run OCR",
+        "reset_area": "Select region",
+        "toggle_overlay": "Toggle border overlay",
+        "cancel": "Cancel",
+    }
+
     def _build_hotkeys_tab(self) -> QWidget:
         widget = QWidget()
         layout = QVBoxLayout(widget)
         layout.setSpacing(10)
 
-        _VALID_KEYS = ", ".join(sorted(_PYNPUT_KEY_MAP.keys()))
-
-        key_group = QGroupBox("Key Bindings")
-        key_form = QFormLayout(key_group)
-
-        _ACTION_LABELS: dict[str, str] = {
-            "capture": "Capture screenshot:",
-            "new_section": "New section:",
-            "send_to_ocr": "Run OCR:",
-            "reset_area": "Select region:",
-            "toggle_overlay": "Toggle border overlay:",
-            "cancel": "Cancel:",
-        }
+        self._hotkeys_table = QTableWidget(len(self._ACTION_LABELS), 3)
+        self._hotkeys_table.setHorizontalHeaderLabels(["Action", "Default", "Override"])
+        self._hotkeys_table.horizontalHeader().setSectionResizeMode(
+            0, QHeaderView.ResizeMode.Stretch
+        )
+        self._hotkeys_table.horizontalHeader().setSectionResizeMode(
+            1, QHeaderView.ResizeMode.ResizeToContents
+        )
+        self._hotkeys_table.horizontalHeader().setSectionResizeMode(
+            2, QHeaderView.ResizeMode.ResizeToContents
+        )
+        self._hotkeys_table.verticalHeader().setVisible(False)
+        self._hotkeys_table.setSelectionMode(QTableWidget.SelectionMode.NoSelection)
+        self._hotkeys_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
 
         self._hotkey_edits: dict[str, QLineEdit] = {}
-        for action, label in _ACTION_LABELS.items():
+        for row, (action, label) in enumerate(self._ACTION_LABELS.items()):
+            action_item = QTableWidgetItem(label)
+            action_item.setFlags(Qt.ItemFlag.ItemIsEnabled)
+            self._hotkeys_table.setItem(row, 0, action_item)
+
+            default_item = QTableWidgetItem(_DEFAULT_BINDINGS.get(action, "").upper())
+            default_item.setFlags(Qt.ItemFlag.ItemIsEnabled)
+            default_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            self._hotkeys_table.setItem(row, 1, default_item)
+
             edit = QLineEdit()
             edit.setPlaceholderText(_DEFAULT_BINDINGS.get(action, ""))
             edit.setMaxLength(20)
-            key_form.addRow(label, edit)
+            self._hotkeys_table.setCellWidget(row, 2, edit)
             self._hotkey_edits[action] = edit
 
-        layout.addWidget(key_group)
+        layout.addWidget(self._hotkeys_table)
 
+        _VALID_KEYS = ", ".join(sorted(_PYNPUT_KEY_MAP.keys()))
         note = QLabel(
             f"Valid keys: {_VALID_KEYS}\n"
-            "Leave blank to use the default. Changes apply after restart or "
-            "when Settings is accepted."
+            "Leave Override blank to use the default. Changes apply when Settings is accepted."
         )
         note.setWordWrap(True)
         note.setStyleSheet("color: #666; font-size: 11px;")
