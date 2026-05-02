@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-capture-delay complete. 1163 passed, 177 skipped. Ready for FEAT-hotkey-display (Show the currently bound hotkeys for F8/F9/F10/F11 as read-only tooltips on each action button so users can see what keys are active).
+FEAT-hotkey-display complete. 1180 passed, 182 skipped. Ready for FEAT-notes-autosave (Auto-save the notes QTextEdit content to session_root/notes.txt on every textChanged signal with a 2-second QTimer debounce; load on session open/resume).
 
 ## Up Next
-- [ ] FEAT-hotkey-display: After hotkey reload in _connect_signals / settings accept, call _update_button_hotkey_labels() which reads keybindings from config and updates the tooltip on each action button (capture, new section, run OCR, select region) to show the bound key
+- [ ] FEAT-notes-autosave: MainWindow: QTimer _notes_save_timer (singleShot, 2000 ms) connected to _save_notes(); _notes_pane.textChanged connected to _notes_save_timer.start(2000). _save_notes(): writes _notes_pane.toPlainText() to session.root/notes.txt if session active. _load_notes(): reads notes.txt if exists, sets pane text (blockSignals). Called on session start and resume.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -58,3 +58,4 @@ FEAT-capture-delay complete. 1163 passed, 177 skipped. Ready for FEAT-hotkey-dis
 - [x] FEAT-status-bar-session-info: _session_info_label QLabel (tooltip "Current session and total image count") added as permanent widget after _pipeline_mode_label. _update_session_info_label(): guards None session (clears); sets f"Session: {root.name}  |  {total} image(s)". Called from _update_session_labels and after each successful capture. 10 source-scan + 5 logic + 3 @gui+@skip. (1127 passed, 170 skipped).
 - [x] FEAT-rotation-mode-ui: SettingsDialog Capture tab: "Image Rotation" QGroupBox; _rotation_mode QComboBox(none/90cw/90ccw/180); row "Rotate captured image:". _load_values: get_str("rotation_mode","none"), findText, setCurrentIndex(max(0,idx)). _save_values: set("rotation_mode", currentText()). 8 source-scan + 6 logic + 4 @gui+@skip. (1141 passed, 174 skipped).
 - [x] FEAT-capture-delay: SettingsDialog Capture tab: "Capture Delay" QGroupBox; _capture_delay QDoubleSpinBox(0.0–5.0 s, step 0.1, SpecialValueText "None", suffix " s"); loads capture_delay_ms/1000; saves value*1000. MainWindow: import time; _trigger_capture reads delay_s = capture_delay_ms/1000; if > 0 time.sleep(delay_s) before grab. 9 settings source-scan + 5 MW source-scan + 8 logic + 3 @gui+@skip. (1163 passed, 177 skipped).
+- [x] FEAT-hotkey-display: _select_region_btn stored as instance var. _update_button_hotkey_labels(): imports _DEFAULT_BINDINGS, merges config keybindings override, sets tooltip f"{label}  [{KEY}]" on all 4 action buttons. Called on __init__ and after settings accept. 9 source-scan + 8 logic + 5 @gui+@skip. (1180 passed, 182 skipped).
