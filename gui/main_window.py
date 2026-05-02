@@ -52,6 +52,7 @@ from gui.settings_dialog import SettingsDialog
 from ocr.pipeline import Pipeline
 from ocr.worker import OCRWorker
 from output.epub_formatter import EpubFormatter
+from output.markdown_formatter import MarkdownFormatter
 from output.plain_text_formatter import PlainTextFormatter
 from utils.config_manager import ConfigManager
 
@@ -214,6 +215,7 @@ class MainWindow(QMainWindow):
         self._export_fmt_combo = QComboBox()
         self._export_fmt_combo.addItem("EPUB", userData="epub")
         self._export_fmt_combo.addItem("Plain Text", userData="txt")
+        self._export_fmt_combo.addItem("Markdown", userData="md")
         action_row.addWidget(self._export_fmt_combo)
 
         self._export_btn = QPushButton("Export…")
@@ -515,10 +517,21 @@ class MainWindow(QMainWindow):
         session_name = (
             self._session.root.name if self._session else "export"
         )
-        ext = "epub" if is_epub else "txt"
+        _EXT_MAP = {"epub": "epub", "txt": "txt", "md": "md"}
+        _FILTER_MAP = {
+            "epub": "EPUB files (*.epub)",
+            "txt": "Text files (*.txt)",
+            "md": "Markdown files (*.md)",
+        }
+        _TITLE_MAP = {
+            "epub": "Save EPUB",
+            "txt": "Save Plain Text",
+            "md": "Save Markdown",
+        }
+        ext = _EXT_MAP.get(fmt, "epub")
         default_name = f"{session_name}_{timestamp}.{ext}"
-        file_filter = "EPUB files (*.epub)" if is_epub else "Text files (*.txt)"
-        dialog_title = "Save EPUB" if is_epub else "Save Plain Text"
+        file_filter = _FILTER_MAP.get(fmt, "EPUB files (*.epub)")
+        dialog_title = _TITLE_MAP.get(fmt, "Save EPUB")
         save_path, _ = QFileDialog.getSaveFileName(
             self,
             dialog_title,
@@ -540,7 +553,12 @@ class MainWindow(QMainWindow):
         self._progress_bar.setRange(0, 0)
         self._progress_bar.setVisible(True)
         try:
-            formatter = EpubFormatter() if is_epub else PlainTextFormatter()
+            _FORMATTER_MAP = {
+                "epub": EpubFormatter,
+                "txt": PlainTextFormatter,
+                "md": MarkdownFormatter,
+            }
+            formatter = _FORMATTER_MAP.get(fmt, EpubFormatter)()
             output_bytes = formatter.format(chapters, self._cfg)
             Path(save_path).write_bytes(output_bytes)
             logger.info("MainWindow: %s saved to '%s'.", ext.upper(), save_path)
