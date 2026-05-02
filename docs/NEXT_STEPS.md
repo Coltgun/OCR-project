@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-result-search complete. 1112 passed, 167 skipped. Ready for FEAT-status-bar-session-info (Show session root name and total image count as a permanent QLabel in the status bar, updated on every capture and session start).
+FEAT-status-bar-session-info complete. 1127 passed, 170 skipped. Ready for FEAT-rotation-mode-ui (Expose the rotation_mode config key in SettingsDialog Capture tab as a QComboBox with options none / 90cw / 90ccw / 180).
 
 ## Up Next
-- [ ] FEAT-status-bar-session-info: Add a permanent QLabel _session_info_label to the status bar; _update_session_info_label() sets text to "Session: {root.name}  |  {total} image(s)" or empty string when no session; called from _update_session_labels and after every capture
+- [ ] FEAT-rotation-mode-ui: SettingsDialog Capture tab: "Image Rotation" QGroupBox with _rotation_mode QComboBox (items: none, 90cw, 90ccw, 180); _load_values reads rotation_mode (default "none"); _save_values writes it
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -55,3 +55,4 @@ FEAT-result-search complete. 1112 passed, 167 skipped. Ready for FEAT-status-bar
 - [x] FEAT-word-wrap-toggle: View menu: _word_wrap_action QAction (checkable) → _toggle_word_wrap(checked): persists preview_word_wrap, calls _apply_word_wrap. _apply_word_wrap(enabled): sets QTextEdit.LineWrapMode.WidgetWidth or NoWrap on _preview_pane. Loaded on init (default True). 13 source-scan + 3 logic + 4 @gui+@skip. (1076 passed, 159 skipped).
 - [x] FEAT-copy-section-only: _copy_section_btn QPushButton ("Copy Section", disabled, tooltip) next to _copy_btn. _copy_section_to_clipboard(): guards None session, gets current_folder, filters _ocr_results by folder_path/image_id.png exists or image_id prefix, joins text, sets clipboard, shows status message. Enabled in _populate_preview when session+results; disabled in _clear_preview. 13 source-scan + 5 logic + 4 @gui+@skip. (1094 passed, 163 skipped).
 - [x] FEAT-result-search: _search_bar QLineEdit (placeholder "Search results…", clear button) above _preview_pane. _on_search_changed(query): strips+lower; filters _ocr_results to r.text containing query; empty query restores full list; rebuilds pane with image_id headers; updates label with "(filtered: N/M)" suffix. _clear_preview: blockSignals+clear. 11 source-scan + 7 logic + 4 @gui+@skip. (1112 passed, 167 skipped).
+- [x] FEAT-status-bar-session-info: _session_info_label QLabel (tooltip "Current session and total image count") added as permanent widget after _pipeline_mode_label. _update_session_info_label(): guards None session (clears); sets f"Session: {root.name}  |  {total} image(s)". Called from _update_session_labels and after each successful capture. 10 source-scan + 5 logic + 3 @gui+@skip. (1127 passed, 170 skipped).

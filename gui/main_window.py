@@ -325,6 +325,10 @@ class MainWindow(QMainWindow):
         self._pipeline_mode_label.setToolTip("Active pipeline mode")
         self._status_bar.addPermanentWidget(self._pipeline_mode_label)
 
+        self._session_info_label = QLabel()
+        self._session_info_label.setToolTip("Current session and total image count")
+        self._status_bar.addPermanentWidget(self._session_info_label)
+
         self._status_bar.showMessage("Ready. Start a new session to begin.")
 
         self._last_export_path: str = ""
@@ -475,6 +479,7 @@ class MainWindow(QMainWindow):
             logger.info("MainWindow: captured → %s", save_path)
             self._update_count_label()
             self._refresh_section_count_list()
+            self._update_session_info_label()
             self._update_thumbnail(save_path)
             self._state_machine.capture_done()
             threshold = int(self._cfg.get("auto_new_section_threshold", 0))
@@ -1014,6 +1019,17 @@ class MainWindow(QMainWindow):
         self._section_label.setText(str(self._session.current_folder))
         self._update_count_label()
         self._refresh_section_count_list()
+        self._update_session_info_label()
+
+    def _update_session_info_label(self) -> None:
+        """Refresh the permanent status bar session info label."""
+        if self._session is None:
+            self._session_info_label.setText("")
+            return
+        total = self._session.total_images()
+        self._session_info_label.setText(
+            f"Session: {self._session.root.name}  |  {total} image(s)"
+        )
 
     def _refresh_section_count_list(self) -> None:
         """Repopulate the per-section image count list from the current session."""
