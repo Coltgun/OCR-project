@@ -93,6 +93,7 @@ class MainWindow(QMainWindow):
         self._hotkeys.start()
         self._update_ui_for_state(AppState.IDLE)
         self._update_recent_menu()
+        self._update_pipeline_mode_label()
         dark = bool(self._cfg.get("dark_mode", False))
         self._dark_mode_action.setChecked(dark)
         self._apply_theme(dark)
@@ -285,6 +286,11 @@ class MainWindow(QMainWindow):
 
         self._state_label = QLabel("IDLE")
         self._status_bar.addPermanentWidget(self._state_label)
+
+        self._pipeline_mode_label = QLabel()
+        self._pipeline_mode_label.setToolTip("Active pipeline mode")
+        self._status_bar.addPermanentWidget(self._pipeline_mode_label)
+
         self._status_bar.showMessage("Ready. Start a new session to begin.")
 
         self._last_export_path: str = ""
@@ -688,11 +694,17 @@ class MainWindow(QMainWindow):
             self._cfg = self._config._data
             self._hotkeys.reload(self._cfg)
             self._apply_preview_font_size(int(self._cfg.get("preview_font_size", 11)))
+            self._update_pipeline_mode_label()
             logger.info("MainWindow: settings updated.")
 
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
+
+    def _update_pipeline_mode_label(self) -> None:
+        """Refresh the pipeline mode permanent status bar label from config."""
+        mode = str(self._cfg.get("ocr_pipeline_mode", "LOCAL_FAST"))
+        self._pipeline_mode_label.setText(f"Mode: {mode}")
 
     def _apply_preview_font_size(self, size: int) -> None:
         """Set the font point size on the OCR results preview pane."""
