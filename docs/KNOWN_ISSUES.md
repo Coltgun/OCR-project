@@ -4,14 +4,13 @@ Track active bugs here with reproduction steps. Remove entries when resolved.
 
 ## Active Issues
 
-### CUDA 13.1 Driver — PaddlePaddle GPU Incompatibility
+### CUDA 13.1 Driver — PaddlePaddle Compatibility Status
 **Discovered:** 2026-05-02  
-**Severity:** Blocker for GPU-accelerated OCR  
-**Details:** `nvidia-smi` reports Driver 591.74, CUDA Version 13.1. PaddlePaddle GPU 3.0.0 only supports CUDA up to 12.9. Installing from `cu126` index will install successfully but GPU acceleration may not work.  
-**Reproduction:** Run `nvidia-smi` — top-right shows `CUDA Version: 13.1`.  
-**Workarounds (pick one):**
-1. Install CUDA 12.x runtime toolkit alongside the driver (Windows supports multiple CUDA versions). Set `CUDA_PATH` to the 12.x install. PaddlePaddle will use it.
-2. Use `paddleocr` with `use_gpu=False` (CPU mode) until a CUDA 13.x-compatible PaddlePaddle release is available.
-3. Monitor https://www.paddlepaddle.org.cn for a cu131 package index release.
-
-**Recommended action before ENV-001:** Install CUDA 12.6 Toolkit from https://developer.nvidia.com/cuda-12-6-0-download-archive alongside the existing driver. Do NOT uninstall the driver.
+**Severity:** Monitor only (GPU appears functional)  
+**Details:** `nvidia-smi` reports Driver 591.74, CUDA Version 13.1. PaddlePaddle documentation states support up to CUDA 12.9. However, `verify_env.py` confirms that PaddlePaddle 3.3.0 (installed) IS compiled with CUDA and detects the GPU (1 GPU found). GPU acceleration appears to work despite the version mismatch.  
+**Status:** Functional — verify during actual OCR runs. If OOM or CUDA errors appear, install CUDA 12.6 Toolkit alongside the driver as a fallback.  
+**Also note:** PaddlePaddle 3.3.0 is installed (newer than the 3.0.0 documented in guidelines). API has changed:  
+  - `use_gpu` → `device="gpu"` or `device="cpu"`  
+  - `use_angle_cls` → `use_textline_orientation`  
+  
+  These deprecations are already reflected in `scripts/verify_env.py` and will need to be applied in `ocr/engines/paddle_engine.py` (ARCH-002).

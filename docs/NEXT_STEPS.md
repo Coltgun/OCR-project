@@ -4,8 +4,12 @@
 Project initialized. Phase 0 not yet started.
 
 ## Up Next
-- [ ] ENV-001: Verify environment (run nvidia-smi, confirm CUDA version, confirm conda env active)
-  - ⚠️ CUDA 13.1 detected — PaddlePaddle GPU requires CUDA ≤12.9. Install CUDA 12.6 Toolkit before ENV-001. See KNOWN_ISSUES.md.
+- [ ] ENV-001: Verify environment (run verify_env.py with chinese-ocr conda env active)
+  - ℹ️ Current Python: 3.10.6. Must be 3.11. Create `chinese-ocr` conda env with Python 3.11.
+  - ℹ️ PaddlePaddle 3.3.0 + PaddleOCR already installed in current env, GPU detected OK.
+  - ℹ️ CUDA 13.1 driver — GPU working despite version mismatch. See KNOWN_ISSUES.md.
+  - ℹ️ Missing packages: PySide6, pynput, pycorrector, datasketch, sentence-transformers, gitpython, openai, opencc, jieba.
+  - ℹ️ PaddlePaddle 3.3.0 API change: `use_gpu` → `device=`, `use_angle_cls` → `use_textline_orientation`.
 - [ ] ARCH-001: Core Registry System (core/registry.py, core/vram_manager.py, core/event_bus.py)
 - [ ] ARCH-002: Define All ABCs
 - [ ] ARCH-003: VRAM Tier Configuration
