@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-pipeline-mode-indicator complete. 968 passed, 136 skipped. Ready for FEAT-image-thumbnail-preview (Show a small thumbnail of the last captured image in the main window below the capture controls).
+FEAT-image-thumbnail-preview complete. 987 passed, 140 skipped. Ready for FEAT-export-filename-template (Allow the user to customise the export filename template via a QLineEdit in SettingsDialog; default "{session}_{timestamp}").
 
 ## Up Next
-- [ ] FEAT-image-thumbnail-preview: Add a QLabel (fixed 120×90) below the count row showing a scaled pixmap of the most recently captured image; cleared on new session/section/reset
+- [ ] FEAT-export-filename-template: Add a QLineEdit to SettingsDialog Capture tab for export_filename_template (default "{session}_{timestamp}"); _trigger_export substitutes {session} and {timestamp} to build default_name
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -47,3 +47,4 @@ FEAT-pipeline-mode-indicator complete. 968 passed, 136 skipped. Ready for FEAT-i
 - [x] FEAT-ocr-confidence-filter: SettingsDialog Pipeline tab: new "OCR Confidence Filter" QGroupBox with _ocr_min_confidence QDoubleSpinBox(0.0–1.0, step 0.05, decimals 2). _load_values reads ocr_min_confidence (default 0.0); _save_values writes it. MainWindow _on_ocr_results: reads min_conf; if > 0.0 filters results list by r.confidence >= min_conf before storing. 5 settings source-scan + 4 MW source-scan + 8 logic + 5 @gui+@skip. (935 passed, 129 skipped).
 - [x] FEAT-session-summary: _on_ocr_results computes raw_count, kept_count (after confidence filter), avg_conf (0.0 if empty), filtered_note (only shown if raw != kept). Status bar message: "OCR complete: N block(s) kept  (X filtered)  |  avg confidence: 0.XX". 10 source-scan + 10 logic + 3 @gui+@skip. (955 passed, 132 skipped).
 - [x] FEAT-pipeline-mode-indicator: _pipeline_mode_label QLabel (tooltip "Active pipeline mode") added as permanent status bar widget. _update_pipeline_mode_label() reads ocr_pipeline_mode from config (default "LOCAL_FAST"), sets text "Mode: {mode}". Called on __init__ and after settings accept. 8 source-scan + 5 logic + 4 @gui+@skip. (968 passed, 136 skipped).
+- [x] FEAT-image-thumbnail-preview: _thumbnail_label QLabel (120×90, AlignCenter, border stylesheet, tooltip) below count row. _update_thumbnail(path): loads QPixmap, scales KeepAspectRatio+SmoothTransformation, guards isNull. _clear_thumbnail(): clears label. Called: _update_thumbnail after successful capture; _clear_thumbnail on new session, session resume, new section, reset count. QPixmap added to QtGui imports. 16 source-scan + 3 logic + 4 @gui+@skip. (987 passed, 140 skipped).
