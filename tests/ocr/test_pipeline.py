@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+from unittest.mock import patch
 
 from core.types import OCRResult
 from ocr.pipeline import Pipeline, PIPELINE_MODES
@@ -78,10 +79,18 @@ class TestPipelineConstruction:
         p = Pipeline("HYBRID_TIERED", {})
         assert "hybrid_correction" in p.stage_ids
 
-    def test_unregistered_stage_skipped_gracefully(self) -> None:
-        """Stages not yet implemented (e.g. openrouter_dedup) are skipped silently."""
+    def test_openrouter_dedup_present_in_api_full(self) -> None:
         p = Pipeline("API_FULL", {})
-        assert "openrouter_dedup" not in p.stage_ids
+        assert "openrouter_dedup" in p.stage_ids
+
+    def test_unregistered_stage_skipped_gracefully(self) -> None:
+        """_build_stages skips unknown keys without raising."""
+        import ocr.pipeline as pipeline_mod
+        patched = {**PIPELINE_MODES, "TEST_SKIP": ["cleanup", "not_yet_implemented_stage"]}
+        with patch.object(pipeline_mod, "PIPELINE_MODES", patched):
+            p = Pipeline("TEST_SKIP", {})
+        assert "not_yet_implemented_stage" not in p.stage_ids
+        assert "cleanup" in p.stage_ids
 
     def test_available_modes_returns_all(self) -> None:
         modes = Pipeline.available_modes()

@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-hybrid-correction complete. 538 passed, 9 skipped. Ready for FEAT-openrouter-dedup (OpenRouter semantic deduplication stage).
+FEAT-openrouter-dedup complete. 561 passed, 9 skipped. All pipeline stages implemented. Ready for FEAT-config-ui (Settings dialog for pipeline mode, thresholds, API keys).
 
 ## Up Next
-- [ ] FEAT-openrouter-dedup: OpenRouter deduplication stage — uses OpenRouter API to semantically deduplicate results; register_as="openrouter_dedup"
+- [ ] FEAT-config-ui: Settings dialog — QDialog for pipeline mode selection, threshold sliders, API key fields, VRAM tier; reads/writes via ConfigManager
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
 - [x] ARCH-002: Define All ABCs — OCREngine, PostProcessStage, OutputFormatter, InputSource, LLMProvider + 4 module stubs (77 tests passing)
@@ -23,3 +23,4 @@ FEAT-hybrid-correction complete. 538 passed, 9 skipped. Ready for FEAT-openroute
 - [x] FEAT-llm-correction: LlmCorrectionStage (register_as="llm_correction"), Ollama local API via openai, JSON batch protocol, markdown fence stripping, per-batch fallback, partial-failure preservation. Updated test_pipeline.py. 22 tests. (500 passed, 9 skipped).
 - [x] FEAT-openrouter-correction: Extracted LlmCorrectionBase (shared batch/parse/fallback logic). OpenRouterCorrectionStage (register_as="openrouter_correction") adds OpenRouter base_url, env-var API key, HTTP-Referer/X-Title headers. LlmCorrectionStage refactored to thin subclass. Updated test_pipeline.py. 19 tests. (520 passed, 9 skipped).
 - [x] FEAT-hybrid-correction: HybridCorrectionStage (register_as="hybrid_correction"), confidence-tier routing (high/mid/low), delegates to bert_correction/llm_correction via _apply_stage(), merge preserves reading order, invalid-threshold fallback. Updated test_pipeline.py. 17 tests. (538 passed, 9 skipped).
+- [x] FEAT-openrouter-dedup: OpenRouterDeduplicationStage (register_as="openrouter_dedup"), LLM group-assignment protocol, _request_assignments() (fence strip, range validation), _resolve_groups() confidence winner, graceful fallback. test_pipeline.py skip test upgraded to patch PIPELINE_MODES. 22 tests. (561 passed, 9 skipped).
