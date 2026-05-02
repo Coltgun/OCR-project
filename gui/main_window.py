@@ -41,6 +41,7 @@ from capture.state import AppState, StateMachine
 from core.types import Chapter, OCRResult
 from gui.overlay import CaptureOverlay, RegionBorderOverlay
 from gui.session_dialog import SessionDialog
+from gui.settings_dialog import SettingsDialog
 from ocr.pipeline import Pipeline
 from ocr.worker import OCRWorker
 from output.epub_formatter import EpubFormatter
@@ -105,6 +106,12 @@ class MainWindow(QMainWindow):
         self._toggle_border_action = QAction("Toggle Region Border (F7)", self)
         self._toggle_border_action.triggered.connect(self._toggle_border_overlay)
         view_menu.addAction(self._toggle_border_action)
+
+        tools_menu = menu_bar.addMenu("&Tools")
+        settings_action = QAction("&Settings…", self)
+        settings_action.setShortcut(QKeySequence("Ctrl+,"))
+        settings_action.triggered.connect(self._open_settings)
+        tools_menu.addAction(settings_action)
 
     def _build_central_widget(self) -> None:
         central = QWidget()
@@ -417,6 +424,14 @@ class MainWindow(QMainWindow):
         else:
             if self._capture_region is not None:
                 self._border_overlay.show()
+
+    @Slot()
+    def _open_settings(self) -> None:
+        """Open the Settings dialog; reload live config dict on accept."""
+        dlg = SettingsDialog(self._config, parent=self)
+        if dlg.exec() == SettingsDialog.DialogCode.Accepted:
+            self._cfg = self._config._data
+            logger.info("MainWindow: settings updated.")
 
     # ------------------------------------------------------------------
     # Helpers
