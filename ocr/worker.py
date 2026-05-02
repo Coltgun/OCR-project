@@ -30,6 +30,7 @@ from PIL import Image as PILImage
 from PySide6.QtCore import QObject, QRunnable, Signal, Slot
 
 from core.types import BoundingBox, OCRResult
+from ocr.pipeline import Pipeline, PIPELINE_MODES, _DEFAULT_MODE
 
 logger = logging.getLogger(__name__)
 
@@ -89,6 +90,20 @@ class OCRWorker(QRunnable):
             for page in all_results
             for r in page
         ]
+
+        mode = str(self._config.get("ocr_pipeline_mode", _DEFAULT_MODE))
+        if mode not in PIPELINE_MODES:
+            logger.warning(
+                "OCRWorker: unknown pipeline mode '%s', falling back to '%s'.",
+                mode, _DEFAULT_MODE,
+            )
+            mode = _DEFAULT_MODE
+
+        try:
+            pipeline = Pipeline(mode, self._config)
+            ocr_results = pipeline.process(ocr_results)
+        except Exception as exc:
+            logger.error("OCRWorker: pipeline failed: %s — emitting raw results.", exc)
 
         self.signals.results_ready.emit(ocr_results)
 
