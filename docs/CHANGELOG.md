@@ -51,3 +51,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - **FEAT-main-window** `conftest.py` — session-wide pytest config; `gui` marker for QApplication-dependent tests; PySide6 version constraint note.
 - **FEAT-main-window** Bug: PySide6 6.8.x + conda-forge cv2 mutually incompatible (DLL conflict). Fix: pin PySide6 >=6.11. Documented in `docs/KNOWN_ISSUES.md`.
 - `tests/gui/test_session_dialog.py` — 6 headless tests (name validation, delete helper); 9 `@pytest.mark.gui` tests skipped in headless mode. (354 passed, 9 skipped).
+- **FEAT-batch-ocr** `input/folder_input.py` — `FolderInputSource(register_as="folder")`: `_collect_chapter_dirs()` + `_collect_images()` with P0 numeric int() sort, non-numeric skip, `_load_image()` cv2 with None guard, `image_id = "{chapter}/{stem}"` encoding, `_resolve_root()` from override or `batch_input_dir` config key.
+- `tests/input/test_folder_input.py` — 29 tests: registry, resolve_root errors, P0 chapter+image numeric ordering, lexicographic regression guards (1–11), multi-ext images, empty chapter skip, None imread skip. (383 passed, 9 skipped).
