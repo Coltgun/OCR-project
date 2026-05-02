@@ -270,6 +270,16 @@ class SettingsDialog(QDialog):
 
         layout.addWidget(rotation_group)
 
+        delay_group = QGroupBox("Capture Delay")
+        delay_form = QFormLayout(delay_group)
+
+        self._capture_delay = self._make_double_spin(0.0, 5.0, 0.1, 1)
+        self._capture_delay.setSpecialValueText("None")
+        self._capture_delay.setSuffix(" s")
+        delay_form.addRow("Delay before grab:", self._capture_delay)
+
+        layout.addWidget(delay_group)
+
         display_group = QGroupBox("Display")
         display_form = QFormLayout(display_group)
 
@@ -418,6 +428,9 @@ class SettingsDialog(QDialog):
         rot = cfg.get_str("rotation_mode", "none")
         idx = self._rotation_mode.findText(rot)
         self._rotation_mode.setCurrentIndex(max(0, idx))
+        self._capture_delay.setValue(
+            float(cfg.get("capture_delay_ms", 0)) / 1000.0
+        )
         self._preview_font_size.setValue(
             int(cfg.get("preview_font_size", 11))
         )
@@ -458,6 +471,7 @@ class SettingsDialog(QDialog):
         )
         cfg.set("auto_new_section_threshold", self._auto_section_threshold.value())
         cfg.set("rotation_mode", self._rotation_mode.currentText())
+        cfg.set("capture_delay_ms", int(self._capture_delay.value() * 1000))
         cfg.set("preview_font_size", self._preview_font_size.value())
 
         # Hotkeys

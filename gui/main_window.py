@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import logging
 import os
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -470,6 +471,10 @@ class MainWindow(QMainWindow):
 
         import cv2  # noqa: PLC0415 — deferred to avoid DLL issues at import time
         rotation = self._cfg.get("rotation_mode", "none")
+        delay_s = float(self._cfg.get("capture_delay_ms", 0)) / 1000.0
+        if delay_s > 0:
+            logger.debug("MainWindow: capture delay %.2fs", delay_s)
+            time.sleep(delay_s)
         try:
             image = self._screen_capture.grab_and_rotate(
                 self._capture_region, rotation
