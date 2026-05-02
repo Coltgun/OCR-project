@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-ocr-progress-detail complete. 1060 passed, 155 skipped. Ready for FEAT-word-wrap-toggle (Add a View menu checkable action to toggle word wrap on the results preview pane; persist the setting to config).
+FEAT-word-wrap-toggle complete. 1076 passed, 159 skipped. Ready for FEAT-copy-section-only (Add a "Copy Section" button next to "Copy to Clipboard" that copies only OCR results from the current section folder).
 
 ## Up Next
-- [ ] FEAT-word-wrap-toggle: Add a checkable "Word Wrap" QAction in the View menu; toggles _preview_pane.setLineWrapMode between WidgetWidth and NoWrap; persists preview_word_wrap bool to config; loaded on init
+- [ ] FEAT-copy-section-only: Add a QPushButton "Copy Section" next to the existing Copy button; copies only _ocr_results whose image_id maps to an image in the current section folder (current_folder); disabled until session active + results present
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -52,3 +52,4 @@ FEAT-ocr-progress-detail complete. 1060 passed, 155 skipped. Ready for FEAT-word
 - [x] FEAT-section-image-count: _section_count_list QListWidget (max 70px, initially disabled, tooltip) below section row. _refresh_section_count_list(): clears, guards None session (disables), iterates range(1, current_folder+1), adds "Section N: M image(s)" items. Called from _update_session_labels, after capture, after new section. QListWidget added to imports. 14 source-scan + 4 logic + 4 @gui+@skip. (1023 passed, 148 skipped).
 - [x] FEAT-auto-new-section: SettingsDialog Capture tab: "Auto Section" QGroupBox with _auto_section_threshold QSpinBox (0-99, default 0, SpecialValueText "Disabled", suffix " captures"). _load_values reads auto_new_section_threshold; _save_values writes it. _trigger_capture: after successful save, reads threshold; if > 0 and current-section image_count >= threshold, calls _trigger_new_section. 9 settings source-scan + 4 MW source-scan + 8 logic + 4 @gui+@skip. (1044 passed, 152 skipped).
 - [x] FEAT-ocr-progress-detail: _ocr_start_time datetime initialised in __init__ and re-stamped before QThreadPool.start. _on_ocr_progress: computes elapsed = (now - start).total_seconds(), pct = done/total*100 (guard 0), status bar: "OCR: image N / M  (pct%)  —  Xs elapsed". 10 source-scan + 6 logic + 3 @gui+@skip. (1060 passed, 155 skipped).
+- [x] FEAT-word-wrap-toggle: View menu: _word_wrap_action QAction (checkable) → _toggle_word_wrap(checked): persists preview_word_wrap, calls _apply_word_wrap. _apply_word_wrap(enabled): sets QTextEdit.LineWrapMode.WidgetWidth or NoWrap on _preview_pane. Loaded on init (default True). 13 source-scan + 3 logic + 4 @gui+@skip. (1076 passed, 159 skipped).
