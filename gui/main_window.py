@@ -89,6 +89,7 @@ class MainWindow(QMainWindow):
 
         self._hotkeys.start()
         self._update_ui_for_state(AppState.IDLE)
+        self._update_recent_menu()
         dark = bool(self._cfg.get("dark_mode", False))
         self._dark_mode_action.setChecked(dark)
         self._apply_theme(dark)
@@ -106,6 +107,8 @@ class MainWindow(QMainWindow):
         new_session_action.setShortcut(QKeySequence("Ctrl+N"))
         new_session_action.triggered.connect(self._start_new_session)
         file_menu.addAction(new_session_action)
+
+        self._recent_menu = file_menu.addMenu("Recent Sessions")
 
         file_menu.addSeparator()
         quit_action = QAction("&Quit", self)
@@ -357,6 +360,7 @@ class MainWindow(QMainWindow):
         self._ocr_results = []
         self._clear_preview()
         self._load_notes()
+        self._record_recent_session(str(dlg.session_root))
         self._update_session_labels()
         self._export_btn.setEnabled(False)
         logger.info(
@@ -646,6 +650,65 @@ class MainWindow(QMainWindow):
         font = self._preview_pane.font()
         font.setPointSize(max(8, min(size, 24)))
         self._preview_pane.setFont(font)
+
+    _MAX_RECENT = 5
+
+    def _record_recent_session(self, path: str) -> None:
+        """Prepend path to recent_sessions list, cap at _MAX_RECENT, persist."""
+        recent: list = list(self._config.get("recent_sessions", []))  # type: ignore[arg-type]
+        if not isinstance(recent, list):
+            recent = []
+        if path in recent:
+            recent.remove(path)
+        recent.insert(0, path)
+        recent = recent[: self._MAX_RECENT]
+        self._config.set("recent_sessions", recent)
+        self._config.save()
+        self._cfg = self._config._data
+        self._update_recent_menu()
+
+    def _update_recent_menu(self) -> None:
+        """Rebuild the Recent Sessions submenu from config."""
+        self._recent_menu.clear()
+        recent: list = list(self._config.get("recent_sessions", []))  # type: ignore[arg-type]
+        if not isinstance(recent, list):
+            recent = []
+        if not recent:
+            placeholder = QAction("(no recent sessions)", self)
+            placeholder.setEnabled(False)
+            self._recent_menu.addAction(placeholder)
+            return
+        for path in recent:
+            action = QAction(str(path), self)
+            action.triggered.connect(
+                lambda checked=False, p=path: self._open_recent_session(p)
+            )
+            self._recent_menu.addAction(action)
+
+    @Slot()
+    def _open_recent_session(self, path: str) -> None:
+        """Resume the session at *path* directly (skip SessionDialog)."""
+        if not self._state_machine.is_idle:
+            return
+        session_root = Path(path)
+        if not session_root.exists():
+            QMessageBox.warning(
+                self,
+                "Session not found",
+                f"The session folder no longer exists:\n{path}",
+            )
+            return
+        self._session = CaptureSession(session_root, resume=True)
+        self._ocr_results = []
+        self._clear_preview()
+        self._load_notes()
+        self._record_recent_session(path)
+        self._update_session_labels()
+        self._export_btn.setEnabled(False)
+        self._status_bar.showMessage(
+            f"Session resumed: {path}  |  Section {self._session.current_folder}"
+        )
+        self._update_ui_for_state(AppState.IDLE)
 
     def _load_notes(self) -> None:
         """Load notes.txt from the session root into the notes widget."""
