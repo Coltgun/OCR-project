@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-pipeline-config complete. 598 passed, 28 skipped. Ready for FEAT-session-export-ui (Export path config, auto-save last output dir, recent exports list in status bar).
+FEAT-session-export-ui complete. 613 passed, 35 skipped. Ready for FEAT-hotkey-config (Make hotkeys configurable via SettingsDialog).
 
 ## Up Next
-- [ ] FEAT-session-export-ui: Remember last epub_output_dir in ConfigManager; show recent export path in status bar after export; add "Open in folder" button post-export
+- [ ] FEAT-hotkey-config: Add Hotkeys tab to SettingsDialog; read hotkey bindings from config; HotkeyListener reads from config at startup
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
 - [x] ARCH-002: Define All ABCs — OCREngine, PostProcessStage, OutputFormatter, InputSource, LLMProvider + 4 module stubs (77 tests passing)
@@ -27,3 +27,4 @@ FEAT-pipeline-config complete. 598 passed, 28 skipped. Ready for FEAT-session-ex
 - [x] FEAT-config-ui: SettingsDialog (4-tab QDialog: Pipeline/API Keys/VRAM/Capture), wired into MainWindow Tools menu (Ctrl+,), _open_settings slot reloads live config on accept. 6 headless tests + 13 @gui+@skip tests. (568 passed, 22 skipped).
 - [x] FEAT-progress-ui: QProgressBar (200px, permanent in status bar, hidden when idle). OCR: shown on first progress(int,int) signal, value tracks done/total, hidden on results_ready or error. Export: indeterminate (0,0) during format, hidden on success or error. 10 headless + 6 @gui+@skip tests. (578 passed, 28 skipped).
 - [x] FEAT-pipeline-config: OCRWorker.run() reads ocr_pipeline_mode from config, runs Pipeline(mode, config).process() on flat OCR results before emitting results_ready; unknown mode falls back to LOCAL_FAST with warning; pipeline failure falls back to raw results. 9 source-scan + 11 integration tests. (598 passed, 28 skipped).
+- [x] FEAT-session-export-ui: _trigger_export persists epub_output_dir to ConfigManager after file dialog; status bar shows filename only; "Open folder" QPushButton appears in status bar after success, hidden on any state change away from IDLE; _on_open_export_folder uses os.startfile. 10 source-scan + 5 config-logic + 7 @gui+@skip tests. (613 passed, 35 skipped).

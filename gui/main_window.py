@@ -16,6 +16,7 @@ results are delivered back to the main thread via Qt signals (queued connections
 from __future__ import annotations
 
 import logging
+import os
 from datetime import datetime
 from pathlib import Path
 
@@ -179,6 +180,11 @@ class MainWindow(QMainWindow):
         self._status_bar = QStatusBar()
         self.setStatusBar(self._status_bar)
 
+        self._open_folder_btn = QPushButton("Open folder")
+        self._open_folder_btn.setVisible(False)
+        self._open_folder_btn.clicked.connect(self._on_open_export_folder)
+        self._status_bar.addPermanentWidget(self._open_folder_btn)
+
         self._progress_bar = QProgressBar()
         self._progress_bar.setFixedWidth(200)
         self._progress_bar.setTextVisible(True)
@@ -188,6 +194,8 @@ class MainWindow(QMainWindow):
         self._state_label = QLabel("IDLE")
         self._status_bar.addPermanentWidget(self._state_label)
         self._status_bar.showMessage("Ready. Start a new session to begin.")
+
+        self._last_export_path: str = ""
 
     # ------------------------------------------------------------------
     # Signal wiring
@@ -215,6 +223,8 @@ class MainWindow(QMainWindow):
     def _update_ui_for_state(self, state: AppState) -> None:
         """Enable/disable controls to match the current state."""
         self._state_label.setText(state.name)
+        if state != AppState.IDLE or not self._last_export_path:
+            self._open_folder_btn.setVisible(False)
         is_idle = state == AppState.IDLE
         has_session = self._session is not None
         has_region = self._capture_region is not None
@@ -409,6 +419,12 @@ class MainWindow(QMainWindow):
             self._update_ui_for_state(AppState.IDLE)
             return
 
+        # Persist the chosen directory for next time.
+        chosen_dir = str(Path(save_path).parent)
+        self._config.set("epub_output_dir", chosen_dir)
+        self._config.save()
+        self._cfg = self._config._data
+
         chapters = self._build_chapters_from_results()
         self._progress_bar.setRange(0, 0)
         self._progress_bar.setVisible(True)
@@ -417,8 +433,10 @@ class MainWindow(QMainWindow):
             epub_bytes = formatter.format(chapters, self._cfg)
             Path(save_path).write_bytes(epub_bytes)
             logger.info("MainWindow: EPUB saved to '%s'.", save_path)
+            self._last_export_path = save_path
             self._progress_bar.setVisible(False)
-            self._status_bar.showMessage(f"EPUB saved: {save_path}")
+            self._status_bar.showMessage(f"EPUB saved: {Path(save_path).name}")
+            self._open_folder_btn.setVisible(True)
             self._state_machine.export_done()
         except Exception as exc:
             logger.error("MainWindow: EPUB export failed: %s", exc)
@@ -442,6 +460,17 @@ class MainWindow(QMainWindow):
         else:
             if self._capture_region is not None:
                 self._border_overlay.show()
+
+    @Slot()
+    def _on_open_export_folder(self) -> None:
+        """Open the folder containing the last exported EPUB in Explorer."""
+        if not self._last_export_path:
+            return
+        folder = str(Path(self._last_export_path).parent)
+        try:
+            os.startfile(folder)
+        except OSError as exc:
+            logger.warning("MainWindow: could not open folder '%s': %s", folder, exc)
 
     @Slot()
     def _open_settings(self) -> None:
