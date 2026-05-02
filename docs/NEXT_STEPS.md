@@ -1,17 +1,12 @@
 # Next Steps
 
 ## Current Status
-Phase 0 complete (ARCH-001, ARCH-002, ARCH-003). Ready for Phase 1.
+ENV-001 complete. chinese-ocr env verified. Ready for FEAT-capture (Phase 1).
 
 ## Up Next
-- [ ] ENV-001: Verify environment (run verify_env.py with chinese-ocr conda env active)
-  - ℹ️ Current Python: 3.10.6. Must be 3.11. Create `chinese-ocr` conda env with Python 3.11.
-  - ℹ️ PaddlePaddle 3.3.0 + PaddleOCR already installed in current env, GPU detected OK.
-  - ℹ️ CUDA 13.1 driver — GPU working despite version mismatch. See KNOWN_ISSUES.md.
-  - ℹ️ Missing packages: PySide6, pynput, pycorrector, datasketch, sentence-transformers, gitpython, openai, opencc, jieba.
-  - ℹ️ PaddlePaddle 3.3.0 API change: `use_gpu` → `device=`, `use_angle_cls` → `use_textline_orientation`.
-- [ ] FEAT-capture: Screen capture pipeline (mss, session folders, hotkeys)
+- [ ] FEAT-capture: Screen capture pipeline (mss, session folders, hotkeys, state machine)
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
 - [x] ARCH-002: Define All ABCs — OCREngine, PostProcessStage, OutputFormatter, InputSource, LLMProvider + 4 module stubs (77 tests passing)
 - [x] ARCH-003: VRAM Tier Configuration — ConfigManager, file_utils, logging_config, confusion_table.json, init_from_config() (135 tests passing)
+- [x] ENV-001: chinese-ocr conda env created (Python 3.11.15), all packages verified. Architecture constraint documented: torch+paddle must not share a process (cuDNN DLL conflict).

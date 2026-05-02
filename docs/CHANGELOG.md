@@ -24,3 +24,8 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - **ARCH-003** `data/confusion_table.json` — initial Chinese OCR confusion pairs.
 - **ARCH-003** `data/ocr_dictionary.json` — empty dictionary (future use).
 - `tests/utils/test_file_utils.py`, `test_config_manager.py` — 56 tests; P0 `test_numeric_sort_never_lexicographic` present (135 total passing).
+- **ENV-001** `chinese-ocr` conda env created with Python 3.11.15, all packages verified via `scripts/verify_env.py` (all OK).
+- **ENV-001** `utils/cuda_utils.py` — `register_nvidia_dll_dirs()` for Windows DLL path fix before paddle import.
+- **ENV-001** `environment.yml` generated from verified env state.
+- **ENV-001** `docs/KNOWN_ISSUES.md` — torch+paddle cuDNN DLL conflict documented; process isolation constraint added to DECISIONS.md.
+- **ENV-001** `scripts/verify_env.py` — subprocess isolation for paddle/paddleocr checks; OSError caught; PADDLE_PACKAGES list.
