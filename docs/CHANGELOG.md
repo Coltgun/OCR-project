@@ -29,3 +29,9 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - **ENV-001** `environment.yml` generated from verified env state.
 - **ENV-001** `docs/KNOWN_ISSUES.md` — torch+paddle cuDNN DLL conflict documented; process isolation constraint added to DECISIONS.md.
 - **ENV-001** `scripts/verify_env.py` — subprocess isolation for paddle/paddleocr checks; OSError caught; PADDLE_PACKAGES list.
+- **FEAT-capture** `capture/session.py` — `CaptureSession`: folder counter dict, `get_next_image_path()`, `new_section()`, `resume_from_disk()`, `validate_session_name()`.
+- **FEAT-capture** `capture/state.py` — `AppState` enum, `StateMachine(QObject)` with `state_changed` signal; valid transition table; invalid transitions silently ignored.
+- **FEAT-capture** `capture/hotkeys.py` — `HotkeyListener(QObject)`: pynput daemon thread, Qt signal bridge, configurable keybindings from config dict.
+- **FEAT-capture** `capture/screen_capture.py` — `ScreenCapture`: mss grab, `apply_rotation()` (none/90cw/90ccw/180/auto), auto heuristic (aspect ratio + Hough fallback), mss injection for tests.
+- **FEAT-capture** `gui/overlay.py` — `CaptureOverlay` (rubber-band QRubberBand selector), `RegionBorderOverlay` (WindowTransparentForInput persistent border).
+- `tests/capture/` — 80 new tests (session, state machine, screen_capture); P0 numeric sort tests for resume and counter init. (215 total passing).
