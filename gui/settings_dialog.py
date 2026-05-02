@@ -235,6 +235,17 @@ class SettingsDialog(QDialog):
         session_form.addRow("Working root dir:", self._working_root)
 
         layout.addWidget(session_group)
+
+        display_group = QGroupBox("Display")
+        display_form = QFormLayout(display_group)
+
+        self._preview_font_size = QSpinBox()
+        self._preview_font_size.setRange(8, 24)
+        self._preview_font_size.setValue(11)
+        self._preview_font_size.setSuffix(" pt")
+        display_form.addRow("Preview font size:", self._preview_font_size)
+
+        layout.addWidget(display_group)
         layout.addStretch()
         return widget
 
@@ -361,6 +372,9 @@ class SettingsDialog(QDialog):
         self._working_root.setText(
             cfg.get_str("working_root_dir", "sessions")
         )
+        self._preview_font_size.setValue(
+            int(cfg.get("preview_font_size", 11))
+        )
 
         # Hotkeys
         saved_bindings: dict = cfg.get("keybindings", {})  # type: ignore[assignment]
@@ -391,6 +405,7 @@ class SettingsDialog(QDialog):
         cfg.set("embedding_batch_size", self._embed_batch_size.value())
 
         cfg.set("working_root_dir", self._working_root.text().strip() or "sessions")
+        cfg.set("preview_font_size", self._preview_font_size.value())
 
         # Hotkeys
         bindings: dict[str, str] = {}

@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-theme-toggle complete. 790 passed, 94 skipped. Ready for FEAT-font-size-setting (Add a font-size preference to SettingsDialog Capture tab and apply to the preview pane).
+FEAT-font-size-setting complete. 808 passed, 102 skipped. Ready for FEAT-session-notes (Add a free-text notes QTextEdit to the session panel, saved/loaded per session via CaptureSession).
 
 ## Up Next
-- [ ] FEAT-font-size-setting: Add a QSpinBox (8–24 pt) for preview font size in SettingsDialog; apply to _preview_pane on accept and on startup from config
+- [ ] FEAT-session-notes: Add a "Notes" QTextEdit below the section label; auto-save to session_root/notes.txt on every text change; load on session start
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -38,3 +38,4 @@ FEAT-theme-toggle complete. 790 passed, 94 skipped. Ready for FEAT-font-size-set
 - [x] FEAT-keyboard-shortcuts-display: SettingsDialog Hotkeys tab rebuilt as QTableWidget (6 rows × 3 cols: Action/Default/Override). Action + Default columns non-editable; Default shown uppercase; Override column uses QLineEdit cell widget. Column 0 stretches, 1+2 resize-to-contents. Vertical header hidden. NoSelection + NoEditTriggers. _ACTION_LABELS promoted to class attribute. _hotkey_edits dict interface unchanged — load/save untouched. 20 source-scan + 8 @gui+@skip. (752 passed, 82 skipped).
 - [x] FEAT-status-bar-icons: _state_dot QLabel (12×12, tooltip) added as permanent status-bar widget. _DOT_COLOURS dict maps AppState → stylesheet (green=#4CAF50 idle, yellow=#FFC107 busy, red=#F44336 constant). _update_ui_for_state calls setStyleSheet(_DOT_COLOURS.get(state, _DOT_BUSY)). 16 source-scan + 6 @gui+@skip. (768 passed, 88 skipped).
 - [x] FEAT-theme-toggle: QPalette + QColor imports. "Dark Mode" checkable QAction in View menu → _toggle_dark_mode(checked) slot persists dark_mode to config + calls _apply_theme(dark). _apply_theme: Fusion style always; dark=True sets 10-colour QPalette; dark=False restores standardPalette. Guards QApplication.instance() is None. Loaded on init. 19 source-scan + 3 config-logic + 6 @gui+@skip. (790 passed, 94 skipped).
+- [x] FEAT-font-size-setting: SettingsDialog Capture tab: "Display" QGroupBox with QSpinBox(8–24 pt, default 11, suffix " pt") for preview font size. _load_values reads preview_font_size; _save_values writes it. MainWindow: _apply_preview_font_size(size) clamps to [8,24], sets font on _preview_pane; called on init and after settings accept. 8 settings source-scan + 5 MainWindow source-scan + 5 config-logic + 8 @gui+@skip. (808 passed, 102 skipped).

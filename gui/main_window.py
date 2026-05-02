@@ -92,6 +92,7 @@ class MainWindow(QMainWindow):
         dark = bool(self._cfg.get("dark_mode", False))
         self._dark_mode_action.setChecked(dark)
         self._apply_theme(dark)
+        self._apply_preview_font_size(int(self._cfg.get("preview_font_size", 11)))
 
     # ------------------------------------------------------------------
     # UI construction
@@ -621,11 +622,18 @@ class MainWindow(QMainWindow):
         if dlg.exec() == SettingsDialog.DialogCode.Accepted:
             self._cfg = self._config._data
             self._hotkeys.reload(self._cfg)
+            self._apply_preview_font_size(int(self._cfg.get("preview_font_size", 11)))
             logger.info("MainWindow: settings updated.")
 
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
+
+    def _apply_preview_font_size(self, size: int) -> None:
+        """Set the font point size on the OCR results preview pane."""
+        font = self._preview_pane.font()
+        font.setPointSize(max(8, min(size, 24)))
+        self._preview_pane.setFont(font)
 
     def _populate_preview(self, results: list[OCRResult]) -> None:
         """Fill the preview pane with OCR results grouped by image_id."""
