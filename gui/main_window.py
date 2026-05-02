@@ -75,6 +75,7 @@ class MainWindow(QMainWindow):
         self._session: CaptureSession | None = None
         self._capture_region: CaptureRegion | None = None
         self._ocr_results: list[OCRResult] = []
+        self._ocr_start_time: datetime = datetime.now()
 
         self._state_machine = StateMachine(self)
         self._hotkeys = HotkeyListener(self._cfg, self)
@@ -505,6 +506,7 @@ class MainWindow(QMainWindow):
         worker.signals.results_ready.connect(self._on_ocr_results)
         worker.signals.error_occurred.connect(self._on_ocr_error)
         worker.signals.progress.connect(self._on_ocr_progress)
+        self._ocr_start_time = datetime.now()
         QThreadPool.globalInstance().start(worker)
         self._status_bar.showMessage(
             f"OCR running on {len(image_paths)} image(s)…"
@@ -547,7 +549,11 @@ class MainWindow(QMainWindow):
 
     @Slot(int, int)
     def _on_ocr_progress(self, done: int, total: int) -> None:
-        self._status_bar.showMessage(f"OCR: processing image {done}/{total}…")
+        elapsed = (datetime.now() - self._ocr_start_time).total_seconds()
+        pct = int(done / total * 100) if total > 0 else 0
+        self._status_bar.showMessage(
+            f"OCR: image {done} / {total}  ({pct}%)  —  {elapsed:.1f}s elapsed"
+        )
         if total > 0:
             self._progress_bar.setRange(0, total)
             self._progress_bar.setValue(done)

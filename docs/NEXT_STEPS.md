@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-auto-new-section complete. 1044 passed, 152 skipped. Ready for FEAT-ocr-progress-detail (Show per-image OCR progress in the status bar: "OCR: image N / M").
+FEAT-ocr-progress-detail complete. 1060 passed, 155 skipped. Ready for FEAT-word-wrap-toggle (Add a View menu checkable action to toggle word wrap on the results preview pane; persist the setting to config).
 
 ## Up Next
-- [ ] FEAT-ocr-progress-detail: Connect OCRWorker progress signal to a slot that updates the status bar with "OCR: image N / M"; wire _on_ocr_progress to show this message alongside the progress bar
+- [ ] FEAT-word-wrap-toggle: Add a checkable "Word Wrap" QAction in the View menu; toggles _preview_pane.setLineWrapMode between WidgetWidth and NoWrap; persists preview_word_wrap bool to config; loaded on init
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -51,3 +51,4 @@ FEAT-auto-new-section complete. 1044 passed, 152 skipped. Ready for FEAT-ocr-pro
 - [x] FEAT-export-filename-template: SettingsDialog Capture tab: _export_filename_template QLineEdit in Session Storage group; placeholder "{session}_{timestamp}"; _load_values reads export_filename_template; _save_values writes it (fallback to default on empty). _trigger_export: reads template, substitutes {session} and {timestamp}, builds default_stem, default_name. 6 settings source-scan + 4 MW source-scan + 8 logic + 4 @gui+@skip. (1005 passed, 144 skipped).
 - [x] FEAT-section-image-count: _section_count_list QListWidget (max 70px, initially disabled, tooltip) below section row. _refresh_section_count_list(): clears, guards None session (disables), iterates range(1, current_folder+1), adds "Section N: M image(s)" items. Called from _update_session_labels, after capture, after new section. QListWidget added to imports. 14 source-scan + 4 logic + 4 @gui+@skip. (1023 passed, 148 skipped).
 - [x] FEAT-auto-new-section: SettingsDialog Capture tab: "Auto Section" QGroupBox with _auto_section_threshold QSpinBox (0-99, default 0, SpecialValueText "Disabled", suffix " captures"). _load_values reads auto_new_section_threshold; _save_values writes it. _trigger_capture: after successful save, reads threshold; if > 0 and current-section image_count >= threshold, calls _trigger_new_section. 9 settings source-scan + 4 MW source-scan + 8 logic + 4 @gui+@skip. (1044 passed, 152 skipped).
+- [x] FEAT-ocr-progress-detail: _ocr_start_time datetime initialised in __init__ and re-stamped before QThreadPool.start. _on_ocr_progress: computes elapsed = (now - start).total_seconds(), pct = done/total*100 (guard 0), status bar: "OCR: image N / M  (pct%)  —  Xs elapsed". 10 source-scan + 6 logic + 3 @gui+@skip. (1060 passed, 155 skipped).
