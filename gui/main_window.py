@@ -28,6 +28,7 @@ from PySide6.QtWidgets import (
     QFileDialog,
     QHBoxLayout,
     QLabel,
+    QListWidget,
     QMainWindow,
     QMessageBox,
     QProgressBar,
@@ -183,6 +184,12 @@ class MainWindow(QMainWindow):
         self._new_section_btn.clicked.connect(self._trigger_new_section)
         section_row.addWidget(self._new_section_btn)
         root_layout.addLayout(section_row)
+
+        self._section_count_list = QListWidget()
+        self._section_count_list.setMaximumHeight(70)
+        self._section_count_list.setEnabled(False)
+        self._section_count_list.setToolTip("Images captured per section")
+        root_layout.addWidget(self._section_count_list)
 
         # Session notes
         notes_header = QHBoxLayout()
@@ -447,6 +454,7 @@ class MainWindow(QMainWindow):
             cv2.imwrite(str(save_path), image)
             logger.info("MainWindow: captured → %s", save_path)
             self._update_count_label()
+            self._refresh_section_count_list()
             self._update_thumbnail(save_path)
             self._state_machine.capture_done()
         except Exception as exc:
@@ -461,6 +469,7 @@ class MainWindow(QMainWindow):
             return
         folder = self._session.new_section()
         self._section_label.setText(str(folder))
+        self._refresh_section_count_list()
         self._status_bar.showMessage(f"New section: folder {folder}")
         self._clear_preview()
         self._clear_thumbnail()
@@ -908,6 +917,18 @@ class MainWindow(QMainWindow):
         self._session_label.setText(str(self._session.root))
         self._section_label.setText(str(self._session.current_folder))
         self._update_count_label()
+        self._refresh_section_count_list()
+
+    def _refresh_section_count_list(self) -> None:
+        """Repopulate the per-section image count list from the current session."""
+        self._section_count_list.clear()
+        if self._session is None:
+            self._section_count_list.setEnabled(False)
+            return
+        self._section_count_list.setEnabled(True)
+        for fn in range(1, self._session.current_folder + 1):
+            count = self._session.image_count(fn)
+            self._section_count_list.addItem(f"Section {fn}: {count} image(s)")
 
     def _update_count_label(self) -> None:
         if self._session is None:
