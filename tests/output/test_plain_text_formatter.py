@@ -73,13 +73,13 @@ class TestExportFormatsMainWindowSource:
         assert 'fmt = self._export_fmt_combo.currentData()' in _MW_SRC
 
     def test_epub_formatter_used_for_epub(self) -> None:
-        assert "EpubFormatter() if is_epub else PlainTextFormatter()" in _MW_SRC
+        assert '"epub": EpubFormatter' in _MW_SRC
 
     def test_txt_extension_in_default_name(self) -> None:
-        assert '"epub" if is_epub else "txt"' in _MW_SRC
+        assert '"txt": "txt"' in _MW_SRC
 
     def test_file_filter_switches_by_format(self) -> None:
-        assert '"EPUB files (*.epub)" if is_epub else "Text files (*.txt)"' in _MW_SRC
+        assert '"txt": "Text files (*.txt)"' in _MW_SRC
 
     def test_export_btn_text_updated(self) -> None:
         assert '"Export\u2026"' in _MW_SRC
