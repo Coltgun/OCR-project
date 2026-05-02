@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-session-export-ui complete. 613 passed, 35 skipped. Ready for FEAT-hotkey-config (Make hotkeys configurable via SettingsDialog).
+FEAT-hotkey-config complete. 638 passed, 40 skipped. Ready for FEAT-ocr-log-panel (Scrollable log panel in MainWindow showing OCR stage output).
 
 ## Up Next
-- [ ] FEAT-hotkey-config: Add Hotkeys tab to SettingsDialog; read hotkey bindings from config; HotkeyListener reads from config at startup
+- [ ] FEAT-ocr-log-panel: Add a collapsible QTextEdit log panel below the action buttons in MainWindow; OCR stage log messages forwarded via signal
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
 - [x] ARCH-002: Define All ABCs — OCREngine, PostProcessStage, OutputFormatter, InputSource, LLMProvider + 4 module stubs (77 tests passing)
@@ -28,3 +28,4 @@ FEAT-session-export-ui complete. 613 passed, 35 skipped. Ready for FEAT-hotkey-c
 - [x] FEAT-progress-ui: QProgressBar (200px, permanent in status bar, hidden when idle). OCR: shown on first progress(int,int) signal, value tracks done/total, hidden on results_ready or error. Export: indeterminate (0,0) during format, hidden on success or error. 10 headless + 6 @gui+@skip tests. (578 passed, 28 skipped).
 - [x] FEAT-pipeline-config: OCRWorker.run() reads ocr_pipeline_mode from config, runs Pipeline(mode, config).process() on flat OCR results before emitting results_ready; unknown mode falls back to LOCAL_FAST with warning; pipeline failure falls back to raw results. 9 source-scan + 11 integration tests. (598 passed, 28 skipped).
 - [x] FEAT-session-export-ui: _trigger_export persists epub_output_dir to ConfigManager after file dialog; status bar shows filename only; "Open folder" QPushButton appears in status bar after success, hidden on any state change away from IDLE; _on_open_export_folder uses os.startfile. 10 source-scan + 5 config-logic + 7 @gui+@skip tests. (613 passed, 35 skipped).
+- [x] FEAT-hotkey-config: HotkeyListener.reload(config) rebuilds key map live without restarting thread. SettingsDialog Hotkeys tab (5th tab): QLineEdit per action, placeholder = default, blank = omit. _save_values writes keybindings sub-dict. MainWindow._open_settings calls self._hotkeys.reload(self._cfg) on accept. 8 source-scan (hotkeys.py) + 10 source-scan (settings_dialog/main_window) + 5 config-logic + 5 @gui+@skip tests. (638 passed, 40 skipped).

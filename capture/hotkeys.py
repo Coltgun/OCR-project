@@ -118,6 +118,17 @@ class HotkeyListener(QObject):
                 "HotkeyListener: bound %s → %s", key_str.upper(), action
             )
 
+    def reload(self, config: dict) -> None:
+        """Rebuild the key map from an updated config without restarting the thread.
+
+        Safe to call from the main thread while the listener is running.
+
+        Args:
+            config: Updated full application config dict.
+        """
+        self._build_key_map(config)
+        logger.info("HotkeyListener: key map reloaded.")
+
     def start(self) -> None:
         """Start the pynput listener daemon thread."""
         if self._listener is not None and self._listener.is_alive():
