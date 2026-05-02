@@ -62,10 +62,14 @@ class TestPipelineConstruction:
         p = Pipeline("LOCAL_FAST", {})
         assert "minhash_dedup" in p.stage_ids
 
-    def test_unregistered_stage_skipped_gracefully(self) -> None:
-        """Stages not yet implemented (e.g. bert_correction) are skipped silently."""
+    def test_bert_correction_present_in_local_standard(self) -> None:
         p = Pipeline("LOCAL_STANDARD", {})
-        assert "bert_correction" not in p.stage_ids
+        assert "bert_correction" in p.stage_ids
+
+    def test_unregistered_stage_skipped_gracefully(self) -> None:
+        """Stages not yet implemented (e.g. llm_correction) are skipped silently."""
+        p = Pipeline("LOCAL_LLM", {})
+        assert "llm_correction" not in p.stage_ids
 
     def test_available_modes_returns_all(self) -> None:
         modes = Pipeline.available_modes()
