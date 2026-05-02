@@ -186,6 +186,18 @@ class MainWindow(QMainWindow):
         action_row.addWidget(self._export_btn)
         root_layout.addLayout(action_row)
 
+        # Results preview pane
+        preview_header = QHBoxLayout()
+        self._preview_label = QLabel("<b>OCR Results:</b> —")
+        preview_header.addWidget(self._preview_label, stretch=1)
+        root_layout.addLayout(preview_header)
+
+        self._preview_pane = QTextEdit()
+        self._preview_pane.setReadOnly(True)
+        self._preview_pane.setMaximumHeight(200)
+        self._preview_pane.setPlaceholderText("OCR results will appear here after running OCR…")
+        root_layout.addWidget(self._preview_pane)
+
         # Log panel (collapsed by default)
         self._log_panel = QTextEdit()
         self._log_panel.setReadOnly(True)
@@ -286,6 +298,7 @@ class MainWindow(QMainWindow):
 
         self._session = CaptureSession(dlg.session_root, resume=dlg.resume)
         self._ocr_results = []
+        self._clear_preview()
         self._update_session_labels()
         self._export_btn.setEnabled(False)
         logger.info(
@@ -358,6 +371,7 @@ class MainWindow(QMainWindow):
         folder = self._session.new_section()
         self._section_label.setText(str(folder))
         self._status_bar.showMessage(f"New section: folder {folder}")
+        self._clear_preview()
 
     @Slot()
     def _trigger_run_ocr(self) -> None:
@@ -400,6 +414,7 @@ class MainWindow(QMainWindow):
         self._status_bar.showMessage(
             f"OCR complete: {len(results)} text block(s) extracted."
         )
+        self._populate_preview(results)
         self._update_ui_for_state(AppState.IDLE)
 
     @Slot(str)
@@ -530,6 +545,30 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
+
+    def _populate_preview(self, results: list[OCRResult]) -> None:
+        """Fill the preview pane with OCR results grouped by image_id."""
+        if not results:
+            self._preview_pane.setPlainText("")
+            self._preview_label.setText("<b>OCR Results:</b> 0 blocks")
+            return
+
+        lines: list[str] = []
+        current_id: str | None = None
+        for r in results:
+            if r.image_id and r.image_id != current_id:
+                current_id = r.image_id
+                lines.append(f"── {current_id} ──")
+            lines.append(r.text)
+
+        self._preview_pane.setPlainText("\n".join(lines))
+        n = len(results)
+        self._preview_label.setText(f"<b>OCR Results:</b> {n} block{'s' if n != 1 else ''}")
+
+    def _clear_preview(self) -> None:
+        """Clear the preview pane and reset its label."""
+        self._preview_pane.setPlainText("")
+        self._preview_label.setText("<b>OCR Results:</b> —")
 
     def _build_chapters_from_results(self) -> list[Chapter]:
         """Group OCRResults into Chapter objects by image_id prefix."""
