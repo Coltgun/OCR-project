@@ -1,0 +1,188 @@
+"""
+LlmCorrectionBase — shared logic for LLM-based OCR correction stages.
+
+Subclasses only need to override _make_client() and optionally
+_extra_create_kwargs() to supply provider-specific options
+(e.g. HTTP-Referer header for OpenRouter).
+
+This base keeps all JSON-batch correction, response parsing,
+fallback, and field-preservation logic in one place.
+"""
+
+from __future__ import annotations
+
+import json
+import logging
+from abc import abstractmethod
+from dataclasses import replace
+
+from openai import OpenAI, OpenAIError
+
+from core.types import OCRResult
+from ocr.stages.base import PostProcessStage
+
+logger = logging.getLogger(__name__)
+
+_DEFAULT_BATCH_SIZE = 10
+_DEFAULT_TEMPERATURE = 0.0
+_DEFAULT_TIMEOUT = 60.0
+
+_SYSTEM_PROMPT = (
+    "你是一个中文OCR后处理专家。用户会发给你一个JSON数组，"
+    "每个元素是一段从图片中识别出来的中文文字。\n"
+    "你的任务：\n"
+    "1. 修正OCR误识别导致的字符错误（例如形近字、笔画缺失）。\n"
+    "2. 不要改动标点符号（除非标点本身是OCR错误）。\n"
+    "3. 不要改写、补充或删除内容，只修正OCR错误。\n"
+    "4. 按照原始顺序返回一个JSON数组，元素个数必须与输入完全相同。\n"
+    "5. 只输出JSON数组，不要输出任何其他内容。\n"
+    "示例输入：[\"他走了\", \"天空是蓝色地\"]\n"
+    "示例输出：[\"他走了\", \"天空是蓝色的\"]"
+)
+
+
+class LlmCorrectionBase(PostProcessStage):
+    """Abstract base for LLM OCR correction stages.
+
+    Subclasses must implement _make_client() and provide
+    model/temperature/timeout/batch_size from the config dict.
+    """
+
+    def process(self, results: list[OCRResult], config: dict) -> list[OCRResult]:
+        """Correct OCR errors using the configured LLM.
+
+        Args:
+            results: Input OCR results.
+            config:  Full application config dict.
+
+        Returns:
+            Results with corrected text fields; all other fields unchanged.
+        """
+        if not results:
+            return results
+
+        model, temperature, timeout, batch_size = self._read_config(config)
+        client = self._make_client(config)
+
+        output: list[OCRResult] = []
+        for i in range(0, len(results), batch_size):
+            batch = results[i : i + batch_size]
+            corrected_texts = self._correct_batch(
+                client, batch, model, temperature, timeout, config
+            )
+            for result, new_text in zip(batch, corrected_texts):
+                if new_text != result.text:
+                    logger.debug(
+                        "%s: corrected '%s' → '%s'",
+                        self.stage_id, result.text, new_text,
+                    )
+                output.append(replace(result, text=new_text))
+
+        return output
+
+    # ------------------------------------------------------------------
+    # Abstract interface
+    # ------------------------------------------------------------------
+
+    @abstractmethod
+    def _make_client(self, config: dict) -> OpenAI:
+        """Return a configured OpenAI client for this provider."""
+
+    @abstractmethod
+    def _read_config(self, config: dict) -> tuple[str, float, float, int]:
+        """Return (model, temperature, timeout, batch_size) from config."""
+
+    def _extra_create_kwargs(self, config: dict) -> dict:
+        """Extra kwargs to pass to chat.completions.create (e.g. extra_headers).
+
+        Default: empty dict.  Override in subclasses that need it.
+        """
+        return {}
+
+    # ------------------------------------------------------------------
+    # Shared implementation
+    # ------------------------------------------------------------------
+
+    def _correct_batch(
+        self,
+        client: OpenAI,
+        batch: list[OCRResult],
+        model: str,
+        temperature: float,
+        timeout: float,
+        config: dict,
+    ) -> list[str]:
+        """Send one batch to the LLM and return corrected texts.
+
+        On any error falls back to original texts.
+        """
+        texts = [r.text for r in batch]
+        user_content = json.dumps(texts, ensure_ascii=False)
+
+        extra = self._extra_create_kwargs(config)
+
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": _SYSTEM_PROMPT},
+                    {"role": "user", "content": user_content},
+                ],
+                temperature=temperature,
+                timeout=timeout,
+                **extra,
+            )
+        except OpenAIError as exc:
+            logger.warning(
+                "%s: API error for batch of %d: %s — keeping originals.",
+                self.stage_id, len(batch), exc,
+            )
+            return texts
+        except Exception as exc:
+            logger.warning(
+                "%s: unexpected error for batch of %d: %s — keeping originals.",
+                self.stage_id, len(batch), exc,
+            )
+            return texts
+
+        raw = response.choices[0].message.content or ""
+        return self._parse_response(raw, texts)
+
+    @staticmethod
+    def _parse_response(raw: str, originals: list[str]) -> list[str]:
+        """Parse the LLM JSON response into a list of corrected strings.
+
+        Falls back to *originals* on any parse error or length mismatch.
+        Strips markdown code fences if present.
+        """
+        raw = raw.strip()
+        if raw.startswith("```"):
+            lines = raw.splitlines()
+            raw = "\n".join(
+                line for line in lines if not line.startswith("```")
+            ).strip()
+
+        try:
+            parsed = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            logger.warning(
+                "LlmCorrectionBase._parse_response: JSON parse error (%s) "
+                "— keeping originals.", exc,
+            )
+            return originals
+
+        if not isinstance(parsed, list):
+            logger.warning(
+                "LlmCorrectionBase._parse_response: response is not a list "
+                "(%s) — keeping originals.", type(parsed).__name__,
+            )
+            return originals
+
+        if len(parsed) != len(originals):
+            logger.warning(
+                "LlmCorrectionBase._parse_response: length %d != expected %d "
+                "— keeping originals.", len(parsed), len(originals),
+            )
+            return originals
+
+        return [str(t) for t in parsed]

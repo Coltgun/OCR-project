@@ -70,6 +70,10 @@ class TestPipelineConstruction:
         p = Pipeline("LOCAL_LLM", {})
         assert "llm_correction" in p.stage_ids
 
+    def test_openrouter_correction_present_in_api_standard(self) -> None:
+        p = Pipeline("API_STANDARD", {})
+        assert "openrouter_correction" in p.stage_ids
+
     def test_unregistered_stage_skipped_gracefully(self) -> None:
         """Stages not yet implemented (e.g. hybrid_correction) are skipped silently."""
         p = Pipeline("HYBRID_TIERED", {})
