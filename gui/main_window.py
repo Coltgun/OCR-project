@@ -104,6 +104,7 @@ class MainWindow(QMainWindow):
         wrap = bool(self._cfg.get("preview_word_wrap", True))
         self._word_wrap_action.setChecked(wrap)
         self._apply_word_wrap(wrap)
+        self._update_button_hotkey_labels()
 
     # ------------------------------------------------------------------
     # UI construction
@@ -180,9 +181,9 @@ class MainWindow(QMainWindow):
         region_row.addWidget(QLabel("<b>Capture region:</b>"))
         self._region_label = QLabel("Not set")
         region_row.addWidget(self._region_label, stretch=1)
-        select_btn = QPushButton("Select Region (F8)")
-        select_btn.clicked.connect(self._trigger_select_region)
-        region_row.addWidget(select_btn)
+        self._select_region_btn = QPushButton("Select Region (F8)")
+        self._select_region_btn.clicked.connect(self._trigger_select_region)
+        region_row.addWidget(self._select_region_btn)
         root_layout.addLayout(region_row)
 
         # Section row
@@ -771,6 +772,7 @@ class MainWindow(QMainWindow):
             self._hotkeys.reload(self._cfg)
             self._apply_preview_font_size(int(self._cfg.get("preview_font_size", 11)))
             self._update_pipeline_mode_label()
+            self._update_button_hotkey_labels()
             logger.info("MainWindow: settings updated.")
 
     # ------------------------------------------------------------------
@@ -797,6 +799,23 @@ class MainWindow(QMainWindow):
         """Refresh the pipeline mode permanent status bar label from config."""
         mode = str(self._cfg.get("ocr_pipeline_mode", "LOCAL_FAST"))
         self._pipeline_mode_label.setText(f"Mode: {mode}")
+
+    def _update_button_hotkey_labels(self) -> None:
+        """Update action button tooltips to reflect current keybinding config."""
+        from capture.hotkeys import _DEFAULT_BINDINGS  # noqa: PLC0415
+        overrides: dict = self._cfg.get("keybindings", {})  # type: ignore[assignment]
+        if not isinstance(overrides, dict):
+            overrides = {}
+        bindings = {**_DEFAULT_BINDINGS, **overrides}
+        _BTN_MAP = {
+            "reset_area": (self._select_region_btn, "Select region"),
+            "capture": (self._capture_btn, "Capture screenshot"),
+            "new_section": (self._new_section_btn, "Start new section"),
+            "send_to_ocr": (self._ocr_btn, "Run OCR pipeline"),
+        }
+        for action, (btn, label) in _BTN_MAP.items():
+            key = bindings.get(action, "").upper() or "(unbound)"
+            btn.setToolTip(f"{label}  [{key}]")
 
     def _apply_preview_font_size(self, size: int) -> None:
         """Set the font point size on the OCR results preview pane."""
