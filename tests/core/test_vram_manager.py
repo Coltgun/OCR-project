@@ -178,3 +178,30 @@ class TestMakeVramManager:
     def test_tier_defaults_match_documented_values(self) -> None:
         assert VRAM_TIER_DEFAULTS["8gb"] == 7680
         assert VRAM_TIER_DEFAULTS["16gb"] == 15360
+
+
+# ---------------------------------------------------------------------------
+# init_from_config (singleton wiring)
+# ---------------------------------------------------------------------------
+
+class TestInitFromConfig:
+    def test_init_from_config_updates_singleton(self) -> None:
+        import core.vram_manager as vm_module
+        from core.vram_manager import init_from_config
+        original_total = vm_module.vram_manager.total_mb
+        try:
+            init_from_config({"vram_tier": "16gb"})
+            assert vm_module.vram_manager.total_mb == VRAM_TIER_DEFAULTS["16gb"]
+        finally:
+            init_from_config({"vram_tier": "8gb"})
+            assert vm_module.vram_manager.total_mb == original_total
+
+    def test_init_from_config_override_budget(self) -> None:
+        import core.vram_manager as vm_module
+        from core.vram_manager import init_from_config
+        original_total = vm_module.vram_manager.total_mb
+        try:
+            init_from_config({"vram_tier": "8gb", "vram_budget_mb": 4096})
+            assert vm_module.vram_manager.total_mb == 4096
+        finally:
+            init_from_config({"vram_tier": "8gb"})

@@ -17,3 +17,10 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - **ARCH-002** `llm/base.py` — `LLMProvider(Registrable)` ABC.
 - **ARCH-002** `modules/translation/`, `manga/`, `web_scraper/`, `story_memory/` — future feature stubs with ABCs and READMEs.
 - `tests/core/test_abcs.py` — 19 tests covering all ABCs and data types (77 total passing).
+- **ARCH-003** `utils/config_manager.py` — `ConfigManager` dotted-key get/set/save/load with atomic write; module-level singleton.
+- **ARCH-003** `utils/file_utils.py` — `sort_folders_numeric`, `sort_images_numeric`, `sort_image_paths_numeric`, `sort_folder_paths_numeric`, `discover_images`, `discover_chapter_folders`, `next_image_path`.
+- **ARCH-003** `utils/logging_config.py` — `setup_logging()` with rotating file + console handlers.
+- **ARCH-003** `core/vram_manager.py` — added `init_from_config()` to re-initialise singleton from config at startup.
+- **ARCH-003** `data/confusion_table.json` — initial Chinese OCR confusion pairs.
+- **ARCH-003** `data/ocr_dictionary.json` — empty dictionary (future use).
+- `tests/utils/test_file_utils.py`, `test_config_manager.py` — 56 tests; P0 `test_numeric_sort_never_lexicographic` present (135 total passing).
