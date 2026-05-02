@@ -21,7 +21,7 @@ from datetime import datetime
 from pathlib import Path
 
 from PySide6.QtCore import Qt, QThreadPool, Slot
-from PySide6.QtGui import QAction, QCloseEvent, QColor, QKeySequence, QPalette
+from PySide6.QtGui import QAction, QCloseEvent, QColor, QKeySequence, QPalette, QPixmap
 from PySide6.QtWidgets import (
     QApplication,
     QComboBox,
@@ -209,6 +209,13 @@ class MainWindow(QMainWindow):
         count_row.addWidget(self._reset_count_btn)
         root_layout.addLayout(count_row)
 
+        self._thumbnail_label = QLabel()
+        self._thumbnail_label.setFixedSize(120, 90)
+        self._thumbnail_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self._thumbnail_label.setToolTip("Last captured image")
+        self._thumbnail_label.setStyleSheet("border: 1px solid #888;")
+        root_layout.addWidget(self._thumbnail_label)
+
         root_layout.addStretch()
 
         # OCR / Export row
@@ -379,6 +386,7 @@ class MainWindow(QMainWindow):
         self._session = CaptureSession(dlg.session_root, resume=dlg.resume)
         self._ocr_results = []
         self._clear_preview()
+        self._clear_thumbnail()
         self._load_notes()
         self._record_recent_session(str(dlg.session_root))
         self._update_session_labels()
@@ -439,6 +447,7 @@ class MainWindow(QMainWindow):
             cv2.imwrite(str(save_path), image)
             logger.info("MainWindow: captured → %s", save_path)
             self._update_count_label()
+            self._update_thumbnail(save_path)
             self._state_machine.capture_done()
         except Exception as exc:
             logger.error("MainWindow: capture failed: %s", exc)
@@ -454,6 +463,7 @@ class MainWindow(QMainWindow):
         self._section_label.setText(str(folder))
         self._status_bar.showMessage(f"New section: folder {folder}")
         self._clear_preview()
+        self._clear_thumbnail()
 
     @Slot()
     def _trigger_run_ocr(self) -> None:
@@ -701,6 +711,22 @@ class MainWindow(QMainWindow):
     # Helpers
     # ------------------------------------------------------------------
 
+    def _update_thumbnail(self, image_path: Path) -> None:
+        """Load *image_path* and display it scaled in the thumbnail label."""
+        pixmap = QPixmap(str(image_path))
+        if not pixmap.isNull():
+            scaled = pixmap.scaled(
+                self._thumbnail_label.width(),
+                self._thumbnail_label.height(),
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
+            self._thumbnail_label.setPixmap(scaled)
+
+    def _clear_thumbnail(self) -> None:
+        """Remove any pixmap from the thumbnail label."""
+        self._thumbnail_label.clear()
+
     def _update_pipeline_mode_label(self) -> None:
         """Refresh the pipeline mode permanent status bar label from config."""
         mode = str(self._cfg.get("ocr_pipeline_mode", "LOCAL_FAST"))
@@ -762,6 +788,7 @@ class MainWindow(QMainWindow):
         self._session = CaptureSession(session_root, resume=True)
         self._ocr_results = []
         self._clear_preview()
+        self._clear_thumbnail()
         self._load_notes()
         self._record_recent_session(path)
         self._update_session_labels()
@@ -780,6 +807,7 @@ class MainWindow(QMainWindow):
         self._count_label.setText("0")
         self._export_btn.setEnabled(False)
         self._clear_preview()
+        self._clear_thumbnail()
         self._status_bar.showMessage("Capture count reset.")
         logger.info("MainWindow: capture count reset.")
 
