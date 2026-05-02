@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-rotation-mode-ui complete. 1141 passed, 174 skipped. Ready for FEAT-capture-delay (Add a QDoubleSpinBox in SettingsDialog Capture tab for capture_delay_ms (0–5000 ms, step 100); MainWindow._trigger_capture sleeps for that duration before grabbing the screen).
+FEAT-capture-delay complete. 1163 passed, 177 skipped. Ready for FEAT-hotkey-display (Show the currently bound hotkeys for F8/F9/F10/F11 as read-only tooltips on each action button so users can see what keys are active).
 
 ## Up Next
-- [ ] FEAT-capture-delay: SettingsDialog Capture tab: "Capture Delay" QGroupBox with _capture_delay QDoubleSpinBox (0.0–5.0 s, step 0.1, suffix " s"); _load_values reads capture_delay_ms (default 0)/1000; _save_values writes value*1000. _trigger_capture: if delay > 0 calls time.sleep(delay) before grab_and_rotate
+- [ ] FEAT-hotkey-display: After hotkey reload in _connect_signals / settings accept, call _update_button_hotkey_labels() which reads keybindings from config and updates the tooltip on each action button (capture, new section, run OCR, select region) to show the bound key
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -57,3 +57,4 @@ FEAT-rotation-mode-ui complete. 1141 passed, 174 skipped. Ready for FEAT-capture
 - [x] FEAT-result-search: _search_bar QLineEdit (placeholder "Search results…", clear button) above _preview_pane. _on_search_changed(query): strips+lower; filters _ocr_results to r.text containing query; empty query restores full list; rebuilds pane with image_id headers; updates label with "(filtered: N/M)" suffix. _clear_preview: blockSignals+clear. 11 source-scan + 7 logic + 4 @gui+@skip. (1112 passed, 167 skipped).
 - [x] FEAT-status-bar-session-info: _session_info_label QLabel (tooltip "Current session and total image count") added as permanent widget after _pipeline_mode_label. _update_session_info_label(): guards None session (clears); sets f"Session: {root.name}  |  {total} image(s)". Called from _update_session_labels and after each successful capture. 10 source-scan + 5 logic + 3 @gui+@skip. (1127 passed, 170 skipped).
 - [x] FEAT-rotation-mode-ui: SettingsDialog Capture tab: "Image Rotation" QGroupBox; _rotation_mode QComboBox(none/90cw/90ccw/180); row "Rotate captured image:". _load_values: get_str("rotation_mode","none"), findText, setCurrentIndex(max(0,idx)). _save_values: set("rotation_mode", currentText()). 8 source-scan + 6 logic + 4 @gui+@skip. (1141 passed, 174 skipped).
+- [x] FEAT-capture-delay: SettingsDialog Capture tab: "Capture Delay" QGroupBox; _capture_delay QDoubleSpinBox(0.0–5.0 s, step 0.1, SpecialValueText "None", suffix " s"); loads capture_delay_ms/1000; saves value*1000. MainWindow: import time; _trigger_capture reads delay_s = capture_delay_ms/1000; if > 0 time.sleep(delay_s) before grab. 9 settings source-scan + 5 MW source-scan + 8 logic + 3 @gui+@skip. (1163 passed, 177 skipped).
