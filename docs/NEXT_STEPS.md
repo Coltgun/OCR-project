@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-session-notes complete. 828 passed, 108 skipped. Ready for FEAT-recent-sessions (Track and display a "Recent Sessions" submenu under File with the last 5 session roots).
+FEAT-recent-sessions complete. 853 passed, 114 skipped. Ready for FEAT-export-formats (Add Plain Text .txt export option alongside EPUB in the export flow).
 
 ## Up Next
-- [ ] FEAT-recent-sessions: Persist last 5 session root paths to config; populate a "Recent Sessions" submenu under File > New Session; clicking an entry resumes that session
+- [ ] FEAT-export-formats: Add a QComboBox (EPUB / Plain Text) to the action row; _trigger_export dispatches to EpubFormatter or a new PlainTextFormatter based on selection
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -40,3 +40,4 @@ FEAT-session-notes complete. 828 passed, 108 skipped. Ready for FEAT-recent-sess
 - [x] FEAT-theme-toggle: QPalette + QColor imports. "Dark Mode" checkable QAction in View menu → _toggle_dark_mode(checked) slot persists dark_mode to config + calls _apply_theme(dark). _apply_theme: Fusion style always; dark=True sets 10-colour QPalette; dark=False restores standardPalette. Guards QApplication.instance() is None. Loaded on init. 19 source-scan + 3 config-logic + 6 @gui+@skip. (790 passed, 94 skipped).
 - [x] FEAT-font-size-setting: SettingsDialog Capture tab: "Display" QGroupBox with QSpinBox(8–24 pt, default 11, suffix " pt") for preview font size. _load_values reads preview_font_size; _save_values writes it. MainWindow: _apply_preview_font_size(size) clamps to [8,24], sets font on _preview_pane; called on init and after settings accept. 8 settings source-scan + 5 MainWindow source-scan + 5 config-logic + 8 @gui+@skip. (808 passed, 102 skipped).
 - [x] FEAT-session-notes: QTextEdit (max 80px, disabled until session active) below section row. _load_notes(): blockSignals, reads session_root/notes.txt or "", enables widget; disables+clears when no session. _on_notes_changed(): guards None session, writes notes.txt, logs OSError warning. Called from _start_new_session. 16 source-scan + 4 logic + 6 @gui+@skip. (828 passed, 108 skipped).
+- [x] FEAT-recent-sessions: File > Recent Sessions submenu. _record_recent_session(path): deduplicates, prepends, caps at _MAX_RECENT=5, saves to config["recent_sessions"], rebuilds menu. _update_recent_menu(): clears + populates from config, shows disabled placeholder when empty. _open_recent_session(path): guards is_idle + path.exists(), resumes CaptureSession, loads notes, records. Called on init and from _start_new_session. 18 source-scan + 7 logic + 6 @gui+@skip. (853 passed, 114 skipped).
