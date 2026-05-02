@@ -6,6 +6,7 @@ Sections:
   API Keys    — OpenRouter API key (password field), Ollama base URL
   VRAM        — VRAM tier selector (8gb / 16gb)
   Capture     — working root dir
+  Hotkeys     — key binding fields for each action (F1-F12 / escape)
 
 Reads current values from ConfigManager on open; writes back and calls
 save() only when the user accepts.  Cancel leaves config unchanged.
@@ -34,6 +35,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from capture.hotkeys import _DEFAULT_BINDINGS, _PYNPUT_KEY_MAP
 from ocr.pipeline import PIPELINE_MODES
 from utils.config_manager import ConfigManager
 
@@ -76,6 +78,7 @@ class SettingsDialog(QDialog):
         tabs.addTab(self._build_api_tab(), "API Keys")
         tabs.addTab(self._build_vram_tab(), "VRAM")
         tabs.addTab(self._build_capture_tab(), "Capture")
+        tabs.addTab(self._build_hotkeys_tab(), "Hotkeys")
         root.addWidget(tabs)
 
         buttons = QDialogButtonBox(
@@ -232,6 +235,48 @@ class SettingsDialog(QDialog):
         layout.addStretch()
         return widget
 
+    # --- Hotkeys tab ----------------------------------------------------
+
+    def _build_hotkeys_tab(self) -> QWidget:
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
+        layout.setSpacing(10)
+
+        _VALID_KEYS = ", ".join(sorted(_PYNPUT_KEY_MAP.keys()))
+
+        key_group = QGroupBox("Key Bindings")
+        key_form = QFormLayout(key_group)
+
+        _ACTION_LABELS: dict[str, str] = {
+            "capture": "Capture screenshot:",
+            "new_section": "New section:",
+            "send_to_ocr": "Run OCR:",
+            "reset_area": "Select region:",
+            "toggle_overlay": "Toggle border overlay:",
+            "cancel": "Cancel:",
+        }
+
+        self._hotkey_edits: dict[str, QLineEdit] = {}
+        for action, label in _ACTION_LABELS.items():
+            edit = QLineEdit()
+            edit.setPlaceholderText(_DEFAULT_BINDINGS.get(action, ""))
+            edit.setMaxLength(20)
+            key_form.addRow(label, edit)
+            self._hotkey_edits[action] = edit
+
+        layout.addWidget(key_group)
+
+        note = QLabel(
+            f"Valid keys: {_VALID_KEYS}\n"
+            "Leave blank to use the default. Changes apply after restart or "
+            "when Settings is accepted."
+        )
+        note.setWordWrap(True)
+        note.setStyleSheet("color: #666; font-size: 11px;")
+        layout.addWidget(note)
+        layout.addStretch()
+        return widget
+
     # ------------------------------------------------------------------
     # Load / save
     # ------------------------------------------------------------------
@@ -295,6 +340,13 @@ class SettingsDialog(QDialog):
             cfg.get_str("working_root_dir", "sessions")
         )
 
+        # Hotkeys
+        saved_bindings: dict = cfg.get("keybindings", {})  # type: ignore[assignment]
+        if not isinstance(saved_bindings, dict):
+            saved_bindings = {}
+        for action, edit in self._hotkey_edits.items():
+            edit.setText(str(saved_bindings.get(action, "")))
+
     def _save_values(self) -> None:
         """Write widget values back to ConfigManager and persist."""
         cfg = self._config
@@ -317,6 +369,14 @@ class SettingsDialog(QDialog):
         cfg.set("embedding_batch_size", self._embed_batch_size.value())
 
         cfg.set("working_root_dir", self._working_root.text().strip() or "sessions")
+
+        # Hotkeys
+        bindings: dict[str, str] = {}
+        for action, edit in self._hotkey_edits.items():
+            val = edit.text().strip().lower()
+            if val:
+                bindings[action] = val
+        cfg.set("keybindings", bindings)
 
         cfg.save()
         logger.info("SettingsDialog: config saved.")

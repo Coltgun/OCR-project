@@ -478,6 +478,7 @@ class MainWindow(QMainWindow):
         dlg = SettingsDialog(self._config, parent=self)
         if dlg.exec() == SettingsDialog.DialogCode.Accepted:
             self._cfg = self._config._data
+            self._hotkeys.reload(self._cfg)
             logger.info("MainWindow: settings updated.")
 
     # ------------------------------------------------------------------
