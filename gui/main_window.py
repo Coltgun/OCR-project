@@ -21,7 +21,7 @@ from datetime import datetime
 from pathlib import Path
 
 from PySide6.QtCore import Qt, QThreadPool, Slot
-from PySide6.QtGui import QAction, QCloseEvent, QKeySequence
+from PySide6.QtGui import QAction, QCloseEvent, QColor, QKeySequence, QPalette
 from PySide6.QtWidgets import (
     QApplication,
     QFileDialog,
@@ -89,6 +89,9 @@ class MainWindow(QMainWindow):
 
         self._hotkeys.start()
         self._update_ui_for_state(AppState.IDLE)
+        dark = bool(self._cfg.get("dark_mode", False))
+        self._dark_mode_action.setChecked(dark)
+        self._apply_theme(dark)
 
     # ------------------------------------------------------------------
     # UI construction
@@ -119,6 +122,11 @@ class MainWindow(QMainWindow):
         self._toggle_log_action.setChecked(False)
         self._toggle_log_action.triggered.connect(self._toggle_log_panel)
         view_menu.addAction(self._toggle_log_action)
+
+        self._dark_mode_action = QAction("Dark Mode", self)
+        self._dark_mode_action.setCheckable(True)
+        self._dark_mode_action.triggered.connect(self._toggle_dark_mode)
+        view_menu.addAction(self._dark_mode_action)
 
         tools_menu = menu_bar.addMenu("&Tools")
         settings_action = QAction("&Settings…", self)
@@ -569,6 +577,37 @@ class MainWindow(QMainWindow):
             os.startfile(folder)
         except OSError as exc:
             logger.warning("MainWindow: could not open folder '%s': %s", folder, exc)
+
+    @Slot(bool)
+    def _toggle_dark_mode(self, checked: bool) -> None:
+        """Persist dark-mode preference and apply immediately."""
+        self._config.set("dark_mode", checked)
+        self._config.save()
+        self._apply_theme(checked)
+
+    def _apply_theme(self, dark: bool) -> None:
+        """Apply a dark or light palette to the QApplication instance."""
+        app = QApplication.instance()
+        if app is None:
+            return
+        if dark:
+            app.setStyle("Fusion")
+            palette = QPalette()
+            palette.setColor(QPalette.ColorRole.Window, QColor(45, 45, 45))
+            palette.setColor(QPalette.ColorRole.WindowText, QColor(220, 220, 220))
+            palette.setColor(QPalette.ColorRole.Base, QColor(30, 30, 30))
+            palette.setColor(QPalette.ColorRole.AlternateBase, QColor(53, 53, 53))
+            palette.setColor(QPalette.ColorRole.ToolTipBase, QColor(30, 30, 30))
+            palette.setColor(QPalette.ColorRole.ToolTipText, QColor(220, 220, 220))
+            palette.setColor(QPalette.ColorRole.Text, QColor(220, 220, 220))
+            palette.setColor(QPalette.ColorRole.Button, QColor(53, 53, 53))
+            palette.setColor(QPalette.ColorRole.ButtonText, QColor(220, 220, 220))
+            palette.setColor(QPalette.ColorRole.Highlight, QColor(42, 130, 218))
+            palette.setColor(QPalette.ColorRole.HighlightedText, QColor(0, 0, 0))
+            app.setPalette(palette)
+        else:
+            app.setStyle("Fusion")
+            app.setPalette(app.style().standardPalette())
 
     @Slot()
     def _open_about(self) -> None:

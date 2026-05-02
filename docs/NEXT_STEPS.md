@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-status-bar-icons complete. 768 passed, 88 skipped. Ready for FEAT-theme-toggle (Add a Dark/Light mode toggle to the View menu using QApplication.setStyle or a stylesheet).
+FEAT-theme-toggle complete. 790 passed, 94 skipped. Ready for FEAT-font-size-setting (Add a font-size preference to SettingsDialog Capture tab and apply to the preview pane).
 
 ## Up Next
-- [ ] FEAT-theme-toggle: Add "Toggle Dark Mode" checkable action in View menu; apply a dark palette or Qt Fusion + dark stylesheet; persist preference to config
+- [ ] FEAT-font-size-setting: Add a QSpinBox (8–24 pt) for preview font size in SettingsDialog; apply to _preview_pane on accept and on startup from config
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -37,3 +37,4 @@ FEAT-status-bar-icons complete. 768 passed, 88 skipped. Ready for FEAT-theme-tog
 - [x] FEAT-min-window-size: setMinimumSize(560, 480); preview pane: setMinimumHeight(80) + QSizePolicy.Expanding both axes, no fixed max height; log panel: setMinimumHeight(60) + setMaximumHeight(200) + QSizePolicy.MinimumExpanding vertically. Fixed test_results_preview.py to match new sizing API. 9 source-scan + 6 @gui+@skip. (732 passed, 74 skipped).
 - [x] FEAT-keyboard-shortcuts-display: SettingsDialog Hotkeys tab rebuilt as QTableWidget (6 rows × 3 cols: Action/Default/Override). Action + Default columns non-editable; Default shown uppercase; Override column uses QLineEdit cell widget. Column 0 stretches, 1+2 resize-to-contents. Vertical header hidden. NoSelection + NoEditTriggers. _ACTION_LABELS promoted to class attribute. _hotkey_edits dict interface unchanged — load/save untouched. 20 source-scan + 8 @gui+@skip. (752 passed, 82 skipped).
 - [x] FEAT-status-bar-icons: _state_dot QLabel (12×12, tooltip) added as permanent status-bar widget. _DOT_COLOURS dict maps AppState → stylesheet (green=#4CAF50 idle, yellow=#FFC107 busy, red=#F44336 constant). _update_ui_for_state calls setStyleSheet(_DOT_COLOURS.get(state, _DOT_BUSY)). 16 source-scan + 6 @gui+@skip. (768 passed, 88 skipped).
+- [x] FEAT-theme-toggle: QPalette + QColor imports. "Dark Mode" checkable QAction in View menu → _toggle_dark_mode(checked) slot persists dark_mode to config + calls _apply_theme(dark). _apply_theme: Fusion style always; dark=True sets 10-colour QPalette; dark=False restores standardPalette. Guards QApplication.instance() is None. Loaded on init. 19 source-scan + 3 config-logic + 6 @gui+@skip. (790 passed, 94 skipped).
