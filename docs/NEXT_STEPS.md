@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-llm-correction complete. 500 passed, 9 skipped. Ready for FEAT-openrouter-correction (OpenRouter API correction stage).
+FEAT-openrouter-correction complete. 520 passed, 9 skipped. Ready for FEAT-hybrid-correction (confidence-routed hybrid correction stage).
 
 ## Up Next
-- [ ] FEAT-openrouter-correction: OpenRouter API correction stage — same pattern as llm_correction but base_url="https://openrouter.ai/api/v1", register_as="openrouter_correction"
+- [ ] FEAT-hybrid-correction: Confidence-routed stage — high-conf→pass, mid-conf→bert_correction, low-conf→llm_correction; register_as="hybrid_correction"
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
 - [x] ARCH-002: Define All ABCs — OCREngine, PostProcessStage, OutputFormatter, InputSource, LLMProvider + 4 module stubs (77 tests passing)
@@ -21,3 +21,4 @@ FEAT-llm-correction complete. 500 passed, 9 skipped. Ready for FEAT-openrouter-c
 - [x] FEAT-embedding-dedup: EmbeddingDeduplicationStage (register_as="embedding_dedup"), BGE-M3 subprocess isolation, pairwise cosine similarity, group resolution, graceful fallback on subprocess failure. 22 tests. (453 passed, 9 skipped).
 - [x] FEAT-bert-correction: BertCorrectionStage (register_as="bert_correction"), MacBertCorrector subprocess isolation, text replacement with field preservation, length-mismatch + failure fallback. Updated test_pipeline.py. 23 tests. (477 passed, 9 skipped).
 - [x] FEAT-llm-correction: LlmCorrectionStage (register_as="llm_correction"), Ollama local API via openai, JSON batch protocol, markdown fence stripping, per-batch fallback, partial-failure preservation. Updated test_pipeline.py. 22 tests. (500 passed, 9 skipped).
+- [x] FEAT-openrouter-correction: Extracted LlmCorrectionBase (shared batch/parse/fallback logic). OpenRouterCorrectionStage (register_as="openrouter_correction") adds OpenRouter base_url, env-var API key, HTTP-Referer/X-Title headers. LlmCorrectionStage refactored to thin subclass. Updated test_pipeline.py. 19 tests. (520 passed, 9 skipped).
