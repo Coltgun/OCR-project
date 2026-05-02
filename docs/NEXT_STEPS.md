@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-batch-ocr complete. 383 passed, 9 skipped. Ready for FEAT-single-ocr (Single OCR mode: flat image list input source).
+FEAT-single-ocr complete. 410 passed, 9 skipped. Ready for FEAT-dedup (deduplication stage: MinHash near-duplicate detection).
 
 ## Up Next
-- [ ] FEAT-single-ocr: Single OCR mode — FlatInputSource (single image or flat list), no chapter organisation, immediate Pipeline output
+- [ ] FEAT-dedup: Deduplication stage — MinHash near-duplicate detection (datasketch), plugs into pipeline as PostProcessStage
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
 - [x] ARCH-002: Define All ABCs — OCREngine, PostProcessStage, OutputFormatter, InputSource, LLMProvider + 4 module stubs (77 tests passing)
@@ -16,3 +16,4 @@ FEAT-batch-ocr complete. 383 passed, 9 skipped. Ready for FEAT-single-ocr (Singl
 - [x] FEAT-epub: EpubFormatter (registry, numeric chapter order, CSS, metadata, in-memory BytesIO output). Bug fixed: ebooklib xml-decl lxml parse issue. (348 tests passing).
 - [x] FEAT-main-window: MainWindow (menu, session/region/capture/OCR/export controls, state machine wiring), SessionDialog (digits-only validation, resume/overwrite), main.py entry point. conftest.py + gui pytest marker. Bug fixed: PySide6 6.8.x + cv2 DLL conflict → pin PySide6 >=6.11. (354 passed, 9 skipped).
 - [x] FEAT-batch-ocr: FolderInputSource (register_as="folder"), numeric P0 chapter+image ordering, cv2 load, image_id encoding, 29 tests incl. P0 regressions. (383 passed, 9 skipped).
+- [x] FEAT-single-ocr: FlatInputSource (register_as="flat"), single/list path init, numeric sort with non-numeric fallback, all chapter 1, 27 tests incl. P0 regression. (410 passed, 9 skipped).
