@@ -26,3 +26,11 @@ Track active bugs here with reproduction steps. Remove entries when resolved.
 - `VRAMManager` already enforces the rule: never load PaddleOCR + any 7B+ LLM simultaneously.  
 - The same isolation principle now also applies to torch-based models.  
 **Workaround for verify_env.py:** All paddle checks run in a subprocess; torch-dependent packages are checked in the main process. Functional PaddleOCR init test is skipped (import-level check is sufficient).
+
+### PySide6 ≤6.8.x + conda-forge cv2 DLL Conflict (Windows)
+**Discovered:** 2026-05-02  
+**Severity:** Test-suite breakage (not a runtime issue — app runs correctly)  
+**Details:** PySide6 6.8.x bundles its own `MSVCP140.dll`/`VCRUNTIME140.dll` in its wheel. When cv2 (conda-forge, links against system Qt/MSVC DLLs) is imported in the same pytest process after PySide6 6.8.x has already loaded its private DLL copies, subsequent `PySide6.QtCore` imports crash with `WinError 127 — specified procedure could not be found`.  
+**Fix:** Pin PySide6 to **6.11.0 or later**. PySide6 6.11.x does not exhibit this conflict.  
+**Constraint:** Do NOT downgrade PySide6 below 6.11.  
+**conftest.py:** Documents the constraint and registers the `gui` pytest marker for tests that require a live QApplication.

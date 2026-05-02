@@ -45,3 +45,9 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - **FEAT-epub** `output/epub_formatter.py` — `EpubFormatter(register_as="epub")`: P0 numeric chapter sort, CSS injection, chapter HTML (no XML decl — ebooklib adds it), in-memory BytesIO output, configurable title/language/identifier/CSS.
 - **FEAT-epub** Bug: ebooklib `get_body_content()` returns empty when content includes `<?xml ...?>` declaration (lxml parse limitation). Fix: omit XML declaration from input; ebooklib adds it during write.
 - `tests/output/test_epub_formatter.py` — 30 tests: registry, valid ZIP, CSS, chapter content, multiline br, numeric P0 ordering (chapters 1–11 shuffled), metadata (OPF). (348 total passing).
+- **FEAT-main-window** `gui/session_dialog.py` — `SessionDialog`: digits-only folder name validation, resume/overwrite prompt, `_working_root()` from config with fallback.
+- **FEAT-main-window** `gui/main_window.py` — `MainWindow`: menu bar (New Session, Quit, Toggle Border), session/region/section/count panel, OCR run + export buttons, `_update_ui_for_state()` enabling logic, `_build_chapters_from_results()`, `closeEvent()` hotkey teardown. cv2 import deferred to avoid DLL issues.
+- **FEAT-main-window** `main.py` — application entry point; calls `setup_logging()`, creates `QApplication` + `ConfigManager` + `MainWindow`.
+- **FEAT-main-window** `conftest.py` — session-wide pytest config; `gui` marker for QApplication-dependent tests; PySide6 version constraint note.
+- **FEAT-main-window** Bug: PySide6 6.8.x + conda-forge cv2 mutually incompatible (DLL conflict). Fix: pin PySide6 >=6.11. Documented in `docs/KNOWN_ISSUES.md`.
+- `tests/gui/test_session_dialog.py` — 6 headless tests (name validation, delete helper); 9 `@pytest.mark.gui` tests skipped in headless mode. (354 passed, 9 skipped).

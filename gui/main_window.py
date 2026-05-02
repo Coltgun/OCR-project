@@ -1,0 +1,475 @@
+"""
+MainWindow — the primary application window for the Simplified Chinese OCR app.
+
+Responsibilities:
+  - Host the session status panel, capture controls, and pipeline controls.
+  - Wire StateMachine ↔ HotkeyListener ↔ CaptureSession ↔ Pipeline ↔ EpubFormatter.
+  - React to StateMachine.state_changed to update UI state (buttons, status bar).
+  - Dispatch capture (F9), new section (F10), OCR run (F11), region select (F8).
+  - Show the SessionDialog on first run and on "New Session".
+  - Save the captured EPUB to disk and report success/failure.
+
+GUI thread safety: all OCR work and EPUB writing happen in QRunnable workers;
+results are delivered back to the main thread via Qt signals (queued connections).
+"""
+
+from __future__ import annotations
+
+import logging
+from datetime import datetime
+from pathlib import Path
+
+from PySide6.QtCore import Qt, QThreadPool, Slot
+from PySide6.QtGui import QAction, QCloseEvent, QKeySequence
+from PySide6.QtWidgets import (
+    QApplication,
+    QFileDialog,
+    QHBoxLayout,
+    QLabel,
+    QMainWindow,
+    QMessageBox,
+    QPushButton,
+    QStatusBar,
+    QVBoxLayout,
+    QWidget,
+)
+
+from capture.hotkeys import HotkeyListener
+from capture.screen_capture import CaptureRegion, ScreenCapture
+from capture.session import CaptureSession
+from capture.state import AppState, StateMachine
+from core.types import Chapter, OCRResult
+from gui.overlay import CaptureOverlay, RegionBorderOverlay
+from gui.session_dialog import SessionDialog
+from ocr.pipeline import Pipeline
+from ocr.worker import OCRWorker
+from output.epub_formatter import EpubFormatter
+from utils.config_manager import ConfigManager
+
+logger = logging.getLogger(__name__)
+
+
+class MainWindow(QMainWindow):
+    """Main application window.
+
+    Args:
+        config_manager: Initialised ConfigManager instance.
+    """
+
+    def __init__(self, config_manager: ConfigManager) -> None:
+        super().__init__()
+        self._config = config_manager
+        self._cfg: dict = config_manager._data  # live config dict
+
+        self._session: CaptureSession | None = None
+        self._capture_region: CaptureRegion | None = None
+        self._ocr_results: list[OCRResult] = []
+
+        self._state_machine = StateMachine(self)
+        self._hotkeys = HotkeyListener(self._cfg, self)
+        self._screen_capture = ScreenCapture()
+        self._border_overlay = RegionBorderOverlay()
+        self._capture_overlay: CaptureOverlay | None = None
+
+        self.setWindowTitle("Simplified Chinese OCR")
+        self.setMinimumSize(520, 380)
+
+        self._build_menu()
+        self._build_central_widget()
+        self._build_status_bar()
+        self._connect_signals()
+
+        self._hotkeys.start()
+        self._update_ui_for_state(AppState.IDLE)
+
+    # ------------------------------------------------------------------
+    # UI construction
+    # ------------------------------------------------------------------
+
+    def _build_menu(self) -> None:
+        menu_bar = self.menuBar()
+
+        file_menu = menu_bar.addMenu("&File")
+        new_session_action = QAction("&New Session…", self)
+        new_session_action.setShortcut(QKeySequence("Ctrl+N"))
+        new_session_action.triggered.connect(self._start_new_session)
+        file_menu.addAction(new_session_action)
+
+        file_menu.addSeparator()
+        quit_action = QAction("&Quit", self)
+        quit_action.setShortcut(QKeySequence("Ctrl+Q"))
+        quit_action.triggered.connect(QApplication.quit)
+        file_menu.addAction(quit_action)
+
+        view_menu = menu_bar.addMenu("&View")
+        self._toggle_border_action = QAction("Toggle Region Border (F7)", self)
+        self._toggle_border_action.triggered.connect(self._toggle_border_overlay)
+        view_menu.addAction(self._toggle_border_action)
+
+    def _build_central_widget(self) -> None:
+        central = QWidget()
+        self.setCentralWidget(central)
+        root_layout = QVBoxLayout(central)
+        root_layout.setSpacing(12)
+        root_layout.setContentsMargins(16, 16, 16, 16)
+
+        # Session info row
+        session_row = QHBoxLayout()
+        session_row.addWidget(QLabel("<b>Session:</b>"))
+        self._session_label = QLabel("No session active")
+        session_row.addWidget(self._session_label, stretch=1)
+        new_btn = QPushButton("New Session…")
+        new_btn.clicked.connect(self._start_new_session)
+        session_row.addWidget(new_btn)
+        root_layout.addLayout(session_row)
+
+        # Region row
+        region_row = QHBoxLayout()
+        region_row.addWidget(QLabel("<b>Capture region:</b>"))
+        self._region_label = QLabel("Not set")
+        region_row.addWidget(self._region_label, stretch=1)
+        select_btn = QPushButton("Select Region (F8)")
+        select_btn.clicked.connect(self._trigger_select_region)
+        region_row.addWidget(select_btn)
+        root_layout.addLayout(region_row)
+
+        # Section row
+        section_row = QHBoxLayout()
+        section_row.addWidget(QLabel("<b>Current section:</b>"))
+        self._section_label = QLabel("—")
+        section_row.addWidget(self._section_label, stretch=1)
+        self._new_section_btn = QPushButton("New Section (F10)")
+        self._new_section_btn.clicked.connect(self._trigger_new_section)
+        section_row.addWidget(self._new_section_btn)
+        root_layout.addLayout(section_row)
+
+        # Image count row
+        count_row = QHBoxLayout()
+        count_row.addWidget(QLabel("<b>Images captured:</b>"))
+        self._count_label = QLabel("0")
+        count_row.addWidget(self._count_label, stretch=1)
+        self._capture_btn = QPushButton("Capture (F9)")
+        self._capture_btn.clicked.connect(self._trigger_capture)
+        count_row.addWidget(self._capture_btn)
+        root_layout.addLayout(count_row)
+
+        root_layout.addStretch()
+
+        # OCR / Export row
+        action_row = QHBoxLayout()
+        self._ocr_btn = QPushButton("Run OCR (F11)")
+        self._ocr_btn.clicked.connect(self._trigger_run_ocr)
+        action_row.addWidget(self._ocr_btn)
+
+        self._export_btn = QPushButton("Export EPUB…")
+        self._export_btn.clicked.connect(self._trigger_export)
+        self._export_btn.setEnabled(False)
+        action_row.addWidget(self._export_btn)
+        root_layout.addLayout(action_row)
+
+    def _build_status_bar(self) -> None:
+        self._status_bar = QStatusBar()
+        self.setStatusBar(self._status_bar)
+        self._state_label = QLabel("IDLE")
+        self._status_bar.addPermanentWidget(self._state_label)
+        self._status_bar.showMessage("Ready. Start a new session to begin.")
+
+    # ------------------------------------------------------------------
+    # Signal wiring
+    # ------------------------------------------------------------------
+
+    def _connect_signals(self) -> None:
+        self._state_machine.state_changed.connect(self._on_state_changed)
+
+        self._hotkeys.capture_pressed.connect(self._trigger_capture)
+        self._hotkeys.new_section_pressed.connect(self._trigger_new_section)
+        self._hotkeys.send_to_ocr_pressed.connect(self._trigger_run_ocr)
+        self._hotkeys.reset_area_pressed.connect(self._trigger_select_region)
+        self._hotkeys.toggle_overlay_pressed.connect(self._toggle_border_overlay)
+        self._hotkeys.cancel_pressed.connect(self._trigger_cancel)
+
+    # ------------------------------------------------------------------
+    # State machine reactions
+    # ------------------------------------------------------------------
+
+    @Slot(object, object)
+    def _on_state_changed(self, old: AppState, new: AppState) -> None:
+        logger.debug("MainWindow: state %s → %s", old.name, new.name)
+        self._update_ui_for_state(new)
+
+    def _update_ui_for_state(self, state: AppState) -> None:
+        """Enable/disable controls to match the current state."""
+        self._state_label.setText(state.name)
+        is_idle = state == AppState.IDLE
+        has_session = self._session is not None
+        has_region = self._capture_region is not None
+        has_results = bool(self._ocr_results)
+
+        self._capture_btn.setEnabled(
+            is_idle and has_session and has_region
+        )
+        self._new_section_btn.setEnabled(is_idle and has_session)
+        self._ocr_btn.setEnabled(
+            is_idle and has_session
+            and self._session is not None
+            and self._session.total_images() > 0
+        )
+        self._export_btn.setEnabled(is_idle and has_results)
+
+        state_messages = {
+            AppState.IDLE: "Ready.",
+            AppState.SELECTING: "Draw a capture region…  (Esc to cancel)",
+            AppState.CAPTURING: "Capturing screenshot…",
+            AppState.OCR_RUNNING: "Running OCR pipeline…",
+            AppState.EXPORTING: "Exporting EPUB…",
+        }
+        self._status_bar.showMessage(state_messages.get(state, ""))
+
+    # ------------------------------------------------------------------
+    # Action handlers
+    # ------------------------------------------------------------------
+
+    @Slot()
+    def _start_new_session(self) -> None:
+        if not self._state_machine.is_idle:
+            return
+        dlg = SessionDialog(self._config, self)
+        if dlg.exec() != SessionDialog.DialogCode.Accepted:
+            return
+
+        self._session = CaptureSession(dlg.session_root, resume=dlg.resume)
+        self._ocr_results = []
+        self._update_session_labels()
+        self._export_btn.setEnabled(False)
+        logger.info(
+            "MainWindow: session started at '%s' (resume=%s).",
+            dlg.session_root, dlg.resume,
+        )
+        self._status_bar.showMessage(
+            f"Session active: {dlg.session_root}  |  "
+            f"Section {self._session.current_folder}"
+        )
+        self._update_ui_for_state(AppState.IDLE)
+
+    @Slot()
+    def _trigger_select_region(self) -> None:
+        if not self._state_machine.select_region():
+            return
+        self._border_overlay.hide()
+        self._capture_overlay = CaptureOverlay()
+        self._capture_overlay.region_selected.connect(self._on_region_selected)
+        self._capture_overlay.cancelled.connect(self._on_region_cancelled)
+        self._capture_overlay.show_fullscreen()
+
+    @Slot()
+    def _on_region_selected(self, rect) -> None:
+        self._capture_region = CaptureRegion(
+            x=rect.x(), y=rect.y(),
+            width=rect.width(), height=rect.height(),
+        )
+        self._region_label.setText(
+            f"({rect.x()}, {rect.y()})  {rect.width()}×{rect.height()}"
+        )
+        self._border_overlay.update_region_from_qrect(rect)
+        self._border_overlay.show()
+        self._state_machine.selection_done()
+        self._update_ui_for_state(AppState.IDLE)
+
+    @Slot()
+    def _on_region_cancelled(self) -> None:
+        self._state_machine.cancel()
+        self._update_ui_for_state(AppState.IDLE)
+
+    @Slot()
+    def _trigger_capture(self) -> None:
+        if self._session is None or self._capture_region is None:
+            return
+        if not self._state_machine.capture():
+            return
+
+        import cv2  # noqa: PLC0415 — deferred to avoid DLL issues at import time
+        rotation = self._cfg.get("rotation_mode", "none")
+        try:
+            image = self._screen_capture.grab_and_rotate(
+                self._capture_region, rotation
+            )
+            save_path = self._session.get_next_image_path()
+            cv2.imwrite(str(save_path), image)
+            logger.info("MainWindow: captured → %s", save_path)
+            self._update_count_label()
+            self._state_machine.capture_done()
+        except Exception as exc:
+            logger.error("MainWindow: capture failed: %s", exc)
+            self._status_bar.showMessage(f"Capture error: {exc}")
+            self._state_machine.capture_error()
+        self._update_ui_for_state(AppState.IDLE)
+
+    @Slot()
+    def _trigger_new_section(self) -> None:
+        if self._session is None or not self._state_machine.is_idle:
+            return
+        folder = self._session.new_section()
+        self._section_label.setText(str(folder))
+        self._status_bar.showMessage(f"New section: folder {folder}")
+
+    @Slot()
+    def _trigger_run_ocr(self) -> None:
+        if self._session is None:
+            return
+        if not self._state_machine.run_ocr():
+            return
+
+        image_paths: list[Path] = []
+        for fn in sorted(
+            range(1, self._session.current_folder + 1), key=lambda x: x
+        ):
+            folder = self._session.folder_path(fn)
+            pngs = sorted(
+                [p for p in folder.iterdir() if p.suffix.lower() == ".png"],
+                key=lambda p: int(p.stem),
+            )
+            image_paths.extend(pngs)
+
+        if not image_paths:
+            self._status_bar.showMessage("No images to process.")
+            self._state_machine.ocr_done()
+            return
+
+        worker = OCRWorker(self._cfg, image_paths, self)
+        worker.signals.results_ready.connect(self._on_ocr_results)
+        worker.signals.error_occurred.connect(self._on_ocr_error)
+        worker.signals.progress.connect(self._on_ocr_progress)
+        QThreadPool.globalInstance().start(worker)
+        self._status_bar.showMessage(
+            f"OCR running on {len(image_paths)} image(s)…"
+        )
+
+    @Slot(list)
+    def _on_ocr_results(self, results: list[OCRResult]) -> None:
+        self._ocr_results = results
+        self._export_btn.setEnabled(True)
+        self._state_machine.ocr_done()
+        self._status_bar.showMessage(
+            f"OCR complete: {len(results)} text block(s) extracted."
+        )
+        self._update_ui_for_state(AppState.IDLE)
+
+    @Slot(str)
+    def _on_ocr_error(self, message: str) -> None:
+        logger.error("MainWindow: OCR error: %s", message)
+        self._state_machine.trigger("error")
+        self._status_bar.showMessage(f"OCR error: {message}")
+        QMessageBox.critical(self, "OCR Error", message)
+        self._update_ui_for_state(AppState.IDLE)
+
+    @Slot(int, int)
+    def _on_ocr_progress(self, done: int, total: int) -> None:
+        self._status_bar.showMessage(f"OCR: processing image {done}/{total}…")
+
+    @Slot()
+    def _trigger_export(self) -> None:
+        if not self._ocr_results or not self._state_machine.export():
+            return
+
+        output_dir = self._cfg.get("epub_output_dir", str(Path.home()))
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        session_name = (
+            self._session.root.name if self._session else "export"
+        )
+        default_name = f"{session_name}_{timestamp}.epub"
+        save_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save EPUB",
+            str(Path(output_dir) / default_name),
+            "EPUB files (*.epub)",
+        )
+        if not save_path:
+            self._state_machine.cancel()
+            self._update_ui_for_state(AppState.IDLE)
+            return
+
+        chapters = self._build_chapters_from_results()
+        try:
+            formatter = EpubFormatter()
+            epub_bytes = formatter.format(chapters, self._cfg)
+            Path(save_path).write_bytes(epub_bytes)
+            logger.info("MainWindow: EPUB saved to '%s'.", save_path)
+            self._status_bar.showMessage(f"EPUB saved: {save_path}")
+            self._state_machine.export_done()
+        except Exception as exc:
+            logger.error("MainWindow: EPUB export failed: %s", exc)
+            QMessageBox.critical(self, "Export Error", str(exc))
+            self._state_machine.trigger("error")
+        self._update_ui_for_state(AppState.IDLE)
+
+    @Slot()
+    def _trigger_cancel(self) -> None:
+        if self._capture_overlay is not None:
+            self._capture_overlay.close()
+            self._capture_overlay = None
+        self._state_machine.cancel()
+        self._update_ui_for_state(AppState.IDLE)
+
+    @Slot()
+    def _toggle_border_overlay(self) -> None:
+        if self._border_overlay.isVisible():
+            self._border_overlay.hide()
+        else:
+            if self._capture_region is not None:
+                self._border_overlay.show()
+
+    # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+
+    def _build_chapters_from_results(self) -> list[Chapter]:
+        """Group OCRResults into Chapter objects by image_id prefix."""
+        if self._session is None:
+            return [Chapter(number=1, results=self._ocr_results)]
+
+        chapters_map: dict[int, list[OCRResult]] = {}
+        for r in self._ocr_results:
+            for fn in range(1, self._session.current_folder + 1):
+                folder_path = self._session.root / str(fn)
+                if any(
+                    folder_path / f"{r.image_id}.png" == p
+                    or r.image_id.startswith(str(fn) + "/")
+                    for p in [folder_path / f"{r.image_id}.png"]
+                ):
+                    chapters_map.setdefault(fn, []).append(r)
+                    break
+            else:
+                chapters_map.setdefault(1, []).append(r)
+
+        return [
+            Chapter(number=fn, results=results)
+            for fn, results in sorted(chapters_map.items(), key=lambda x: x[0])
+        ]
+
+    def _update_session_labels(self) -> None:
+        if self._session is None:
+            return
+        self._session_label.setText(str(self._session.root))
+        self._section_label.setText(str(self._session.current_folder))
+        self._update_count_label()
+
+    def _update_count_label(self) -> None:
+        if self._session is None:
+            self._count_label.setText("0")
+            return
+        total = self._session.total_images()
+        current = self._session.image_count(self._session.current_folder)
+        self._count_label.setText(
+            f"{total} total  (section: {current})"
+        )
+
+    # ------------------------------------------------------------------
+    # Window lifecycle
+    # ------------------------------------------------------------------
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        self._hotkeys.stop()
+        self._border_overlay.close()
+        if self._capture_overlay is not None:
+            self._capture_overlay.close()
+        event.accept()
