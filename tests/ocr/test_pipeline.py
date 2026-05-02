@@ -74,10 +74,14 @@ class TestPipelineConstruction:
         p = Pipeline("API_STANDARD", {})
         assert "openrouter_correction" in p.stage_ids
 
-    def test_unregistered_stage_skipped_gracefully(self) -> None:
-        """Stages not yet implemented (e.g. hybrid_correction) are skipped silently."""
+    def test_hybrid_correction_present_in_hybrid_tiered(self) -> None:
         p = Pipeline("HYBRID_TIERED", {})
-        assert "hybrid_correction" not in p.stage_ids
+        assert "hybrid_correction" in p.stage_ids
+
+    def test_unregistered_stage_skipped_gracefully(self) -> None:
+        """Stages not yet implemented (e.g. openrouter_dedup) are skipped silently."""
+        p = Pipeline("API_FULL", {})
+        assert "openrouter_dedup" not in p.stage_ids
 
     def test_available_modes_returns_all(self) -> None:
         modes = Pipeline.available_modes()
