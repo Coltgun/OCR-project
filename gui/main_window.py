@@ -483,6 +483,9 @@ class MainWindow(QMainWindow):
 
     @Slot(list)
     def _on_ocr_results(self, results: list[OCRResult]) -> None:
+        min_conf = float(self._cfg.get("ocr_min_confidence", 0.0))
+        if min_conf > 0.0:
+            results = [r for r in results if r.confidence >= min_conf]
         self._ocr_results = results
         self._export_btn.setEnabled(True)
         self._state_machine.ocr_done()

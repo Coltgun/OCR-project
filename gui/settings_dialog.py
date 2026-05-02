@@ -120,6 +120,15 @@ class SettingsDialog(QDialog):
 
         layout.addWidget(dedup_group)
 
+        # OCR confidence filter
+        confidence_group = QGroupBox("OCR Confidence Filter")
+        confidence_form = QFormLayout(confidence_group)
+
+        self._ocr_min_confidence = self._make_double_spin(0.0, 1.0, 0.05, 2)
+        confidence_form.addRow("Min confidence (discard <):", self._ocr_min_confidence)
+
+        layout.addWidget(confidence_group)
+
         # Hybrid correction thresholds
         hybrid_group = QGroupBox("Hybrid Correction Thresholds")
         hybrid_form = QFormLayout(hybrid_group)
@@ -329,6 +338,9 @@ class SettingsDialog(QDialog):
         self._embedding_threshold.setValue(
             float(cfg.get("embedding_threshold", 0.92))
         )
+        self._ocr_min_confidence.setValue(
+            float(cfg.get("ocr_min_confidence", 0.0))
+        )
         self._hybrid_high.setValue(
             float(cfg.get("hybrid_high_threshold", 0.90))
         )
@@ -390,6 +402,7 @@ class SettingsDialog(QDialog):
         cfg.set("ocr_pipeline_mode", self._mode_combo.currentText())
         cfg.set("dedup_threshold", self._minhash_threshold.value())
         cfg.set("embedding_threshold", self._embedding_threshold.value())
+        cfg.set("ocr_min_confidence", self._ocr_min_confidence.value())
         cfg.set("hybrid_high_threshold", self._hybrid_high.value())
         cfg.set("hybrid_low_threshold", self._hybrid_low.value())
 
