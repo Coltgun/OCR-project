@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-recent-sessions complete. 853 passed, 114 skipped. Ready for FEAT-export-formats (Add Plain Text .txt export option alongside EPUB in the export flow).
+FEAT-export-formats complete. 879 passed, 117 skipped. Ready for FEAT-markdown-formatter (Add Markdown .md export option — PlainTextFormatter variant with ## headings and blank-line separation).
 
 ## Up Next
-- [ ] FEAT-export-formats: Add a QComboBox (EPUB / Plain Text) to the action row; _trigger_export dispatches to EpubFormatter or a new PlainTextFormatter based on selection
+- [ ] FEAT-markdown-formatter: Add MarkdownFormatter registered as "md"; add it to the export combo; format with ## Chapter N heading and double newline between paragraphs
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -41,3 +41,4 @@ FEAT-recent-sessions complete. 853 passed, 114 skipped. Ready for FEAT-export-fo
 - [x] FEAT-font-size-setting: SettingsDialog Capture tab: "Display" QGroupBox with QSpinBox(8–24 pt, default 11, suffix " pt") for preview font size. _load_values reads preview_font_size; _save_values writes it. MainWindow: _apply_preview_font_size(size) clamps to [8,24], sets font on _preview_pane; called on init and after settings accept. 8 settings source-scan + 5 MainWindow source-scan + 5 config-logic + 8 @gui+@skip. (808 passed, 102 skipped).
 - [x] FEAT-session-notes: QTextEdit (max 80px, disabled until session active) below section row. _load_notes(): blockSignals, reads session_root/notes.txt or "", enables widget; disables+clears when no session. _on_notes_changed(): guards None session, writes notes.txt, logs OSError warning. Called from _start_new_session. 16 source-scan + 4 logic + 6 @gui+@skip. (828 passed, 108 skipped).
 - [x] FEAT-recent-sessions: File > Recent Sessions submenu. _record_recent_session(path): deduplicates, prepends, caps at _MAX_RECENT=5, saves to config["recent_sessions"], rebuilds menu. _update_recent_menu(): clears + populates from config, shows disabled placeholder when empty. _open_recent_session(path): guards is_idle + path.exists(), resumes CaptureSession, loads notes, records. Called on init and from _start_new_session. 18 source-scan + 7 logic + 6 @gui+@skip. (853 passed, 114 skipped).
+- [x] FEAT-export-formats: output/plain_text_formatter.py — PlainTextFormatter(OutputFormatter, register_as="txt"): format() sorts numerically, emits "── Chapter N ──" headers + text lines + blank lines, encode("utf-8"); file_extension() = "txt". MainWindow: QComboBox import; _export_fmt_combo (EPUB/Plain Text); _trigger_export dispatches on currentData() — sets ext, file_filter, dialog_title, formatter. Export btn label → "Export…". 6 formatter source-scan + 10 MW source-scan + 10 unit + 3 @gui+@skip. (879 passed, 117 skipped).

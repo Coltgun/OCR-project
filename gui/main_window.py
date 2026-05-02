@@ -24,6 +24,7 @@ from PySide6.QtCore import Qt, QThreadPool, Slot
 from PySide6.QtGui import QAction, QCloseEvent, QColor, QKeySequence, QPalette
 from PySide6.QtWidgets import (
     QApplication,
+    QComboBox,
     QFileDialog,
     QHBoxLayout,
     QLabel,
@@ -51,6 +52,7 @@ from gui.settings_dialog import SettingsDialog
 from ocr.pipeline import Pipeline
 from ocr.worker import OCRWorker
 from output.epub_formatter import EpubFormatter
+from output.plain_text_formatter import PlainTextFormatter
 from utils.config_manager import ConfigManager
 
 logger = logging.getLogger(__name__)
@@ -209,7 +211,12 @@ class MainWindow(QMainWindow):
         self._ocr_btn.clicked.connect(self._trigger_run_ocr)
         action_row.addWidget(self._ocr_btn)
 
-        self._export_btn = QPushButton("Export EPUB…")
+        self._export_fmt_combo = QComboBox()
+        self._export_fmt_combo.addItem("EPUB", userData="epub")
+        self._export_fmt_combo.addItem("Plain Text", userData="txt")
+        action_row.addWidget(self._export_fmt_combo)
+
+        self._export_btn = QPushButton("Export…")
         self._export_btn.clicked.connect(self._trigger_export)
         self._export_btn.setEnabled(False)
         action_row.addWidget(self._export_btn)
@@ -501,17 +508,22 @@ class MainWindow(QMainWindow):
         if not self._ocr_results or not self._state_machine.export():
             return
 
+        fmt = self._export_fmt_combo.currentData()
+        is_epub = fmt == "epub"
         output_dir = self._cfg.get("epub_output_dir", str(Path.home()))
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         session_name = (
             self._session.root.name if self._session else "export"
         )
-        default_name = f"{session_name}_{timestamp}.epub"
+        ext = "epub" if is_epub else "txt"
+        default_name = f"{session_name}_{timestamp}.{ext}"
+        file_filter = "EPUB files (*.epub)" if is_epub else "Text files (*.txt)"
+        dialog_title = "Save EPUB" if is_epub else "Save Plain Text"
         save_path, _ = QFileDialog.getSaveFileName(
             self,
-            "Save EPUB",
+            dialog_title,
             str(Path(output_dir) / default_name),
-            "EPUB files (*.epub)",
+            file_filter,
         )
         if not save_path:
             self._state_machine.cancel()
@@ -528,17 +540,17 @@ class MainWindow(QMainWindow):
         self._progress_bar.setRange(0, 0)
         self._progress_bar.setVisible(True)
         try:
-            formatter = EpubFormatter()
-            epub_bytes = formatter.format(chapters, self._cfg)
-            Path(save_path).write_bytes(epub_bytes)
-            logger.info("MainWindow: EPUB saved to '%s'.", save_path)
+            formatter = EpubFormatter() if is_epub else PlainTextFormatter()
+            output_bytes = formatter.format(chapters, self._cfg)
+            Path(save_path).write_bytes(output_bytes)
+            logger.info("MainWindow: %s saved to '%s'.", ext.upper(), save_path)
             self._last_export_path = save_path
             self._progress_bar.setVisible(False)
-            self._status_bar.showMessage(f"EPUB saved: {Path(save_path).name}")
+            self._status_bar.showMessage(f"{ext.upper()} saved: {Path(save_path).name}")
             self._open_folder_btn.setVisible(True)
             self._state_machine.export_done()
         except Exception as exc:
-            logger.error("MainWindow: EPUB export failed: %s", exc)
+            logger.error("MainWindow: export failed: %s", exc)
             self._progress_bar.setVisible(False)
             QMessageBox.critical(self, "Export Error", str(exc))
             self._state_machine.trigger("error")
