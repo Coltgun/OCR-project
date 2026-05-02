@@ -242,6 +242,11 @@ class MainWindow(QMainWindow):
         self._progress_bar.setVisible(False)
         self._status_bar.addPermanentWidget(self._progress_bar)
 
+        self._state_dot = QLabel()
+        self._state_dot.setFixedSize(12, 12)
+        self._state_dot.setToolTip("Application state")
+        self._status_bar.addPermanentWidget(self._state_dot)
+
         self._state_label = QLabel("IDLE")
         self._status_bar.addPermanentWidget(self._state_label)
         self._status_bar.showMessage("Ready. Start a new session to begin.")
@@ -271,9 +276,24 @@ class MainWindow(QMainWindow):
         logger.debug("MainWindow: state %s → %s", old.name, new.name)
         self._update_ui_for_state(new)
 
+    # Stylesheet templates for the state indicator dot.
+    _DOT_IDLE = "border-radius:6px; background:#4CAF50;"
+    _DOT_BUSY = "border-radius:6px; background:#FFC107;"
+    _DOT_ERROR = "border-radius:6px; background:#F44336;"
+    _DOT_COLOURS = {
+        AppState.IDLE: _DOT_IDLE,
+        AppState.SELECTING: _DOT_BUSY,
+        AppState.CAPTURING: _DOT_BUSY,
+        AppState.OCR_RUNNING: _DOT_BUSY,
+        AppState.EXPORTING: _DOT_BUSY,
+    }
+
     def _update_ui_for_state(self, state: AppState) -> None:
         """Enable/disable controls to match the current state."""
         self._state_label.setText(state.name)
+        self._state_dot.setStyleSheet(
+            self._DOT_COLOURS.get(state, self._DOT_BUSY)
+        )
         if state != AppState.IDLE or not self._last_export_path:
             self._open_folder_btn.setVisible(False)
         is_idle = state == AppState.IDLE
