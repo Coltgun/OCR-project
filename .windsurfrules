@@ -1,0 +1,78 @@
+<project>
+This is a Simplified Chinese OCR application built in Python.
+It captures screen regions, runs OCR, applies NLP post-processing, and exports EPUB files.
+The app is designed for extensibility — new features slot in without modifying existing code.
+Developer hardware: RTX 4070 Laptop (8 GB VRAM), i7-13700HX, 32 GB RAM.
+Full architecture: @docs/app_guidelines.md
+Full OCR pipeline reference: @docs/ocr_guidelines.md
+Current work queue: @docs/NEXT_STEPS.md
+Architecture decisions: @docs/DECISIONS.md
+</project>
+
+<architecture>
+- Framework: PySide6 (not PyQt6). Use PySide6 imports everywhere.
+- Screen capture: mss library only. Never pyautogui or PIL.grab for screen capture.
+- Global hotkeys: pynput. Hotkey listener runs in a separate thread — use Qt signals to cross into the main thread. Never call GUI methods directly from the hotkey thread.
+- OCR engine: PaddleOCR (PP-OCRv5). paddlepaddle-gpu installed from official PaddlePaddle index, not PyPI.
+- EPUB output: ebooklib.
+- Git operations (automated): gitpython. Developer workflow uses Windsurf Source Control panel.
+- OpenRouter API: openai library with base_url="https://openrouter.ai/api/v1".
+- Local LLM API: openai library with base_url="http://localhost:11434/v1" (Ollama).
+</architecture>
+
+<extensibility>
+Every major subsystem uses the Registrable registry pattern (core/registry.py).
+New implementations subclass the ABC and set name="identifier". They self-register on import.
+Never use if/elif chains to select between OCR engines, pipeline stages, or output formats.
+Always use the registry: OCREngine.get(config["ocr_engine"])().
+Pipeline stages are defined as ordered name lists in PIPELINE_MODES dict — not hardcoded logic.
+New pipeline modes = add one entry to PIPELINE_MODES. No other changes.
+All cross-module communication goes through core/event_bus.py. No direct imports between modules.
+modules/ directory contains stubs only. Do NOT implement translation, manga, web_scraper, or story_memory unless explicitly instructed.
+</extensibility>
+
+<vram>
+VRAM tier is set by config["vram_tier"]: "8gb" (default) or "16gb".
+VRAMManager (core/vram_manager.py) tracks allocations. Every model must call allocate() before loading and release() after unloading.
+Never hardcode model names. Read from config — defaults are set by vram_tier.
+8gb tier: MacBERT-base (~2GB), Qwen2.5-7B Q4_K_M (~5GB), BGE-M3 (~1.1GB).
+16gb tier: MacBERT-large (~4GB), Qwen2.5-14B Q4_K_M (~10GB), BGE-M3 resident.
+FORBIDDEN on 8gb: loading PaddleOCR + any 7B+ LLM simultaneously. Will OOM.
+Always unload PaddleOCR before loading any LLM or large BERT model.
+</vram>
+
+<correctness>
+CRITICAL — Folder and image ordering MUST be numeric, never lexicographic.
+CORRECT:   sorted(items, key=lambda x: int(x))
+FORBIDDEN: sorted(items) or os.listdir() without explicit numeric sort.
+Lexicographic sort produces: 1, 10, 11, 2, 3 — a fatal ordering bug.
+EPUB chapter spine must be built in the same numeric order.
+Image filenames within folders use zero-padded integers: 0001.png, 0002.png, etc.
+</correctness>
+
+<environment>
+Python 3.11 only. conda environment named "chinese-ocr".
+opencv installed via conda-forge (not pip opencv-python — causes Qt conflict with PySide6).
+paddlepaddle-gpu installed via: pip install paddlepaddle-gpu==3.0.0 -i https://www.paddlepaddle.org.cn/packages/stable/cu126/
+Do NOT use uv to install paddlepaddle-gpu (wheel naming conflict).
+All other packages via pip inside the conda env.
+</environment>
+
+<workflow>
+Always present a plan for approval before writing code for any non-trivial change.
+After completing a ticket, ask to update NEXT_STEPS.md and CHANGELOG.md.
+Commit format: [TICKET-ID] Brief description. Example: [ARCH-001] Implement registry pattern.
+Feature branches: feature/ARCH-001, feature/FEAT-capture, etc. Merge to dev, not main.
+main branch = stable only. dev branch = active development.
+Run pytest after each change. Fix failures before moving to the next file.
+</workflow>
+
+<coding>
+Type hints on all function signatures.
+Docstrings on all public classes and methods (one-line is fine for simple methods).
+No bare except: clauses. Catch specific exceptions.
+Logging via utils/logging_config.py — never print() for operational messages.
+Config access via utils/config_manager.py dotted-key API — never open config.json directly.
+Test files mirror source structure: tests/ocr/test_engine.py mirrors ocr/engines/paddle_engine.py.
+The numeric sort P0 test must exist: tests/utils/test_file_utils.py::test_numeric_sort_never_lexicographic.
+</coding>

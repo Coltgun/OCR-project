@@ -1,0 +1,59 @@
+{
+  "working_root_dir": "D:/ocr_sessions",
+
+  "capture_region": {
+    "x": 0,
+    "y": 0,
+    "width": 800,
+    "height": 600
+  },
+
+  "rotation_mode": "none",
+
+  "keybindings": {
+    "capture": "f9",
+    "new_section": "f10",
+    "send_to_ocr": "f11",
+    "reset_area": "f8",
+    "toggle_overlay": "f7"
+  },
+
+  "ocr_pipeline_mode": "HYBRID_TIERED",
+
+  "ocr_engine": "paddleocr",
+
+  "openrouter_api_key": "YOUR_OPENROUTER_API_KEY_HERE",
+  "openrouter_model_correction": "deepseek/deepseek-v3.2",
+  "openrouter_model_dedup": "deepseek/deepseek-v3.2",
+
+  "local_llm_model": "qwen2.5:7b-instruct-q4_K_M",
+  "ollama_base_url": "http://localhost:11434",
+
+  "dedup_embedding_enabled": false,
+  "dedup_llm_enabled": false,
+
+  "confidence_thresholds": {
+    "high": 0.85,
+    "low": 0.50
+  },
+
+  "epub_output_dir": "D:/ocr_sessions/epub_output",
+
+  "github_repo_path": "",
+  "github_remote_url": "",
+  "github_auto_commit": true,
+  "github_auto_push": false,
+
+  "paddleocr_use_gpu": true,
+  "paddleocr_lang": "ch",
+
+  "vram_tier": "8gb",
+  "vram_budget_mb": 7680,
+
+  "csc_model": "macbert-base",
+  "embedding_resident": false,
+  "recommended_pipeline_mode": "HYBRID_TIERED",
+
+  "output_format": "epub",
+  "enabled_modules": ["epub"]
+}
