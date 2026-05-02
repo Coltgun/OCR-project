@@ -260,6 +260,11 @@ class MainWindow(QMainWindow):
         self._copy_btn.setEnabled(False)
         self._copy_btn.clicked.connect(self._copy_results_to_clipboard)
         preview_header.addWidget(self._copy_btn)
+        self._copy_section_btn = QPushButton("Copy Section")
+        self._copy_section_btn.setEnabled(False)
+        self._copy_section_btn.setToolTip("Copy OCR results from the current section only")
+        self._copy_section_btn.clicked.connect(self._copy_section_to_clipboard)
+        preview_header.addWidget(self._copy_section_btn)
         root_layout.addLayout(preview_header)
 
         self._preview_pane = QTextEdit()
@@ -906,12 +911,35 @@ class MainWindow(QMainWindow):
         n = len(results)
         self._preview_label.setText(f"<b>OCR Results:</b> {n} block{'s' if n != 1 else ''}")
         self._copy_btn.setEnabled(True)
+        self._copy_section_btn.setEnabled(
+            self._session is not None and bool(results)
+        )
 
     def _clear_preview(self) -> None:
         """Clear the preview pane and reset its label."""
         self._preview_pane.setPlainText("")
         self._preview_label.setText("<b>OCR Results:</b> —")
         self._copy_btn.setEnabled(False)
+        self._copy_section_btn.setEnabled(False)
+
+    @Slot()
+    def _copy_section_to_clipboard(self) -> None:
+        """Copy OCR results belonging to the current section to the clipboard."""
+        if self._session is None or not self._ocr_results:
+            return
+        fn = self._session.current_folder
+        folder_path = self._session.root / str(fn)
+        section_results = [
+            r for r in self._ocr_results
+            if (folder_path / f"{r.image_id}.png").exists()
+            or r.image_id.startswith(str(fn) + "/")
+        ]
+        text = "\n".join(r.text for r in section_results)
+        if text:
+            QApplication.clipboard().setText(text)
+            self._status_bar.showMessage(
+                f"Section {fn} OCR text copied ({len(section_results)} block(s)).", 3000
+            )
 
     @Slot()
     def _copy_results_to_clipboard(self) -> None:
