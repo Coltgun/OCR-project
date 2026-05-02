@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-image-thumbnail-preview complete. 987 passed, 140 skipped. Ready for FEAT-export-filename-template (Allow the user to customise the export filename template via a QLineEdit in SettingsDialog; default "{session}_{timestamp}").
+FEAT-export-filename-template complete. 1005 passed, 144 skipped. Ready for FEAT-section-image-count (Show per-section image counts in a small read-only list widget in the session panel).
 
 ## Up Next
-- [ ] FEAT-export-filename-template: Add a QLineEdit to SettingsDialog Capture tab for export_filename_template (default "{session}_{timestamp}"); _trigger_export substitutes {session} and {timestamp} to build default_name
+- [ ] FEAT-section-image-count: Below the section label, add a read-only QListWidget populated in _update_session_labels; each row shows "Section N: M image(s)" for every section folder in the current session
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -48,3 +48,4 @@ FEAT-image-thumbnail-preview complete. 987 passed, 140 skipped. Ready for FEAT-e
 - [x] FEAT-session-summary: _on_ocr_results computes raw_count, kept_count (after confidence filter), avg_conf (0.0 if empty), filtered_note (only shown if raw != kept). Status bar message: "OCR complete: N block(s) kept  (X filtered)  |  avg confidence: 0.XX". 10 source-scan + 10 logic + 3 @gui+@skip. (955 passed, 132 skipped).
 - [x] FEAT-pipeline-mode-indicator: _pipeline_mode_label QLabel (tooltip "Active pipeline mode") added as permanent status bar widget. _update_pipeline_mode_label() reads ocr_pipeline_mode from config (default "LOCAL_FAST"), sets text "Mode: {mode}". Called on __init__ and after settings accept. 8 source-scan + 5 logic + 4 @gui+@skip. (968 passed, 136 skipped).
 - [x] FEAT-image-thumbnail-preview: _thumbnail_label QLabel (120×90, AlignCenter, border stylesheet, tooltip) below count row. _update_thumbnail(path): loads QPixmap, scales KeepAspectRatio+SmoothTransformation, guards isNull. _clear_thumbnail(): clears label. Called: _update_thumbnail after successful capture; _clear_thumbnail on new session, session resume, new section, reset count. QPixmap added to QtGui imports. 16 source-scan + 3 logic + 4 @gui+@skip. (987 passed, 140 skipped).
+- [x] FEAT-export-filename-template: SettingsDialog Capture tab: _export_filename_template QLineEdit in Session Storage group; placeholder "{session}_{timestamp}"; _load_values reads export_filename_template; _save_values writes it (fallback to default on empty). _trigger_export: reads template, substitutes {session} and {timestamp}, builds default_stem, default_name. 6 settings source-scan + 4 MW source-scan + 8 logic + 4 @gui+@skip. (1005 passed, 144 skipped).
