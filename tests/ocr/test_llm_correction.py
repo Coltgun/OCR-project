@@ -1,0 +1,257 @@
+"""
+Tests for LlmCorrectionStage.
+
+All OpenAI client calls are mocked — no live Ollama instance required.
+Tests cover: registry, process() text replacement, field preservation,
+API error fallback, parse error fallback, length mismatch fallback,
+batching, config forwarding, _parse_response edge cases.
+"""
+
+from __future__ import annotations
+
+import json
+from dataclasses import replace
+from unittest.mock import MagicMock, patch, call
+
+import pytest
+
+from core.types import BoundingBox, OCRResult
+from ocr.stages.base import PostProcessStage
+from ocr.stages.llm_correction import LlmCorrectionStage
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def make_result(
+    text: str,
+    confidence: float = 0.9,
+    image_id: str = "1/0001",
+) -> OCRResult:
+    return OCRResult(
+        text=text,
+        confidence=confidence,
+        bbox=BoundingBox(x1=0, y1=0, x2=10, y2=10),
+        image_id=image_id,
+    )
+
+
+def make_response(texts: list[str]) -> MagicMock:
+    """Build a mock OpenAI ChatCompletion response returning *texts* as JSON."""
+    msg = MagicMock()
+    msg.content = json.dumps(texts, ensure_ascii=False)
+    choice = MagicMock()
+    choice.message = msg
+    resp = MagicMock()
+    resp.choices = [choice]
+    return resp
+
+
+# ---------------------------------------------------------------------------
+# Registry
+# ---------------------------------------------------------------------------
+
+class TestRegistry:
+    def test_registered_as_llm_correction(self) -> None:
+        assert PostProcessStage.get("llm_correction") is LlmCorrectionStage
+
+    def test_stage_id(self) -> None:
+        assert LlmCorrectionStage().stage_id == "llm_correction"
+
+
+# ---------------------------------------------------------------------------
+# _parse_response
+# ---------------------------------------------------------------------------
+
+class TestParseResponse:
+    def test_valid_json_list(self) -> None:
+        originals = ["a", "b"]
+        out = LlmCorrectionStage._parse_response('["x","y"]', originals)
+        assert out == ["x", "y"]
+
+    def test_invalid_json_returns_originals(self) -> None:
+        originals = ["a", "b"]
+        out = LlmCorrectionStage._parse_response("not json", originals)
+        assert out == originals
+
+    def test_non_list_returns_originals(self) -> None:
+        originals = ["a"]
+        out = LlmCorrectionStage._parse_response('{"key":"val"}', originals)
+        assert out == originals
+
+    def test_length_mismatch_returns_originals(self) -> None:
+        originals = ["a", "b", "c"]
+        out = LlmCorrectionStage._parse_response('["x","y"]', originals)
+        assert out == originals
+
+    def test_markdown_code_fence_stripped(self) -> None:
+        originals = ["a"]
+        raw = "```json\n[\"x\"]\n```"
+        out = LlmCorrectionStage._parse_response(raw, originals)
+        assert out == ["x"]
+
+    def test_plain_code_fence_stripped(self) -> None:
+        originals = ["a"]
+        raw = "```\n[\"x\"]\n```"
+        out = LlmCorrectionStage._parse_response(raw, originals)
+        assert out == ["x"]
+
+    def test_elements_coerced_to_str(self) -> None:
+        originals = ["a"]
+        out = LlmCorrectionStage._parse_response("[42]", originals)
+        assert out == ["42"]
+
+    def test_empty_originals_empty_response(self) -> None:
+        out = LlmCorrectionStage._parse_response("[]", [])
+        assert out == []
+
+
+# ---------------------------------------------------------------------------
+# process() — client mocked
+# ---------------------------------------------------------------------------
+
+class TestProcess:
+    _cfg: dict = {}
+
+    def _patch_client(self, responses: list[list[str]]):
+        """Patch OpenAI so completions.create returns each response in sequence."""
+        mock_client = MagicMock()
+        mock_client.chat.completions.create.side_effect = [
+            make_response(r) for r in responses
+        ]
+        return patch("ocr.stages.llm_correction.OpenAI", return_value=mock_client)
+
+    def test_empty_returns_empty(self) -> None:
+        stage = LlmCorrectionStage()
+        assert stage.process([], self._cfg) == []
+
+    def test_single_result_corrected(self) -> None:
+        stage = LlmCorrectionStage()
+        r = make_result("地走了。")
+        with self._patch_client([["他走了。"]]):
+            out = stage.process([r], self._cfg)
+        assert out[0].text == "他走了。"
+
+    def test_confidence_unchanged(self) -> None:
+        stage = LlmCorrectionStage()
+        r = make_result("错误", confidence=0.65)
+        with self._patch_client([["正确"]]):
+            out = stage.process([r], self._cfg)
+        assert out[0].confidence == 0.65
+
+    def test_bbox_unchanged(self) -> None:
+        stage = LlmCorrectionStage()
+        bbox = BoundingBox(x1=1, y1=2, x2=50, y2=20)
+        r = OCRResult(text="错误", confidence=0.9, bbox=bbox, image_id="1/0001")
+        with self._patch_client([["正确"]]):
+            out = stage.process([r], self._cfg)
+        assert out[0].bbox == bbox
+
+    def test_image_id_unchanged(self) -> None:
+        stage = LlmCorrectionStage()
+        r = make_result("文字", image_id="5/0012")
+        with self._patch_client([["文字"]]):
+            out = stage.process([r], self._cfg)
+        assert out[0].image_id == "5/0012"
+
+    def test_multiple_results_corrected(self) -> None:
+        stage = LlmCorrectionStage()
+        results = [make_result(f"错误{i}") for i in range(3)]
+        corrected = [f"正确{i}" for i in range(3)]
+        with self._patch_client([corrected]):
+            out = stage.process(results, self._cfg)
+        assert [r.text for r in out] == corrected
+
+    def test_reading_order_preserved(self) -> None:
+        stage = LlmCorrectionStage()
+        texts = ["第一", "第二", "第三"]
+        results = [make_result(t) for t in texts]
+        corrected = ["第一修", "第二修", "第三修"]
+        with self._patch_client([corrected]):
+            out = stage.process(results, self._cfg)
+        assert [r.text for r in out] == corrected
+
+    def test_api_error_keeps_originals(self) -> None:
+        from openai import OpenAIError
+        stage = LlmCorrectionStage()
+        results = [make_result("文字一"), make_result("文字二")]
+        mock_client = MagicMock()
+        mock_client.chat.completions.create.side_effect = OpenAIError("timeout")
+        with patch("ocr.stages.llm_correction.OpenAI", return_value=mock_client):
+            out = stage.process(results, self._cfg)
+        assert [r.text for r in out] == ["文字一", "文字二"]
+
+    def test_parse_error_keeps_originals(self) -> None:
+        stage = LlmCorrectionStage()
+        results = [make_result("文字")]
+        msg = MagicMock()
+        msg.content = "not json at all"
+        choice = MagicMock()
+        choice.message = msg
+        resp = MagicMock()
+        resp.choices = [choice]
+        mock_client = MagicMock()
+        mock_client.chat.completions.create.return_value = resp
+        with patch("ocr.stages.llm_correction.OpenAI", return_value=mock_client):
+            out = stage.process(results, self._cfg)
+        assert out[0].text == "文字"
+
+    def test_batching_uses_multiple_api_calls(self) -> None:
+        """With batch_size=2 and 5 results, expect 3 API calls."""
+        stage = LlmCorrectionStage()
+        results = [make_result(f"文字{i}") for i in range(5)]
+        cfg = {"llm_batch_size": 2}
+        # batches: [0,1], [2,3], [4]
+        responses = [
+            ["修正0", "修正1"],
+            ["修正2", "修正3"],
+            ["修正4"],
+        ]
+        with self._patch_client(responses) as mock_cls:
+            out = stage.process(results, cfg)
+        client_instance = mock_cls.return_value
+        assert client_instance.chat.completions.create.call_count == 3
+        assert [r.text for r in out] == [f"修正{i}" for i in range(5)]
+
+    def test_config_keys_forwarded(self) -> None:
+        stage = LlmCorrectionStage()
+        results = [make_result("文字")]
+        cfg = {
+            "llm_model": "qwen2.5:7b-instruct-q4_K_M",
+            "llm_base_url": "http://localhost:11434/v1",
+            "llm_api_key": "ollama",
+            "llm_temperature": 0.1,
+            "llm_timeout": 30.0,
+            "llm_batch_size": 5,
+        }
+        mock_client = MagicMock()
+        mock_client.chat.completions.create.return_value = make_response(["文字"])
+        with patch("ocr.stages.llm_correction.OpenAI", return_value=mock_client) as mock_cls:
+            stage.process(results, cfg)
+        mock_cls.assert_called_once_with(
+            base_url="http://localhost:11434/v1",
+            api_key="ollama",
+        )
+        call_kwargs = mock_client.chat.completions.create.call_args
+        assert call_kwargs.kwargs["model"] == "qwen2.5:7b-instruct-q4_K_M"
+        assert call_kwargs.kwargs["temperature"] == 0.1
+        assert call_kwargs.kwargs["timeout"] == 30.0
+
+    def test_partial_batch_failure_preserves_successful_batches(self) -> None:
+        """If batch 2 fails, batches 1 and 3 should still be corrected."""
+        from openai import OpenAIError
+        stage = LlmCorrectionStage()
+        results = [make_result(f"文字{i}") for i in range(3)]
+        cfg = {"llm_batch_size": 1}
+        mock_client = MagicMock()
+        mock_client.chat.completions.create.side_effect = [
+            make_response(["修正0"]),
+            OpenAIError("error on batch 2"),
+            make_response(["修正2"]),
+        ]
+        with patch("ocr.stages.llm_correction.OpenAI", return_value=mock_client):
+            out = stage.process(results, cfg)
+        assert out[0].text == "修正0"
+        assert out[1].text == "文字1"   # fallback
+        assert out[2].text == "修正2"

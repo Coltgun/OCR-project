@@ -66,10 +66,14 @@ class TestPipelineConstruction:
         p = Pipeline("LOCAL_STANDARD", {})
         assert "bert_correction" in p.stage_ids
 
-    def test_unregistered_stage_skipped_gracefully(self) -> None:
-        """Stages not yet implemented (e.g. llm_correction) are skipped silently."""
+    def test_llm_correction_present_in_local_llm(self) -> None:
         p = Pipeline("LOCAL_LLM", {})
-        assert "llm_correction" not in p.stage_ids
+        assert "llm_correction" in p.stage_ids
+
+    def test_unregistered_stage_skipped_gracefully(self) -> None:
+        """Stages not yet implemented (e.g. hybrid_correction) are skipped silently."""
+        p = Pipeline("HYBRID_TIERED", {})
+        assert "hybrid_correction" not in p.stage_ids
 
     def test_available_modes_returns_all(self) -> None:
         modes = Pipeline.available_modes()
