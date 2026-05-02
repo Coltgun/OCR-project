@@ -100,6 +100,9 @@ class MainWindow(QMainWindow):
         self._dark_mode_action.setChecked(dark)
         self._apply_theme(dark)
         self._apply_preview_font_size(int(self._cfg.get("preview_font_size", 11)))
+        wrap = bool(self._cfg.get("preview_word_wrap", True))
+        self._word_wrap_action.setChecked(wrap)
+        self._apply_word_wrap(wrap)
 
     # ------------------------------------------------------------------
     # UI construction
@@ -137,6 +140,11 @@ class MainWindow(QMainWindow):
         self._dark_mode_action.setCheckable(True)
         self._dark_mode_action.triggered.connect(self._toggle_dark_mode)
         view_menu.addAction(self._dark_mode_action)
+
+        self._word_wrap_action = QAction("Word Wrap", self)
+        self._word_wrap_action.setCheckable(True)
+        self._word_wrap_action.triggered.connect(self._toggle_word_wrap)
+        view_menu.addAction(self._word_wrap_action)
 
         tools_menu = menu_bar.addMenu("&Tools")
         settings_action = QAction("&Settings…", self)
@@ -680,6 +688,22 @@ class MainWindow(QMainWindow):
             os.startfile(folder)
         except OSError as exc:
             logger.warning("MainWindow: could not open folder '%s': %s", folder, exc)
+
+    @Slot(bool)
+    def _toggle_word_wrap(self, checked: bool) -> None:
+        """Persist word-wrap preference and apply to preview pane immediately."""
+        self._config.set("preview_word_wrap", checked)
+        self._config.save()
+        self._apply_word_wrap(checked)
+
+    def _apply_word_wrap(self, enabled: bool) -> None:
+        """Set line wrap mode on the preview pane."""
+        mode = (
+            QTextEdit.LineWrapMode.WidgetWidth
+            if enabled
+            else QTextEdit.LineWrapMode.NoWrap
+        )
+        self._preview_pane.setLineWrapMode(mode)
 
     @Slot(bool)
     def _toggle_dark_mode(self, checked: bool) -> None:
