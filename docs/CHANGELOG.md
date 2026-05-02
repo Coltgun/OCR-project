@@ -127,3 +127,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - **FEAT-ocr-confidence-filter** `gui/settings_dialog.py` — Pipeline tab: new `"OCR Confidence Filter"` `QGroupBox` containing `_ocr_min_confidence` `QDoubleSpinBox(0.0–1.0, step 0.05, 2 dp)`; `_load_values` reads `ocr_min_confidence` (default 0.0); `_save_values` writes it.
 - `gui/main_window.py` — `_on_ocr_results`: reads `min_conf = float(cfg.get("ocr_min_confidence", 0.0))`; if `> 0.0` filters `results` list to `r.confidence >= min_conf` before storing in `_ocr_results`.
 - `tests/gui/test_ocr_confidence_filter.py` — 5 settings source-scan + 4 MW source-scan + 8 logic + 5 @gui+@skip. (935 passed, 129 skipped).
+- **FEAT-session-summary** `gui/main_window.py` — `_on_ocr_results` enriched: computes `raw_count`, `kept_count` (post-filter), `avg_conf` (0.0 guard on empty), `filtered_note` (only when `raw != kept`). Status bar message: `"OCR complete: N block(s) kept  (X filtered)  |  avg confidence: 0.XX"`.
+- `tests/gui/test_session_summary.py` — 10 source-scan + 10 logic + 3 @gui+@skip. (955 passed, 132 skipped).
