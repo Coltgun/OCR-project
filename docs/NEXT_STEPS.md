@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-copy-section-only complete. 1094 passed, 163 skipped. Ready for FEAT-result-search (Add a QLineEdit search bar above the preview pane; filters displayed results to lines containing the search string, live as user types).
+FEAT-result-search complete. 1112 passed, 167 skipped. Ready for FEAT-status-bar-session-info (Show session root name and total image count as a permanent QLabel in the status bar, updated on every capture and session start).
 
 ## Up Next
-- [ ] FEAT-result-search: Add a QLineEdit (placeholder "Search results…") above the preview pane; on textChanged filter _ocr_results text lines containing the query (case-insensitive) and refresh the pane; empty query restores full view
+- [ ] FEAT-status-bar-session-info: Add a permanent QLabel _session_info_label to the status bar; _update_session_info_label() sets text to "Session: {root.name}  |  {total} image(s)" or empty string when no session; called from _update_session_labels and after every capture
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -54,3 +54,4 @@ FEAT-copy-section-only complete. 1094 passed, 163 skipped. Ready for FEAT-result
 - [x] FEAT-ocr-progress-detail: _ocr_start_time datetime initialised in __init__ and re-stamped before QThreadPool.start. _on_ocr_progress: computes elapsed = (now - start).total_seconds(), pct = done/total*100 (guard 0), status bar: "OCR: image N / M  (pct%)  —  Xs elapsed". 10 source-scan + 6 logic + 3 @gui+@skip. (1060 passed, 155 skipped).
 - [x] FEAT-word-wrap-toggle: View menu: _word_wrap_action QAction (checkable) → _toggle_word_wrap(checked): persists preview_word_wrap, calls _apply_word_wrap. _apply_word_wrap(enabled): sets QTextEdit.LineWrapMode.WidgetWidth or NoWrap on _preview_pane. Loaded on init (default True). 13 source-scan + 3 logic + 4 @gui+@skip. (1076 passed, 159 skipped).
 - [x] FEAT-copy-section-only: _copy_section_btn QPushButton ("Copy Section", disabled, tooltip) next to _copy_btn. _copy_section_to_clipboard(): guards None session, gets current_folder, filters _ocr_results by folder_path/image_id.png exists or image_id prefix, joins text, sets clipboard, shows status message. Enabled in _populate_preview when session+results; disabled in _clear_preview. 13 source-scan + 5 logic + 4 @gui+@skip. (1094 passed, 163 skipped).
+- [x] FEAT-result-search: _search_bar QLineEdit (placeholder "Search results…", clear button) above _preview_pane. _on_search_changed(query): strips+lower; filters _ocr_results to r.text containing query; empty query restores full list; rebuilds pane with image_id headers; updates label with "(filtered: N/M)" suffix. _clear_preview: blockSignals+clear. 11 source-scan + 7 logic + 4 @gui+@skip. (1112 passed, 167 skipped).

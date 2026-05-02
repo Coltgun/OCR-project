@@ -267,6 +267,12 @@ class MainWindow(QMainWindow):
         preview_header.addWidget(self._copy_section_btn)
         root_layout.addLayout(preview_header)
 
+        self._search_bar = QLineEdit()
+        self._search_bar.setPlaceholderText("Search results…")
+        self._search_bar.setClearButtonEnabled(True)
+        self._search_bar.textChanged.connect(self._on_search_changed)
+        root_layout.addWidget(self._search_bar)
+
         self._preview_pane = QTextEdit()
         self._preview_pane.setReadOnly(True)
         self._preview_pane.setMinimumHeight(80)
@@ -917,10 +923,38 @@ class MainWindow(QMainWindow):
 
     def _clear_preview(self) -> None:
         """Clear the preview pane and reset its label."""
+        self._search_bar.blockSignals(True)
+        self._search_bar.clear()
+        self._search_bar.blockSignals(False)
         self._preview_pane.setPlainText("")
         self._preview_label.setText("<b>OCR Results:</b> —")
         self._copy_btn.setEnabled(False)
         self._copy_section_btn.setEnabled(False)
+
+    @Slot(str)
+    def _on_search_changed(self, query: str) -> None:
+        """Filter the preview pane to results whose text contains *query* (case-insensitive)."""
+        if not self._ocr_results:
+            return
+        q = query.strip().lower()
+        if q:
+            filtered = [r for r in self._ocr_results if q in r.text.lower()]
+        else:
+            filtered = self._ocr_results
+        lines: list[str] = []
+        current_id: str | None = None
+        for r in filtered:
+            if r.image_id and r.image_id != current_id:
+                current_id = r.image_id
+                lines.append(f"── {current_id} ──")
+            lines.append(r.text)
+        self._preview_pane.setPlainText("\n".join(lines))
+        n = len(filtered)
+        suffix = f" (filtered: {n}/{len(self._ocr_results)})" if q else ""
+        self._preview_label.setText(
+            f"<b>OCR Results:</b> {len(self._ocr_results)} block"
+            f"{'s' if len(self._ocr_results) != 1 else ''}{suffix}"
+        )
 
     @Slot()
     def _copy_section_to_clipboard(self) -> None:
