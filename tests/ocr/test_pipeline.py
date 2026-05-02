@@ -58,9 +58,14 @@ class TestPipelineConstruction:
         with pytest.raises(ValueError, match="Unknown pipeline mode"):
             Pipeline("NONEXISTENT_MODE", {})
 
-    def test_unregistered_stage_skipped_gracefully(self) -> None:
+    def test_minhash_dedup_present_in_local_fast(self) -> None:
         p = Pipeline("LOCAL_FAST", {})
-        assert "minhash_dedup" not in p.stage_ids
+        assert "minhash_dedup" in p.stage_ids
+
+    def test_unregistered_stage_skipped_gracefully(self) -> None:
+        """Stages not yet implemented (e.g. bert_correction) are skipped silently."""
+        p = Pipeline("LOCAL_STANDARD", {})
+        assert "bert_correction" not in p.stage_ids
 
     def test_available_modes_returns_all(self) -> None:
         modes = Pipeline.available_modes()
