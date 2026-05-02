@@ -129,3 +129,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_ocr_confidence_filter.py` — 5 settings source-scan + 4 MW source-scan + 8 logic + 5 @gui+@skip. (935 passed, 129 skipped).
 - **FEAT-session-summary** `gui/main_window.py` — `_on_ocr_results` enriched: computes `raw_count`, `kept_count` (post-filter), `avg_conf` (0.0 guard on empty), `filtered_note` (only when `raw != kept`). Status bar message: `"OCR complete: N block(s) kept  (X filtered)  |  avg confidence: 0.XX"`.
 - `tests/gui/test_session_summary.py` — 10 source-scan + 10 logic + 3 @gui+@skip. (955 passed, 132 skipped).
+- **FEAT-pipeline-mode-indicator** `gui/main_window.py` — `_pipeline_mode_label` `QLabel` (tooltip `"Active pipeline mode"`) added as permanent status bar widget after `_state_label`. `_update_pipeline_mode_label()`: reads `ocr_pipeline_mode` from config (default `"LOCAL_FAST"`), sets text `f"Mode: {mode}"`. Called on `__init__` and after settings accept.
+- `tests/gui/test_pipeline_mode_indicator.py` — 8 source-scan + 5 logic + 4 @gui+@skip. (968 passed, 136 skipped).

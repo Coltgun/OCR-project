@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-session-summary complete. 955 passed, 132 skipped. Ready for FEAT-pipeline-mode-indicator (Show the active pipeline mode name in the status bar whenever OCR completes or the setting changes).
+FEAT-pipeline-mode-indicator complete. 968 passed, 136 skipped. Ready for FEAT-image-thumbnail-preview (Show a small thumbnail of the last captured image in the main window below the capture controls).
 
 ## Up Next
-- [ ] FEAT-pipeline-mode-indicator: After OCR completes and when settings are accepted, update a permanent QLabel in the status bar showing the current pipeline mode (e.g. "Mode: LOCAL_FAST")
+- [ ] FEAT-image-thumbnail-preview: Add a QLabel (fixed 120×90) below the count row showing a scaled pixmap of the most recently captured image; cleared on new session/section/reset
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -46,3 +46,4 @@ FEAT-session-summary complete. 955 passed, 132 skipped. Ready for FEAT-pipeline-
 - [x] FEAT-capture-counter-reset: _reset_count_btn QPushButton ("Reset Count", initially disabled) in count row. _reset_capture_count(): guards is_idle + session not None; clears _ocr_results, sets count label "0", disables export btn, calls _clear_preview(), shows status message. _update_ui_for_state enables btn when is_idle + has_session. 12 source-scan + 3 logic + 5 @gui+@skip. (918 passed, 124 skipped).
 - [x] FEAT-ocr-confidence-filter: SettingsDialog Pipeline tab: new "OCR Confidence Filter" QGroupBox with _ocr_min_confidence QDoubleSpinBox(0.0–1.0, step 0.05, decimals 2). _load_values reads ocr_min_confidence (default 0.0); _save_values writes it. MainWindow _on_ocr_results: reads min_conf; if > 0.0 filters results list by r.confidence >= min_conf before storing. 5 settings source-scan + 4 MW source-scan + 8 logic + 5 @gui+@skip. (935 passed, 129 skipped).
 - [x] FEAT-session-summary: _on_ocr_results computes raw_count, kept_count (after confidence filter), avg_conf (0.0 if empty), filtered_note (only shown if raw != kept). Status bar message: "OCR complete: N block(s) kept  (X filtered)  |  avg confidence: 0.XX". 10 source-scan + 10 logic + 3 @gui+@skip. (955 passed, 132 skipped).
+- [x] FEAT-pipeline-mode-indicator: _pipeline_mode_label QLabel (tooltip "Active pipeline mode") added as permanent status bar widget. _update_pipeline_mode_label() reads ocr_pipeline_mode from config (default "LOCAL_FAST"), sets text "Mode: {mode}". Called on __init__ and after settings accept. 8 source-scan + 5 logic + 4 @gui+@skip. (968 passed, 136 skipped).
