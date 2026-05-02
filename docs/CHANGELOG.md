@@ -35,3 +35,6 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - **FEAT-capture** `capture/screen_capture.py` — `ScreenCapture`: mss grab, `apply_rotation()` (none/90cw/90ccw/180/auto), auto heuristic (aspect ratio + Hough fallback), mss injection for tests.
 - **FEAT-capture** `gui/overlay.py` — `CaptureOverlay` (rubber-band QRubberBand selector), `RegionBorderOverlay` (WindowTransparentForInput persistent border).
 - `tests/capture/` — 80 new tests (session, state machine, screen_capture); P0 numeric sort tests for resume and counter init. (215 total passing).
+- **FEAT-ocr-engine** `ocr/engines/paddle_engine.py` — `PaddleOCREngine(register_as="paddleocr")`: initialize/recognize/unload, VRAM alloc/release, PP-OCRv5 result parsing, quad_to_bbox, updated API (device=, use_textline_orientation).
+- **FEAT-ocr-engine** `ocr/worker.py` — `OCRWorker(QRunnable)`: subprocess-per-image OCR dispatch, `OCRWorkerSignals` (results_ready, error_occurred, progress), JSON result serialisation.
+- `tests/ocr/test_paddle_engine.py` — 22 tests: registry, VRAM lifecycle, parse_results, quad_to_bbox, recognize output; all mocked (no real GPU). (237 total passing).

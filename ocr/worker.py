@@ -1,0 +1,194 @@
+"""
+OCRWorker — runs PaddleOCR in a subprocess to enforce process isolation.
+
+On Windows, paddle (cu126) and torch (cu121) bundle incompatible cuDNN DLL
+builds and cannot coexist in the same process. This worker runs the OCR
+engine in a fresh subprocess, returning results to the caller via a queue.
+
+Typical use (from the main Qt process):
+    worker = OCRWorker(config, image_paths)
+    worker.results_ready.connect(my_slot)
+    worker.error_occurred.connect(my_error_slot)
+    QThreadPool.globalInstance().start(worker)
+
+The subprocess runs ocr/worker_subprocess.py which imports paddle, runs
+PaddleOCREngine, and writes OCRResult objects to stdout as JSON.
+"""
+
+from __future__ import annotations
+
+import json
+import logging
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+from typing import Any
+
+import numpy as np
+from PIL import Image as PILImage
+from PySide6.QtCore import QObject, QRunnable, Signal, Slot
+
+from core.types import BoundingBox, OCRResult
+
+logger = logging.getLogger(__name__)
+
+
+class OCRWorkerSignals(QObject):
+    """Signals for OCRWorker (QRunnable cannot have signals directly)."""
+
+    results_ready = Signal(list)
+    error_occurred = Signal(str)
+    progress = Signal(int, int)
+
+
+class OCRWorker(QRunnable):
+    """QRunnable that runs PaddleOCR in a subprocess and emits results.
+
+    Args:
+        config:      Full application config dict.
+        image_paths: Ordered list of image paths to process.
+        parent:      Optional parent for the signals QObject.
+    """
+
+    def __init__(
+        self,
+        config: dict,
+        image_paths: list[Path],
+        parent: QObject | None = None,
+    ) -> None:
+        super().__init__()
+        self._config = config
+        self._image_paths = image_paths
+        self.signals = OCRWorkerSignals(parent)
+        self.setAutoDelete(True)
+
+    @Slot()
+    def run(self) -> None:
+        """Execute OCR in a subprocess for each image path."""
+        all_results: list[list[dict]] = []
+        total = len(self._image_paths)
+
+        for idx, path in enumerate(self._image_paths):
+            try:
+                page_results = self._run_single_subprocess(path)
+                all_results.append(page_results)
+                self.signals.progress.emit(idx + 1, total)
+            except Exception as exc:
+                logger.error("OCRWorker: error on '%s': %s", path, exc)
+                self.signals.error_occurred.emit(str(exc))
+                return
+
+        ocr_results = [
+            OCRResult(
+                text=r["text"],
+                confidence=r["confidence"],
+                bbox=BoundingBox(**r["bbox"]) if r.get("bbox") else None,
+                image_id=r.get("image_id", ""),
+            )
+            for page in all_results
+            for r in page
+        ]
+
+        self.signals.results_ready.emit(ocr_results)
+
+    def _run_single_subprocess(self, image_path: Path) -> list[dict]:
+        """Run OCR on one image in a clean subprocess, return list of result dicts."""
+        config_json = json.dumps(self._config)
+        script = _build_subprocess_script(str(image_path), config_json)
+
+        result = subprocess.run(
+            [sys.executable, "-c", script],
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+
+        if result.returncode != 0:
+            stderr_tail = (result.stderr or "").strip().splitlines()
+            last = stderr_tail[-1] if stderr_tail else "unknown error"
+            raise RuntimeError(
+                f"OCR subprocess failed for '{image_path}': {last}"
+            )
+
+        output = result.stdout.strip()
+        if not output:
+            return []
+
+        try:
+            return json.loads(output)
+        except json.JSONDecodeError as exc:
+            raise RuntimeError(
+                f"OCR subprocess returned invalid JSON for '{image_path}': {exc}"
+            ) from exc
+
+
+def _build_subprocess_script(image_path: str, config_json: str) -> str:
+    """Build the Python script string for the OCR subprocess.
+
+    The script registers nvidia DLL dirs, imports paddle/paddleocr in a clean
+    process, runs recognition, and writes JSON results to stdout.
+    """
+    # Escape backslashes in Windows paths for embedding in a string literal
+    safe_path = image_path.replace("\\", "\\\\")
+    safe_config = config_json.replace("\\", "\\\\").replace('"', '\\"').replace("'", "\\'")
+
+    return f"""
+import os
+import site
+import json
+import sys
+
+nvidia_subdirs = ['cublas','cuda_runtime','cudnn','cufft','curand','cusolver','cusparse','nvjitlink']
+extra = []
+for sp in site.getsitepackages():
+    for d in nvidia_subdirs:
+        p = os.path.join(sp, 'nvidia', d, 'bin')
+        if os.path.isdir(p):
+            os.add_dll_directory(p)
+            extra.append(p)
+if extra:
+    os.environ['PATH'] = os.pathsep.join(extra) + os.pathsep + os.environ.get('PATH', '')
+
+import numpy as np
+from paddleocr import PaddleOCR
+
+config = json.loads('{safe_config}')
+use_gpu = bool(config.get('paddleocr_use_gpu', True))
+lang = str(config.get('paddleocr_lang', 'ch'))
+orientation = bool(config.get('paddleocr_orientation', True))
+device = 'gpu' if use_gpu else 'cpu'
+
+engine = PaddleOCR(use_textline_orientation=orientation, lang=lang, device=device)
+
+import cv2
+image = cv2.imread(r'{safe_path}')
+if image is None:
+    print('[]')
+    sys.exit(0)
+
+raw = engine.ocr(image, cls=True)
+results = []
+if raw:
+    for page in raw:
+        if page is None:
+            continue
+        for line in page:
+            if line is None:
+                continue
+            try:
+                points, (text, conf) = line
+                xs = [float(p[0]) for p in points]
+                ys = [float(p[1]) for p in points]
+                results.append({{
+                    'text': str(text),
+                    'confidence': float(conf),
+                    'bbox': {{'x1': int(min(xs)), 'y1': int(min(ys)),
+                              'x2': int(max(xs)), 'y2': int(max(ys))}},
+                    'image_id': os.path.splitext(os.path.basename(r'{safe_path}'))[0],
+                }})
+            except Exception:
+                pass
+
+print(json.dumps(results))
+"""
