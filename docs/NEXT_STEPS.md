@@ -1,10 +1,11 @@
 # Next Steps
 
 ## Current Status
-FEAT-results-preview complete. 687 passed, 56 skipped. Ready for FEAT-about-dialog (Help > About dialog with version, credits, links).
+FEAT-about-dialog complete. 712 passed, 62 skipped. Ready for FEAT-copy-results (Copy OCR text to clipboard button in results preview).
 
 ## Up Next
-- [ ] FEAT-about-dialog: Help > About dialog showing app version, Python/PySide6/PaddleOCR versions, GitHub link
+- [ ] FEAT-copy-results: Add "Copy to Clipboard" button next to the preview label; copies all OCR text to system clipboard
+
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
 - [x] ARCH-002: Define All ABCs — OCREngine, PostProcessStage, OutputFormatter, InputSource, LLMProvider + 4 module stubs (77 tests passing)
@@ -31,3 +32,4 @@ FEAT-results-preview complete. 687 passed, 56 skipped. Ready for FEAT-about-dial
 - [x] FEAT-hotkey-config: HotkeyListener.reload(config) rebuilds key map live without restarting thread. SettingsDialog Hotkeys tab (5th tab): QLineEdit per action, placeholder = default, blank = omit. _save_values writes keybindings sub-dict. MainWindow._open_settings calls self._hotkeys.reload(self._cfg) on accept. 8 source-scan (hotkeys.py) + 10 source-scan (settings_dialog/main_window) + 5 config-logic + 5 @gui+@skip tests. (638 passed, 40 skipped).
 - [x] FEAT-ocr-log-panel: gui/qt_log_handler.py — QtLogHandler(logging.Handler) with _LogEmitter(QObject) carrying message_logged Signal(str). MainWindow: QTextEdit log panel (hidden, max 160px, monospace); _install_log_handler adds to root logger; _toggle_log_panel toggles visibility + menu label; _append_log appends + auto-scrolls; handler removed on closeEvent. View menu "Show Log Panel" checkable action. 7 handler source-scan + 19 main_window source-scan + 9 @gui+@skip. (664 passed, 49 skipped).
 - [x] FEAT-results-preview: QTextEdit preview pane (read-only, 200px max) + label showing block count below action row. _populate_preview groups by image_id with section headers; _clear_preview resets label to "—". Called from _on_ocr_results, _start_new_session, _trigger_new_section. 12 source-scan + 11 logic + 7 @gui+@skip. (687 passed, 56 skipped).
+- [x] FEAT-about-dialog: gui/about_dialog.py — AboutDialog(QDialog): APP_NAME/APP_VERSION/GITHUB_URL constants; shows app name, version, Python version, PySide6 version, clickable GitHub link, Close button. Wired to MainWindow Help > About… action. 14 source-scan + 5 constant + 6 MainWindow wiring + 6 @gui+@skip. (712 passed, 62 skipped).

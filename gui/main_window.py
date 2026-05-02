@@ -43,6 +43,7 @@ from capture.screen_capture import CaptureRegion, ScreenCapture
 from capture.session import CaptureSession
 from capture.state import AppState, StateMachine
 from core.types import Chapter, OCRResult
+from gui.about_dialog import AboutDialog
 from gui.overlay import CaptureOverlay, RegionBorderOverlay
 from gui.qt_log_handler import QtLogHandler
 from gui.session_dialog import SessionDialog
@@ -124,6 +125,11 @@ class MainWindow(QMainWindow):
         settings_action.setShortcut(QKeySequence("Ctrl+,"))
         settings_action.triggered.connect(self._open_settings)
         tools_menu.addAction(settings_action)
+
+        help_menu = menu_bar.addMenu("&Help")
+        about_action = QAction("&About…", self)
+        about_action.triggered.connect(self._open_about)
+        help_menu.addAction(about_action)
 
     def _build_central_widget(self) -> None:
         central = QWidget()
@@ -532,6 +538,11 @@ class MainWindow(QMainWindow):
             os.startfile(folder)
         except OSError as exc:
             logger.warning("MainWindow: could not open folder '%s': %s", folder, exc)
+
+    @Slot()
+    def _open_about(self) -> None:
+        """Show the About dialog."""
+        AboutDialog(parent=self).exec()
 
     @Slot()
     def _open_settings(self) -> None:
