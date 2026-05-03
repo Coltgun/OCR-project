@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-keyboard-shortcuts-help complete. 1296 passed, 205 skipped. Ready for FEAT-font-size-live-preview (SettingsDialog Preview tab: show live preview of OCR text at selected font size using a sample QLabel; update when _preview_font_size spinbox changes).
+FEAT-font-size-live-preview complete. 1312 passed, 208 skipped. Ready for FEAT-dark-mode-persist (Ensure dark_mode preference from config is correctly loaded on __init__ by verifying _dark_mode_action.setChecked and _apply_theme are both called; add a "Reset to Defaults" button in SettingsDialog that clears all config keys to factory defaults).
 
 ## Up Next
-- [ ] FEAT-font-size-live-preview: SettingsDialog: _font_preview_label QLabel below _preview_font_size spinbox showing sample text at current font size. _preview_font_size.valueChanged connected to a lambda that updates label font. Label has fixed text e.g. "AaBbCc 汉字 123".
+- [ ] FEAT-reset-to-defaults: SettingsDialog: _reset_defaults_btn QPushButton ("Reset to Defaults") in a new bottom-level QGroupBox. Clicked: resets all config values to factory defaults (working_root_dir, pipeline mode, VRAM tier, thresholds, delay, rotation, etc.), calls _load_values() to refresh all widgets. Adds a confirmation QMessageBox first.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -66,3 +66,4 @@ FEAT-keyboard-shortcuts-help complete. 1296 passed, 205 skipped. Ready for FEAT-
 - [x] FEAT-clear-recent-sessions: SettingsDialog Capture/Session Storage: _clear_recent_btn QPushButton ("Clear Recent Sessions", tooltip), connected to _on_clear_recent. Slot: set("recent_sessions", []) + save + recent_sessions_cleared = True + setEnabled(False). MainWindow._open_settings: if dlg.recent_sessions_cleared → _update_recent_menu(). 9 SD source-scan + 2 MW source-scan + 4 logic + 4 @gui+@skip. (1263 passed, 200 skipped).
 - [x] FEAT-pipeline-mode-persist: Removed old notes stub (max 80px, direct textChanged). _pipeline_mode_combo QComboBox populated from PIPELINE_MODES; wired to _on_pipeline_mode_changed. Slot: currentText(), set+save+reload cfg+_update_pipeline_mode_label. Init+settings accept: findText+blockSignals+setCurrentIndex. Fixed test_session_notes regressions (max height 160, timer wiring). 12 source-scan + 5 logic + 3 @gui+@skip. (1280 passed, 203 skipped).
 - [x] FEAT-keyboard-shortcuts-help: Help menu: "Keyboard Shortcuts…" QAction → _show_keyboard_shortcuts(). Slot: imports _DEFAULT_BINDINGS, merges config overrides, builds HTML with _ACTION_LABELS (6 actions), shows QMessageBox.information. Key uppercased; empty → "(unbound)". 10 source-scan + 6 logic + 2 @gui+@skip. (1296 passed, 205 skipped).
+- [x] FEAT-font-size-live-preview: SettingsDialog Display group: _font_preview_label QLabel ("AaBbCc 汉字 123", tooltip "Live font size preview") row below spinbox. _preview_font_size.valueChanged → _update_font_preview(size): sets font point size on label. _load_values calls _update_font_preview to initialise. 10 source-scan + 6 logic + 3 @gui+@skip. (1312 passed, 208 skipped).

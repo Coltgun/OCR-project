@@ -302,6 +302,11 @@ class SettingsDialog(QDialog):
         self._preview_font_size.setSuffix(" pt")
         display_form.addRow("Preview font size:", self._preview_font_size)
 
+        self._font_preview_label = QLabel("AaBbCc \u6c49\u5b57 123")
+        self._font_preview_label.setToolTip("Live font size preview")
+        self._preview_font_size.valueChanged.connect(self._update_font_preview)
+        display_form.addRow("Preview:", self._font_preview_label)
+
         layout.addWidget(display_group)
         layout.addStretch()
         return widget
@@ -450,6 +455,7 @@ class SettingsDialog(QDialog):
         self._preview_font_size.setValue(
             int(cfg.get("preview_font_size", 11))
         )
+        self._update_font_preview(self._preview_font_size.value())
 
         # Hotkeys
         saved_bindings: dict = cfg.get("keybindings", {})  # type: ignore[assignment]
@@ -529,6 +535,12 @@ class SettingsDialog(QDialog):
         self._config.save()
         self.recent_sessions_cleared = True
         self._clear_recent_btn.setEnabled(False)
+
+    def _update_font_preview(self, size: int) -> None:
+        """Update the font preview label to reflect the current spinbox value."""
+        font = self._font_preview_label.font()
+        font.setPointSize(size)
+        self._font_preview_label.setFont(font)
 
     # ------------------------------------------------------------------
     # Widget factories
