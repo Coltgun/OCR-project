@@ -200,3 +200,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_open_folder_btn.py` — 12 source-scan + 6 logic + 3 @gui+@skip. (1514 passed, 239 skipped).
 - **FEAT-state-machine-ui** `gui/main_window.py` — Already implemented: `_state_dot` `QLabel(12×12, tooltip)` + `_state_label("IDLE")` in status bar. `_DOT_COLOURS` dict maps all 5 `AppState` values → CSS. `_update_ui_for_state`: `setText`, `setStyleSheet`, button enable/disable per state, status-bar messages.
 - `tests/gui/test_state_machine_ui.py` — 12 source-scan + 7 logic + 3 @gui+@skip. (1532 passed, 242 skipped).
+- **FEAT-hotkeys-tab-ui** `gui/settings_dialog.py` — Already implemented: `_hotkeys_table` `QTableWidget(n_actions, 3)` (Action/Default/Override). `_hotkey_edits: dict[str, QLineEdit]` per action. `_ACTION_LABELS` class dict (6 actions). Load: `get("keybindings",{})` → `setText`. Save: collect `edit.text().strip()` → `set("keybindings")`.
+- `tests/gui/test_hotkeys_tab_ui.py` — 13 source-scan + 6 logic + 3 @gui+@skip. (1551 passed, 245 skipped).
