@@ -224,3 +224,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_search_filter.py` — 12 source-scan + 6 logic + 3 @gui+@skip. (1736 passed, 275 skipped).
 - **FEAT-section-controls** `gui/main_window.py` — Already implemented: `_trigger_new_section`: session+idle guards, `session.new_section()`, `_section_label.setText`, `_clear_preview`, `_clear_thumbnail`. `_trigger_cancel`: `overlay.close()+None`, `state_machine.cancel()`, `_update_ui_for_state(IDLE)`. `_on_region_cancelled`: cancel+update.
 - `tests/gui/test_section_controls.py` — 15 source-scan + 6 logic + 3 @gui+@skip. (1757 passed, 278 skipped).
+- **FEAT-log-panel** `gui/main_window.py` — Already implemented: `_log_panel` `QTextEdit(readOnly, hidden, Courier New 9pt)`. `QtLogHandler(INFO)` → `_append_log`. `_append_log`: `panel.append` + autoscroll. `_toggle_log_action` (checkable, "Show/Hide Log Panel") → `_toggle_log_panel` → persist `"log_panel_visible"`.
+- `tests/gui/test_log_panel.py` — 15 source-scan + 6 logic + 3 @gui+@skip. (1778 passed, 281 skipped).
