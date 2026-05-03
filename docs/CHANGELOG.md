@@ -192,3 +192,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_vram_tier_ui.py` — 10 source-scan + 6 logic + 3 @gui+@skip. (1425 passed, 227 skipped).
 - **FEAT-bert-threshold-ui** `gui/settings_dialog.py` — **Bug fix:** `_FACTORY_DEFAULTS` keys corrected: `"minhash_threshold"` → `"dedup_threshold"`, `"embedding_similarity_threshold"` → `"embedding_threshold"` to match actual `_load_values`/`_save_values` usage. All 5 threshold spinboxes verified.
 - `tests/gui/test_bert_threshold_ui.py` — 20 source-scan + 6 logic + 3 @gui+@skip. (1454 passed, 230 skipped).
+- **FEAT-api-key-ui** `gui/settings_dialog.py` — Already implemented: `_openrouter_key` (`Password` mode, placeholder `"sk-or-…"`), `_openrouter_model`, `_openrouter_base_url` in `"OpenRouter"` group; `_llm_base_url`, `_llm_model` in `"Ollama (local LLM)"` group. All 5 fields load/save via `get_str`/`set`.
+- `tests/gui/test_api_key_ui.py` — 19 source-scan + 6 logic + 3 @gui+@skip. (1478 passed, 233 skipped).
