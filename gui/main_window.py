@@ -21,7 +21,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-from PySide6.QtCore import Qt, QThreadPool, Slot
+from PySide6.QtCore import Qt, QThreadPool, QTimer, Slot
 from PySide6.QtGui import QAction, QCloseEvent, QColor, QKeySequence, QPalette, QPixmap
 from PySide6.QtWidgets import (
     QApplication,
@@ -299,6 +299,27 @@ class MainWindow(QMainWindow):
         font.setPointSize(9)
         self._log_panel.setFont(font)
         root_layout.addWidget(self._log_panel)
+
+        # Notes pane
+        notes_label = QLabel("<b>Session Notes:</b>")
+        root_layout.addWidget(notes_label)
+        self._notes_edit = QTextEdit()
+        self._notes_edit.setPlaceholderText("Type session notes here… (auto-saved)")
+        self._notes_edit.setEnabled(False)
+        self._notes_edit.setMinimumHeight(60)
+        self._notes_edit.setMaximumHeight(160)
+        self._notes_edit.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.MinimumExpanding
+        )
+        root_layout.addWidget(self._notes_edit)
+
+        self._notes_save_timer = QTimer(self)
+        self._notes_save_timer.setSingleShot(True)
+        self._notes_save_timer.setInterval(2000)
+        self._notes_save_timer.timeout.connect(self._on_notes_changed)
+        self._notes_edit.textChanged.connect(
+            lambda: self._notes_save_timer.start()
+        )
 
     def _build_status_bar(self) -> None:
         self._status_bar = QStatusBar()
