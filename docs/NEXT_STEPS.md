@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-vram-tier-ui complete. 1425 passed, 227 skipped. Ready for FEAT-bert-threshold-ui (SettingsDialog Pipeline tab: audit _hybrid_high/_hybrid_low/_ocr_min_confidence/_minhash/_embedding_similarity QDoubleSpinBoxes; write source-scan + logic tests).
+FEAT-bert-threshold-ui complete. 1454 passed, 230 skipped. Ready for FEAT-api-key-ui (SettingsDialog API Keys tab: audit _openrouter_key, _openrouter_model, _openrouter_base_url, _llm_base_url, _llm_model QLineEdits; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-bert-threshold-ui: SettingsDialog Pipeline tab: audit _hybrid_high_threshold, _hybrid_low_threshold, _ocr_min_confidence, _minhash_threshold, _embedding_similarity_threshold spinboxes; verify load/save; write tests.
+- [ ] FEAT-api-key-ui: SettingsDialog API Keys tab: audit _openrouter_key, _openrouter_model, _openrouter_base_url, _llm_base_url, _llm_model QLineEdits; verify load/save; write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -74,3 +74,4 @@ FEAT-vram-tier-ui complete. 1425 passed, 227 skipped. Ready for FEAT-bert-thresh
 - [x] FEAT-word-wrap-persist: Already implemented: _toggle_word_wrap saves "preview_word_wrap" + save(); __init__ reads it, setChecked + _apply_word_wrap. Tests document and lock all paths. "preview_word_wrap": True in _FACTORY_DEFAULTS. 11 source-scan + 5 logic + 3 @gui+@skip. (1392 passed, 221 skipped).
 - [x] FEAT-auto-section-threshold-ui: Already implemented: _auto_section_threshold QSpinBox(0–99, "Disabled", " captures") in "Auto Section" QGroupBox. _load_values reads auto_new_section_threshold. _save_values writes it. MW reads threshold > 0. 9 SD source-scan + 2 MW source-scan + 6 logic + 3 @gui+@skip. (1409 passed, 224 skipped).
 - [x] FEAT-vram-tier-ui: Already implemented: _vram_combo QComboBox(["8gb","16gb"]) in "VRAM Tier" QGroupBox; note QLabel with tier model info. _load_values: findText("vram_tier","8gb"). _save_values: currentText(). "vram_tier": "8gb" in _FACTORY_DEFAULTS. 10 source-scan + 6 logic + 3 @gui+@skip. (1425 passed, 227 skipped).
+- [x] FEAT-bert-threshold-ui: Fixed _FACTORY_DEFAULTS key mismatch (minhash_threshold→dedup_threshold, embedding_similarity_threshold→embedding_threshold). 5 spinboxes verified: _minhash_threshold, _embedding_threshold, _ocr_min_confidence, _hybrid_high, _hybrid_low. 20 source-scan + 6 logic + 3 @gui+@skip. (1454 passed, 230 skipped).
