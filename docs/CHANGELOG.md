@@ -240,3 +240,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_copy_clipboard.py` — 16 source-scan + 6 logic + 3 @gui+@skip. (1905 passed, 299 skipped).
 - **FEAT-hotkey-reload** `gui/main_window.py` — Already implemented: `_hotkeys.reload(cfg)` on settings accept. `_update_button_hotkey_labels`: `_DEFAULT_BINDINGS` merge with overrides (`isinstance` guard), `_BTN_MAP` 4 buttons, `btn.setToolTip(f"{label}  [{KEY}]")`, `.upper()+"(unbound)"` fallback.
 - `tests/gui/test_hotkey_reload.py` — 14 source-scan + 6 logic + 3 @gui+@skip. (1925 passed, 302 skipped).
+- **FEAT-ocr-progress** `gui/main_window.py` — Already implemented: `_progress_bar` `QProgressBar(width=200, hidden, permanent)`. `_on_ocr_progress`: elapsed, `pct(done/total*100, 0 guard)`, `setRange(0,total)+setValue(done)+setVisible(True)`. `_on_ocr_error`/`_on_ocr_results`: `setVisible(False)`.
+- `tests/gui/test_ocr_progress.py` — 15 source-scan + 6 logic + 3 @gui+@skip. (1945 passed, 305 skipped).
