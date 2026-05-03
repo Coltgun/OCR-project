@@ -234,3 +234,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_region_select.py` — 16 source-scan + 6 logic + 3 @gui+@skip. (1845 passed, 290 skipped).
 - **FEAT-pipeline-mode-combo** `gui/main_window.py` — Already implemented: `_pipeline_mode_combo` `QComboBox` + tooltip, populated via `for mode in PIPELINE_MODES`. `currentIndexChanged`→`_on_pipeline_mode_changed`: `currentText()`→`config.set+save`+`_update_pipeline_mode_label`. Init: `findText`+`blockSignals` sync.
 - `tests/gui/test_pipeline_mode_combo.py` — 12 source-scan + 6 logic + 3 @gui+@skip. (1863 passed, 293 skipped).
+- **FEAT-export-format-combo** `gui/main_window.py` — Already implemented: `_export_fmt_combo` `QComboBox` with 3 items (EPUB/epub, Plain Text/txt, Markdown/md). `currentIndexChanged`→`_on_export_format_changed`: `currentData()`→`config.set("export_format")+save`. `_EXT_MAP` dict. Init: `findData`+`blockSignals` sync.
+- `tests/gui/test_export_format_combo.py` — 14 source-scan + 6 logic + 3 @gui+@skip. (1883 passed, 296 skipped).
