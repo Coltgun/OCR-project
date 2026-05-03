@@ -216,3 +216,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_ocr_worker_flow.py` — 14 source-scan + 6 logic + 3 @gui+@skip. (1658 passed, 263 skipped).
 - **FEAT-export-flow** `gui/main_window.py` — Already implemented: `_trigger_export`: `_export_fmt_combo.currentData()`, template→`default_name`, `QFileDialog.getSaveFileName`, persist `epub_output_dir`, `setRange(0,0)+setVisible(True)`, formatter dispatch (epub/txt/md), `write_bytes`, `_last_export_path`, `_open_folder_btn.setVisible(True)`, error→`QMessageBox.critical`.
 - `tests/gui/test_export_flow.py` — 14 source-scan + 6 logic + 3 @gui+@skip. (1678 passed, 266 skipped).
+- **FEAT-capture-flow** `gui/main_window.py` — Already implemented: `_trigger_capture`: session+region guards, `state_machine.capture()`, `grab_and_rotate(region, rotation_mode)`, `cv2.imwrite(save_path)`, `_update_thumbnail`, `_last_capture_path`, `auto_new_section_threshold` check → `_trigger_new_section`, `capture_error` on exception.
+- `tests/gui/test_capture_flow.py` — 14 source-scan + 6 logic + 3 @gui+@skip. (1698 passed, 269 skipped).
