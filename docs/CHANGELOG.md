@@ -206,3 +206,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_display_tab_ui.py` — 13 source-scan + 6 logic + 3 @gui+@skip. (1570 passed, 248 skipped).
 - **FEAT-pipeline-tab-ui** `gui/settings_dialog.py` — Already implemented: `_mode_combo` `QComboBox` populated via `for mode in PIPELINE_MODES`. Load: `findText("ocr_pipeline_mode", "LOCAL_FAST")`. Save: `currentText()`. `"ocr_pipeline_mode": "LOCAL_FAST"` in `_FACTORY_DEFAULTS`.
 - `tests/gui/test_pipeline_tab_ui.py` — 10 source-scan + 6 logic + 3 @gui+@skip. (1586 passed, 251 skipped).
+- **FEAT-capture-tab-working-root** `gui/settings_dialog.py` — Already implemented: `_working_root` `QLineEdit(placeholder "sessions")` in Session Storage group. Load: `get_str("working_root_dir","sessions")`. Save: `.strip() or "sessions"`. `"working_root_dir": "sessions"` in `_FACTORY_DEFAULTS`.
+- `tests/gui/test_capture_tab_working_root.py` — 9 source-scan + 6 logic + 3 @gui+@skip. (1601 passed, 254 skipped).
