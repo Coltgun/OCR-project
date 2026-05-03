@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-capture-flow complete. 1698 passed, 269 skipped. Ready for FEAT-notes-editor (MainWindow: audit _notes_edit QTextEdit, _load_notes, _save_notes, _clear_notes; write source-scan + logic tests).
+FEAT-notes-editor complete. 1718 passed, 272 skipped. Ready for FEAT-search-filter (MainWindow: audit _search_bar QLineEdit, _on_search_changed filter logic, preview update; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-notes-editor: MainWindow: audit _notes_edit QTextEdit, _load_notes, _save_notes, _clear_notes, notes.txt path; write source-scan + logic tests.
+- [ ] FEAT-search-filter: MainWindow: audit _search_bar QLineEdit, _on_search_changed (filter, preview update, count label); write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -88,3 +88,4 @@ FEAT-capture-flow complete. 1698 passed, 269 skipped. Ready for FEAT-notes-edito
 - [x] FEAT-ocr-worker-flow: Already implemented: OCRWorker(cfg, image_paths, parent); signals: results_ready→_on_ocr_results, error_occurred→_on_ocr_error, progress→_on_ocr_progress; QThreadPool.globalInstance().start(). _on_ocr_results: confidence filter, avg_conf, _export_btn.setEnabled(True), _populate_preview. Numeric sort on image_paths. 14 source-scan + 6 logic + 3 @gui+@skip. (1658 passed, 263 skipped).
 - [x] FEAT-export-flow: Already implemented: _trigger_export: _export_fmt_combo.currentData(), template→default_name, QFileDialog.getSaveFileName, persist epub_output_dir, setRange(0,0)+setVisible(True), formatter dispatch (epub/txt/md), write_bytes, _last_export_path, _open_folder_btn.setVisible(True), error→QMessageBox.critical. 14 source-scan + 6 logic + 3 @gui+@skip. (1678 passed, 266 skipped).
 - [x] FEAT-capture-flow: Already implemented: _trigger_capture: session+region guards, state_machine.capture(), grab_and_rotate(region, rotation_mode), cv2.imwrite(save_path), _update_thumbnail, _last_capture_path, auto_new_section_threshold check→_trigger_new_section, capture_error on exception. 14 source-scan + 6 logic + 3 @gui+@skip. (1698 passed, 269 skipped).
+- [x] FEAT-notes-editor: Already implemented: _notes_edit QTextEdit(disabled, placeholder, 60–160px). _notes_save_timer QTimer(singleShot, textChanged→start). _load_notes: blockSignals+enable/disable+read notes.txt or "". _on_notes_changed: write_text+OSError catch. 14 source-scan + 6 logic + 3 @gui+@skip. (1718 passed, 272 skipped).
