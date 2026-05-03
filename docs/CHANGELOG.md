@@ -202,3 +202,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_state_machine_ui.py` — 12 source-scan + 7 logic + 3 @gui+@skip. (1532 passed, 242 skipped).
 - **FEAT-hotkeys-tab-ui** `gui/settings_dialog.py` — Already implemented: `_hotkeys_table` `QTableWidget(n_actions, 3)` (Action/Default/Override). `_hotkey_edits: dict[str, QLineEdit]` per action. `_ACTION_LABELS` class dict (6 actions). Load: `get("keybindings",{})` → `setText`. Save: collect `edit.text().strip()` → `set("keybindings")`.
 - `tests/gui/test_hotkeys_tab_ui.py` — 13 source-scan + 6 logic + 3 @gui+@skip. (1551 passed, 245 skipped).
+- **FEAT-display-tab-ui** `gui/settings_dialog.py` — Already implemented: `"Display"` `QGroupBox` in Capture tab. `_preview_font_size` `QSpinBox(8–24, 11, " pt")`. `_font_preview_label` with tooltip `"Live font size preview"`. `valueChanged` → `_update_font_preview`. Load reads `"preview_font_size"` (default 11); save writes it.
+- `tests/gui/test_display_tab_ui.py` — 13 source-scan + 6 logic + 3 @gui+@skip. (1570 passed, 248 skipped).
