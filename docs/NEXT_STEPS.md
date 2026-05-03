@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-notes-autosave complete. 1200 passed, 186 skipped. Ready for FEAT-log-panel-toggle (Add a "Show Log" checkable QAction in the View menu that toggles visibility of the existing _log_panel; persist log_panel_visible in config; load on init).
+FEAT-log-panel-toggle complete. 1215 passed, 190 skipped. Ready for FEAT-export-format-persist (Persist the selected export format combo index to config key export_format on every change; restore on init).
 
 ## Up Next
-- [ ] FEAT-log-panel-toggle: View menu: _log_panel_action QAction ("Show Log", checkable) connected to _toggle_log_panel(checked). _toggle_log_panel: sets _log_panel.setVisible(checked), persists log_panel_visible in config. Loaded on init (default False).
+- [ ] FEAT-export-format-persist: _export_fmt_combo.currentTextChanged connected to _on_export_format_changed(text); _on_export_format_changed: cfg.set("export_format", text) + save. __init__: read export_format (default "epub"), find index in combo, setCurrentIndex.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -60,3 +60,4 @@ FEAT-notes-autosave complete. 1200 passed, 186 skipped. Ready for FEAT-log-panel
 - [x] FEAT-capture-delay: SettingsDialog Capture tab: "Capture Delay" QGroupBox; _capture_delay QDoubleSpinBox(0.0–5.0 s, step 0.1, SpecialValueText "None", suffix " s"); loads capture_delay_ms/1000; saves value*1000. MainWindow: import time; _trigger_capture reads delay_s = capture_delay_ms/1000; if > 0 time.sleep(delay_s) before grab. 9 settings source-scan + 5 MW source-scan + 8 logic + 3 @gui+@skip. (1163 passed, 177 skipped).
 - [x] FEAT-hotkey-display: _select_region_btn stored as instance var. _update_button_hotkey_labels(): imports _DEFAULT_BINDINGS, merges config keybindings override, sets tooltip f"{label}  [{KEY}]" on all 4 action buttons. Called on __init__ and after settings accept. 9 source-scan + 8 logic + 5 @gui+@skip. (1180 passed, 182 skipped).
 - [x] FEAT-notes-autosave: _notes_edit QTextEdit (disabled, placeholder, 60–160px) below log panel. _notes_save_timer QTimer (singleShot, 2000 ms) connected to _on_notes_changed; textChanged starts timer. _load_notes(): enables edit, blockSignals, reads notes.txt or empty. _on_notes_changed(): writes toPlainText() to session.root/notes.txt. QTimer added to QtCore imports. 15 source-scan + 5 logic + 4 @gui+@skip. (1200 passed, 186 skipped).
+- [x] FEAT-log-panel-toggle: Removed duplicate _toggle_log_panel stub. Single slot: setVisible, setText ("Hide/Show Log Panel"), set("log_panel_visible"), save(). Loaded on init (default False). _toggle_log_action already existed; wiring confirmed. 10 source-scan + 5 logic + 4 @gui+@skip. (1215 passed, 190 skipped).
