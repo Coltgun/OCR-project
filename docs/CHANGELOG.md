@@ -198,3 +198,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_dark_mode_persist.py` — 12 source-scan + 6 logic + 3 @gui+@skip. (1496 passed, 236 skipped).
 - **FEAT-open-folder-btn** `gui/main_window.py` — Already implemented: `_open_folder_btn` (hidden, status bar). `_last_export_path: str = ""`. Export: stores path + `setVisible(True)`. `_update_ui_for_state`: `setVisible(False)` when no path. `_on_open_export_folder`: guard empty path, `os.startfile(parent)`, catches `OSError`.
 - `tests/gui/test_open_folder_btn.py` — 12 source-scan + 6 logic + 3 @gui+@skip. (1514 passed, 239 skipped).
+- **FEAT-state-machine-ui** `gui/main_window.py` — Already implemented: `_state_dot` `QLabel(12×12, tooltip)` + `_state_label("IDLE")` in status bar. `_DOT_COLOURS` dict maps all 5 `AppState` values → CSS. `_update_ui_for_state`: `setText`, `setStyleSheet`, button enable/disable per state, status-bar messages.
+- `tests/gui/test_state_machine_ui.py` — 12 source-scan + 7 logic + 3 @gui+@skip. (1532 passed, 242 skipped).
