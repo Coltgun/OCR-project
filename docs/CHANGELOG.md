@@ -184,3 +184,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_ocr_confidence_display.py` — 7 source-scan + 6 logic + 2 @gui+@skip. (1362 passed, 216 skipped).
 - **FEAT-export-progress** `gui/main_window.py` — Already implemented: `_progress_bar` `QProgressBar` (fixed 200 px, hidden) in status bar. `_trigger_export`: `setRange(0,0)` + `setVisible(True)` before formatting; `setVisible(False)` on success and on exception.
 - `tests/gui/test_export_progress.py` — 8 source-scan + 6 logic + 2 @gui+@skip. (1376 passed, 218 skipped).
+- **FEAT-word-wrap-persist** `gui/main_window.py` — Already implemented: `_toggle_word_wrap(checked)` sets `"preview_word_wrap"` + `save()`; `__init__` reads it, `setChecked(wrap)` + `_apply_word_wrap(wrap)`. `"preview_word_wrap": True` in `_FACTORY_DEFAULTS`.
+- `tests/gui/test_word_wrap_persist.py` — 11 source-scan + 5 logic + 3 @gui+@skip. (1392 passed, 221 skipped).

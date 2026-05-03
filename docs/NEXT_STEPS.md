@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-export-progress complete. 1376 passed, 218 skipped. Ready for FEAT-word-wrap-persist (Restore _word_wrap_action.setChecked from config on __init__ and apply it — already done; write source-scan + logic tests to document and lock the behaviour).
+FEAT-word-wrap-persist complete. 1392 passed, 221 skipped. Ready for FEAT-auto-section-threshold-ui (SettingsDialog Capture tab: add _auto_section_threshold QSpinBox (0–20, 0 = disabled, suffix " captures") to a new "Auto Section" QGroupBox; load/save auto_new_section_threshold).
 
 ## Up Next
-- [ ] FEAT-word-wrap-persist: MainWindow: _toggle_word_wrap slot: saves preview_word_wrap to config + calls save(). __init__ restores checkbox and applies wrap. Add source-scan + logic + GUI-skip tests.
+- [ ] FEAT-auto-section-threshold-ui: SettingsDialog Capture tab: _auto_section_threshold QSpinBox (0–20, suffix " captures", SpecialValueText "Disabled"). _load_values reads auto_new_section_threshold (default 0). _save_values writes it. MainWindow already reads the value.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -71,3 +71,4 @@ FEAT-export-progress complete. 1376 passed, 218 skipped. Ready for FEAT-word-wra
 - [x] FEAT-session-thumbnail-zoom: thumb_row QHBoxLayout holds _thumbnail_label + _zoom_thumbnail_btn (hidden, tooltip). _last_capture_path: Path|None = None. Capture: stores save_path, shows btn. _clear_thumbnail: hides btn, clears path. _zoom_thumbnail: guards None+exists, QPixmap, QDialog with scaled QLabel (600x450 KeepAspectRatio). 14 source-scan + 5 logic + 3 @gui+@skip. (1349 passed, 214 skipped).
 - [x] FEAT-ocr-confidence-display: _populate_preview: avg_conf = sum(r.confidence)/n; label appended " | Avg conf: X.XX". _on_search_changed: same with guard total>0. 7 source-scan + 6 logic + 2 @gui+@skip. (1362 passed, 216 skipped).
 - [x] FEAT-export-progress: Already implemented in _trigger_export: setRange(0,0) + setVisible(True) before work; setVisible(False) on success and on error. Tests document and lock all four paths. 8 source-scan + 6 logic + 2 @gui+@skip. (1376 passed, 218 skipped).
+- [x] FEAT-word-wrap-persist: Already implemented: _toggle_word_wrap saves "preview_word_wrap" + save(); __init__ reads it, setChecked + _apply_word_wrap. Tests document and lock all paths. "preview_word_wrap": True in _FACTORY_DEFAULTS. 11 source-scan + 5 logic + 3 @gui+@skip. (1392 passed, 221 skipped).
