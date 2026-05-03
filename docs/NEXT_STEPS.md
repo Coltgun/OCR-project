@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-thumbnail-zoom complete. 1823 passed, 287 skipped. Ready for FEAT-region-select (MainWindow: audit _trigger_select_region, CaptureOverlay creation, _on_region_selected, _capture_region storage; write source-scan + logic tests).
+FEAT-region-select complete. 1845 passed, 290 skipped. Ready for FEAT-pipeline-mode-combo (MainWindow: audit _pipeline_mode_combo QComboBox, _update_pipeline_mode_label, currentIndexChanged signal, config persistence; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-region-select: MainWindow: audit _trigger_select_region, CaptureOverlay creation+signal wiring, _on_region_selected, _capture_region storage, RegionBorderOverlay update; write source-scan + logic tests.
+- [ ] FEAT-pipeline-mode-combo: MainWindow: audit _pipeline_mode_combo QComboBox (inline), _update_pipeline_mode_label, currentIndexChanged→config save, init population from PIPELINE_MODES; write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -94,3 +94,4 @@ FEAT-thumbnail-zoom complete. 1823 passed, 287 skipped. Ready for FEAT-region-se
 - [x] FEAT-log-panel: Already implemented: _log_panel QTextEdit(readOnly, hidden, Courier New 9pt). QtLogHandler(INFO)→_append_log. _append_log: panel.append+autoscroll. _toggle_log_action (checkable, "Show/Hide Log Panel")→_toggle_log_panel→persist "log_panel_visible". 15 source-scan + 6 logic + 3 @gui+@skip. (1778 passed, 281 skipped).
 - [x] FEAT-settings-dialog-apply: Already implemented: _on_accept: threshold guard (low>=high)→QMessageBox.warning, _save_values()+accept(). _reset_defaults_btn→_on_reset_defaults: question confirm, _FACTORY_DEFAULTS restore, config.save(), _load_values(). _open_settings: SettingsDialog exec, _cfg reload, hotkeys.reload, font+pipeline+recent updates. 17 source-scan + 6 logic + 3 @gui+@skip. (1801 passed, 284 skipped).
 - [x] FEAT-thumbnail-zoom: Already implemented: _thumbnail_label QLabel(120x90, AlignCenter, border). _zoom_thumbnail_btn (hidden, Zoom, clicked→_zoom_thumbnail). _update_thumbnail: QPixmap+isNull guard+scaled(KeepAspectRatio, SmoothTransformation). _clear_thumbnail: label.clear+btn.hide+path=None. _zoom_thumbnail: path+exists guard. 16 source-scan + 6 logic + 3 @gui+@skip. (1823 passed, 287 skipped).
+- [x] FEAT-region-select: Already implemented: _trigger_select_region: state_machine.select_region() guard, _border_overlay.hide(), CaptureOverlay()+region_selected→_on_region_selected+cancelled→_on_region_cancelled+show_fullscreen(). _on_region_selected: CaptureRegion(x,y,w,h), _region_label.setText, _border_overlay.update_region_from_qrect+show, selection_done. 16 source-scan + 6 logic + 3 @gui+@skip. (1845 passed, 290 skipped).
