@@ -180,3 +180,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_reset_to_defaults.py` — 12 source-scan + 6 logic + 3 @gui+@skip. (1330 passed, 211 skipped).
 - **FEAT-session-thumbnail-zoom** `gui/main_window.py` — `thumb_row` `QHBoxLayout` holds `_thumbnail_label` + `_zoom_thumbnail_btn` (`"Zoom"`, hidden, tooltip). `_last_capture_path: Path | None = None`. Capture: stores `save_path`, `setVisible(True)`. `_clear_thumbnail`: `setVisible(False)`, `_last_capture_path = None`. `_zoom_thumbnail()`: guards `None`/not-exists/null pixmap; `QDialog` with `QLabel` scaled to 600×450 `KeepAspectRatio`.
 - `tests/gui/test_session_thumbnail_zoom.py` — 14 source-scan + 5 logic + 3 @gui+@skip. (1349 passed, 214 skipped).
+- **FEAT-ocr-confidence-display** `gui/main_window.py` — `_populate_preview`: computes `avg_conf = sum(r.confidence for r in results) / n`; appends `" | Avg conf: {avg_conf:.2f}"` to preview label. `_on_search_changed`: same with `total > 0` guard.
+- `tests/gui/test_ocr_confidence_display.py` — 7 source-scan + 6 logic + 2 @gui+@skip. (1362 passed, 216 skipped).
