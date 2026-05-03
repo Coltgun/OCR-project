@@ -1072,7 +1072,11 @@ class MainWindow(QMainWindow):
 
         self._preview_pane.setPlainText("\n".join(lines))
         n = len(results)
-        self._preview_label.setText(f"<b>OCR Results:</b> {n} block{'s' if n != 1 else ''}")
+        avg_conf = sum(r.confidence for r in results) / n
+        self._preview_label.setText(
+            f"<b>OCR Results:</b> {n} block{'s' if n != 1 else ''}"
+            f" | Avg conf: {avg_conf:.2f}"
+        )
         self._copy_btn.setEnabled(True)
         self._copy_section_btn.setEnabled(
             self._session is not None and bool(results)
@@ -1107,10 +1111,16 @@ class MainWindow(QMainWindow):
             lines.append(r.text)
         self._preview_pane.setPlainText("\n".join(lines))
         n = len(filtered)
-        suffix = f" (filtered: {n}/{len(self._ocr_results)})" if q else ""
+        total = len(self._ocr_results)
+        suffix = f" (filtered: {n}/{total})" if q else ""
+        avg_conf = (
+            sum(r.confidence for r in self._ocr_results) / total
+            if total > 0 else 0.0
+        )
         self._preview_label.setText(
-            f"<b>OCR Results:</b> {len(self._ocr_results)} block"
-            f"{'s' if len(self._ocr_results) != 1 else ''}{suffix}"
+            f"<b>OCR Results:</b> {total} block"
+            f"{'s' if total != 1 else ''}{suffix}"
+            f" | Avg conf: {avg_conf:.2f}"
         )
 
     @Slot()
