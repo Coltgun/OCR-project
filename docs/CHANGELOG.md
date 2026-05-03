@@ -208,3 +208,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_pipeline_tab_ui.py` — 10 source-scan + 6 logic + 3 @gui+@skip. (1586 passed, 251 skipped).
 - **FEAT-capture-tab-working-root** `gui/settings_dialog.py` — Already implemented: `_working_root` `QLineEdit(placeholder "sessions")` in Session Storage group. Load: `get_str("working_root_dir","sessions")`. Save: `.strip() or "sessions"`. `"working_root_dir": "sessions"` in `_FACTORY_DEFAULTS`.
 - `tests/gui/test_capture_tab_working_root.py` — 9 source-scan + 6 logic + 3 @gui+@skip. (1601 passed, 254 skipped).
+- **FEAT-recent-sessions-menu** `gui/main_window.py` — Already implemented: `_record_recent_session`: dedup+prepend+cap at `_MAX_RECENT`+save. `_update_recent_menu`: `clear()` → iterate or show `"(no recent sessions)"` placeholder. `_open_recent_session`: idle guard, `path.exists()`, `QMessageBox.warning` if missing.
+- `tests/gui/test_recent_sessions_menu.py` — 13 source-scan + 6 logic + 3 @gui+@skip. (1620 passed, 257 skipped).
