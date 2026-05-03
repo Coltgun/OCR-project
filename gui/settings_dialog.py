@@ -321,8 +321,8 @@ class SettingsDialog(QDialog):
     _FACTORY_DEFAULTS: dict[str, object] = {
         "ocr_pipeline_mode": "LOCAL_FAST",
         "vram_tier": "8gb",
-        "minhash_threshold": 0.85,
-        "embedding_similarity_threshold": 0.92,
+        "dedup_threshold": 0.85,
+        "embedding_threshold": 0.92,
         "ocr_min_confidence": 0.6,
         "hybrid_high_threshold": 0.90,
         "hybrid_low_threshold": 0.70,

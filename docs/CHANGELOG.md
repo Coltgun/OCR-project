@@ -190,3 +190,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_auto_section_threshold_ui.py` — 9 SD source-scan + 2 MW source-scan + 6 logic + 3 @gui+@skip. (1409 passed, 224 skipped).
 - **FEAT-vram-tier-ui** `gui/settings_dialog.py` — Already implemented: `_vram_combo` `QComboBox(["8gb","16gb"])` in `"VRAM Tier"` `QGroupBox` with tier-model note `QLabel`. `_load_values`: `findText("vram_tier","8gb")`. `_save_values`: `currentText()`. `"vram_tier": "8gb"` in `_FACTORY_DEFAULTS`.
 - `tests/gui/test_vram_tier_ui.py` — 10 source-scan + 6 logic + 3 @gui+@skip. (1425 passed, 227 skipped).
+- **FEAT-bert-threshold-ui** `gui/settings_dialog.py` — **Bug fix:** `_FACTORY_DEFAULTS` keys corrected: `"minhash_threshold"` → `"dedup_threshold"`, `"embedding_similarity_threshold"` → `"embedding_threshold"` to match actual `_load_values`/`_save_values` usage. All 5 threshold spinboxes verified.
+- `tests/gui/test_bert_threshold_ui.py` — 20 source-scan + 6 logic + 3 @gui+@skip. (1454 passed, 230 skipped).
