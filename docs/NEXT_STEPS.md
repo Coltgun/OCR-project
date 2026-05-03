@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-state-machine-ui complete. 1532 passed, 242 skipped. Ready for FEAT-hotkeys-tab-ui (SettingsDialog Hotkeys tab: audit _build_hotkeys_tab, keybinding QLineEdits load/save; write source-scan + logic tests).
+FEAT-hotkeys-tab-ui complete. 1551 passed, 245 skipped. Ready for FEAT-display-tab-ui (SettingsDialog Display tab: audit _preview_font_size, _preview_word_wrap_check, _log_panel_visible_check; verify load/save; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-hotkeys-tab-ui: SettingsDialog Hotkeys tab: audit _build_hotkeys_tab, individual keybinding QLineEdits (capture, new_section, send_to_ocr, reset_area, toggle_overlay, cancel); verify load/save; write tests.
+- [ ] FEAT-display-tab-ui: SettingsDialog Display tab: audit _preview_font_size QSpinBox, _preview_word_wrap QCheckBox, _log_panel_visible QCheckBox; verify load/save; write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -79,3 +79,4 @@ FEAT-state-machine-ui complete. 1532 passed, 242 skipped. Ready for FEAT-hotkeys
 - [x] FEAT-dark-mode-persist: Already implemented: _dark_mode_action checkable QAction → _toggle_dark_mode(checked): set("dark_mode") + save() + _apply_theme(). __init__: reads dark_mode, setChecked + _apply_theme. "dark_mode": False in _FACTORY_DEFAULTS. 12 source-scan + 6 logic + 3 @gui+@skip. (1496 passed, 236 skipped).
 - [x] FEAT-open-folder-btn: Already implemented: _open_folder_btn (hidden, status bar). _last_export_path: str="". Export: stores path + setVisible(True). _update_ui_for_state: setVisible(False) when no path. _on_open_export_folder: guard empty, os.startfile(parent), catches OSError. 12 source-scan + 6 logic + 3 @gui+@skip. (1514 passed, 239 skipped).
 - [x] FEAT-state-machine-ui: Already implemented: _state_dot QLabel(12x12) + _state_label; _DOT_COLOURS dict maps AppState→CSS. _update_ui_for_state: setText, setStyleSheet, button enable/disable, status bar message. All 5 states covered. 12 source-scan + 7 logic + 3 @gui+@skip. (1532 passed, 242 skipped).
+- [x] FEAT-hotkeys-tab-ui: Already implemented: _hotkeys_table QTableWidget(n_actions, 3) with Action/Default/Override columns. _hotkey_edits dict[str,QLineEdit] per action. _ACTION_LABELS class dict (6 actions). Load: get("keybindings",{}) → iter edits. Save: collect edits → set("keybindings"). 13 source-scan + 6 logic + 3 @gui+@skip. (1551 passed, 245 skipped).
