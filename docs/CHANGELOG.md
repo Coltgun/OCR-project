@@ -220,3 +220,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_capture_flow.py` — 14 source-scan + 6 logic + 3 @gui+@skip. (1698 passed, 269 skipped).
 - **FEAT-notes-editor** `gui/main_window.py` — Already implemented: `_notes_edit` `QTextEdit(disabled, placeholder, 60–160px)`. `_notes_save_timer` `QTimer(singleShot)` → `textChanged` starts timer. `_load_notes`: `blockSignals` + enable/disable + read `notes.txt` or `""`. `_on_notes_changed`: `write_text` + `OSError` catch.
 - `tests/gui/test_notes_editor.py` — 14 source-scan + 6 logic + 3 @gui+@skip. (1718 passed, 272 skipped).
+- **FEAT-search-filter** `gui/main_window.py` — Already implemented: `_search_bar` `QLineEdit` + placeholder. `textChanged` → `_on_search_changed`. Filter: `strip().lower()`, case-insensitive match. Empty query resets to all results. Updates `_preview_pane` + `_preview_label` with filtered count + `avg_conf`.
+- `tests/gui/test_search_filter.py` — 12 source-scan + 6 logic + 3 @gui+@skip. (1736 passed, 275 skipped).

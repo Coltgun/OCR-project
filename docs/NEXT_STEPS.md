@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-notes-editor complete. 1718 passed, 272 skipped. Ready for FEAT-search-filter (MainWindow: audit _search_bar QLineEdit, _on_search_changed filter logic, preview update; write source-scan + logic tests).
+FEAT-search-filter complete. 1736 passed, 275 skipped. Ready for FEAT-section-controls (MainWindow: audit _trigger_new_section, _trigger_reset_area, _trigger_cancel; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-search-filter: MainWindow: audit _search_bar QLineEdit, _on_search_changed (filter, preview update, count label); write source-scan + logic tests.
+- [ ] FEAT-section-controls: MainWindow: audit _trigger_new_section (section advance, clear), _trigger_reset_area (region reset, overlay hide), _trigger_cancel (state cancel, overlay hide); write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -89,3 +89,4 @@ FEAT-notes-editor complete. 1718 passed, 272 skipped. Ready for FEAT-search-filt
 - [x] FEAT-export-flow: Already implemented: _trigger_export: _export_fmt_combo.currentData(), template→default_name, QFileDialog.getSaveFileName, persist epub_output_dir, setRange(0,0)+setVisible(True), formatter dispatch (epub/txt/md), write_bytes, _last_export_path, _open_folder_btn.setVisible(True), error→QMessageBox.critical. 14 source-scan + 6 logic + 3 @gui+@skip. (1678 passed, 266 skipped).
 - [x] FEAT-capture-flow: Already implemented: _trigger_capture: session+region guards, state_machine.capture(), grab_and_rotate(region, rotation_mode), cv2.imwrite(save_path), _update_thumbnail, _last_capture_path, auto_new_section_threshold check→_trigger_new_section, capture_error on exception. 14 source-scan + 6 logic + 3 @gui+@skip. (1698 passed, 269 skipped).
 - [x] FEAT-notes-editor: Already implemented: _notes_edit QTextEdit(disabled, placeholder, 60–160px). _notes_save_timer QTimer(singleShot, textChanged→start). _load_notes: blockSignals+enable/disable+read notes.txt or "". _on_notes_changed: write_text+OSError catch. 14 source-scan + 6 logic + 3 @gui+@skip. (1718 passed, 272 skipped).
+- [x] FEAT-search-filter: Already implemented: _search_bar QLineEdit+placeholder. textChanged→_on_search_changed. Filter: strip().lower(), case-insensitive in r.text.lower(). Empty query resets to all. Updates _preview_pane + _preview_label with filtered count + avg_conf. 12 source-scan + 6 logic + 3 @gui+@skip. (1736 passed, 275 skipped).
