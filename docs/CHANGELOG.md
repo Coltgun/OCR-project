@@ -222,3 +222,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_notes_editor.py` — 14 source-scan + 6 logic + 3 @gui+@skip. (1718 passed, 272 skipped).
 - **FEAT-search-filter** `gui/main_window.py` — Already implemented: `_search_bar` `QLineEdit` + placeholder. `textChanged` → `_on_search_changed`. Filter: `strip().lower()`, case-insensitive match. Empty query resets to all results. Updates `_preview_pane` + `_preview_label` with filtered count + `avg_conf`.
 - `tests/gui/test_search_filter.py` — 12 source-scan + 6 logic + 3 @gui+@skip. (1736 passed, 275 skipped).
+- **FEAT-section-controls** `gui/main_window.py` — Already implemented: `_trigger_new_section`: session+idle guards, `session.new_section()`, `_section_label.setText`, `_clear_preview`, `_clear_thumbnail`. `_trigger_cancel`: `overlay.close()+None`, `state_machine.cancel()`, `_update_ui_for_state(IDLE)`. `_on_region_cancelled`: cancel+update.
+- `tests/gui/test_section_controls.py` — 15 source-scan + 6 logic + 3 @gui+@skip. (1757 passed, 278 skipped).
