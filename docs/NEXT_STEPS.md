@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-auto-section-threshold-ui complete. 1409 passed, 224 skipped. Ready for FEAT-vram-tier-ui (SettingsDialog VRAM tab: _vram_tier_combo QComboBox ("8gb"/"16gb"); loads vram_tier from config; saves on accept; updates model defaults label).
+FEAT-vram-tier-ui complete. 1425 passed, 227 skipped. Ready for FEAT-bert-threshold-ui (SettingsDialog Pipeline tab: audit _hybrid_high/_hybrid_low/_ocr_min_confidence/_minhash/_embedding_similarity QDoubleSpinBoxes; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-vram-tier-ui: SettingsDialog VRAM tab: audit existing _vram_tier_combo and _vram_info_label; if absent, add QComboBox ("8gb"/"16gb") + info QLabel; load/save vram_tier.
+- [ ] FEAT-bert-threshold-ui: SettingsDialog Pipeline tab: audit _hybrid_high_threshold, _hybrid_low_threshold, _ocr_min_confidence, _minhash_threshold, _embedding_similarity_threshold spinboxes; verify load/save; write tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -73,3 +73,4 @@ FEAT-auto-section-threshold-ui complete. 1409 passed, 224 skipped. Ready for FEA
 - [x] FEAT-export-progress: Already implemented in _trigger_export: setRange(0,0) + setVisible(True) before work; setVisible(False) on success and on error. Tests document and lock all four paths. 8 source-scan + 6 logic + 2 @gui+@skip. (1376 passed, 218 skipped).
 - [x] FEAT-word-wrap-persist: Already implemented: _toggle_word_wrap saves "preview_word_wrap" + save(); __init__ reads it, setChecked + _apply_word_wrap. Tests document and lock all paths. "preview_word_wrap": True in _FACTORY_DEFAULTS. 11 source-scan + 5 logic + 3 @gui+@skip. (1392 passed, 221 skipped).
 - [x] FEAT-auto-section-threshold-ui: Already implemented: _auto_section_threshold QSpinBox(0–99, "Disabled", " captures") in "Auto Section" QGroupBox. _load_values reads auto_new_section_threshold. _save_values writes it. MW reads threshold > 0. 9 SD source-scan + 2 MW source-scan + 6 logic + 3 @gui+@skip. (1409 passed, 224 skipped).
+- [x] FEAT-vram-tier-ui: Already implemented: _vram_combo QComboBox(["8gb","16gb"]) in "VRAM Tier" QGroupBox; note QLabel with tier model info. _load_values: findText("vram_tier","8gb"). _save_values: currentText(). "vram_tier": "8gb" in _FACTORY_DEFAULTS. 10 source-scan + 6 logic + 3 @gui+@skip. (1425 passed, 227 skipped).
