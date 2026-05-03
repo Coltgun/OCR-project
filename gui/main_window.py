@@ -105,6 +105,9 @@ class MainWindow(QMainWindow):
         self._word_wrap_action.setChecked(wrap)
         self._apply_word_wrap(wrap)
         self._update_button_hotkey_labels()
+        log_visible = bool(self._cfg.get("log_panel_visible", False))
+        self._toggle_log_action.setChecked(log_visible)
+        self._log_panel.setVisible(log_visible)
 
     # ------------------------------------------------------------------
     # UI construction
@@ -706,14 +709,6 @@ class MainWindow(QMainWindow):
         self._log_handler.emitter.message_logged.connect(self._append_log)
         logging.getLogger().addHandler(self._log_handler)
 
-    @Slot(bool)
-    def _toggle_log_panel(self, checked: bool) -> None:
-        """Show or hide the log panel; keep menu action label in sync."""
-        self._log_panel.setVisible(checked)
-        self._toggle_log_action.setText(
-            "Hide Log Panel" if checked else "Show Log Panel"
-        )
-
     @Slot(str)
     def _append_log(self, message: str) -> None:
         """Append *message* to the log panel and auto-scroll to bottom."""
@@ -731,6 +726,16 @@ class MainWindow(QMainWindow):
             os.startfile(folder)
         except OSError as exc:
             logger.warning("MainWindow: could not open folder '%s': %s", folder, exc)
+
+    @Slot(bool)
+    def _toggle_log_panel(self, checked: bool) -> None:
+        """Show or hide the log panel, update menu label, and persist the preference."""
+        self._log_panel.setVisible(checked)
+        self._toggle_log_action.setText(
+            "Hide Log Panel" if checked else "Show Log Panel"
+        )
+        self._config.set("log_panel_visible", checked)
+        self._config.save()
 
     @Slot(bool)
     def _toggle_word_wrap(self, checked: bool) -> None:
