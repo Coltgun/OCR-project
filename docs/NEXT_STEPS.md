@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-pipeline-tab-ui complete. 1586 passed, 251 skipped. Ready for FEAT-capture-tab-working-root (SettingsDialog Capture tab: audit _working_root QLineEdit; verify browse button and load/save; write source-scan + logic tests).
+FEAT-capture-tab-working-root complete. 1601 passed, 254 skipped. Ready for FEAT-recent-sessions-menu (MainWindow: audit _update_recent_menu, _record_recent_session, _load_recent_session; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-capture-tab-working-root: SettingsDialog Capture tab: audit _working_root QLineEdit + _browse_root_btn; verify load/save of working_root_dir; write source-scan + logic tests.
+- [ ] FEAT-recent-sessions-menu: MainWindow: audit _update_recent_menu (Recent menu QActions), _record_recent_session (cap+dedup), _load_recent_session slot; write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -82,3 +82,4 @@ FEAT-pipeline-tab-ui complete. 1586 passed, 251 skipped. Ready for FEAT-capture-
 - [x] FEAT-hotkeys-tab-ui: Already implemented: _hotkeys_table QTableWidget(n_actions, 3) with Action/Default/Override columns. _hotkey_edits dict[str,QLineEdit] per action. _ACTION_LABELS class dict (6 actions). Load: get("keybindings",{}) → iter edits. Save: collect edits → set("keybindings"). 13 source-scan + 6 logic + 3 @gui+@skip. (1551 passed, 245 skipped).
 - [x] FEAT-display-tab-ui: Already implemented: "Display" QGroupBox in Capture tab. _preview_font_size QSpinBox(8–24, 11, " pt"). _font_preview_label with tooltip "Live font size preview". valueChanged→_update_font_preview. Load reads "preview_font_size". Save writes it. 13 source-scan + 6 logic + 3 @gui+@skip. (1570 passed, 248 skipped).
 - [x] FEAT-pipeline-tab-ui: Already implemented: _mode_combo QComboBox populated from PIPELINE_MODES iterator. Load: findText("ocr_pipeline_mode","LOCAL_FAST"). Save: currentText(). "ocr_pipeline_mode": "LOCAL_FAST" in _FACTORY_DEFAULTS. 10 source-scan + 6 logic + 3 @gui+@skip. (1586 passed, 251 skipped).
+- [x] FEAT-capture-tab-working-root: Already implemented: _working_root QLineEdit(placeholder "sessions") in Session Storage group. Load: get_str("working_root_dir","sessions"). Save: strip() or "sessions". "working_root_dir": "sessions" in _FACTORY_DEFAULTS. 9 source-scan + 6 logic + 3 @gui+@skip. (1601 passed, 254 skipped).
