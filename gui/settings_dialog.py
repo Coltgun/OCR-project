@@ -247,6 +247,12 @@ class SettingsDialog(QDialog):
         self._export_filename_template.setPlaceholderText("{session}_{timestamp}")
         session_form.addRow("Export filename template:", self._export_filename_template)
 
+        self._max_recent_sessions = QSpinBox()
+        self._max_recent_sessions.setRange(1, 10)
+        self._max_recent_sessions.setValue(5)
+        self._max_recent_sessions.setSuffix(" sessions")
+        session_form.addRow("Recent session history:", self._max_recent_sessions)
+
         layout.addWidget(session_group)
 
         auto_group = QGroupBox("Auto Section")
@@ -425,6 +431,9 @@ class SettingsDialog(QDialog):
         self._auto_section_threshold.setValue(
             int(cfg.get("auto_new_section_threshold", 0))
         )
+        self._max_recent_sessions.setValue(
+            int(cfg.get("max_recent_sessions", 5))
+        )
         rot = cfg.get_str("rotation_mode", "none")
         idx = self._rotation_mode.findText(rot)
         self._rotation_mode.setCurrentIndex(max(0, idx))
@@ -470,6 +479,7 @@ class SettingsDialog(QDialog):
             self._export_filename_template.text().strip() or "{session}_{timestamp}",
         )
         cfg.set("auto_new_section_threshold", self._auto_section_threshold.value())
+        cfg.set("max_recent_sessions", self._max_recent_sessions.value())
         cfg.set("rotation_mode", self._rotation_mode.currentText())
         cfg.set("capture_delay_ms", int(self._capture_delay.value() * 1000))
         cfg.set("preview_font_size", self._preview_font_size.value())

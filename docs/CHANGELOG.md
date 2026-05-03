@@ -164,3 +164,6 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_log_panel_toggle.py` — 10 source-scan + 5 logic + 4 @gui+@skip. (1215 passed, 190 skipped).
 - **FEAT-export-format-persist** `gui/main_window.py` — `_export_fmt_combo.currentIndexChanged` connected to `_on_export_format_changed(_index)`. Slot reads `currentData()`; if truthy calls `set("export_format", fmt)` + `save()`. `__init__`: reads `export_format` (default `"epub"`), `findData`, `blockSignals`, `setCurrentIndex`.
 - `tests/gui/test_export_format_persist.py` — 8 source-scan + 6 logic + 3 @gui+@skip. (1229 passed, 193 skipped).
+- **FEAT-recent-session-limit** `gui/settings_dialog.py` — `_max_recent_sessions` `QSpinBox(1–10, suffix " sessions", default 5)` added to Session Storage group; row `"Recent session history:"`. `_load_values`: reads `max_recent_sessions` (default 5). `_save_values`: writes it.
+- `gui/main_window.py` — `_record_recent_session`: replaced `self._MAX_RECENT` slice with `cap = cfg.get("max_recent_sessions", _MAX_RECENT); recent[:cap]`. Fixed regression in `tests/gui/test_recent_sessions.py`.
+- `tests/gui/test_recent_session_limit.py` — 7 SD source-scan + 3 MW source-scan + 9 logic + 3 @gui+@skip. (1248 passed, 196 skipped).
