@@ -232,3 +232,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_thumbnail_zoom.py` — 16 source-scan + 6 logic + 3 @gui+@skip. (1823 passed, 287 skipped).
 - **FEAT-region-select** `gui/main_window.py` — Already implemented: `_trigger_select_region`: `state_machine.select_region()` guard, `_border_overlay.hide()`, `CaptureOverlay()` + `region_selected`→`_on_region_selected` + `cancelled`→`_on_region_cancelled` + `show_fullscreen()`. `_on_region_selected`: `CaptureRegion(x,y,w,h)`, `_region_label.setText`, `_border_overlay.update_region_from_qrect+show`, `selection_done`.
 - `tests/gui/test_region_select.py` — 16 source-scan + 6 logic + 3 @gui+@skip. (1845 passed, 290 skipped).
+- **FEAT-pipeline-mode-combo** `gui/main_window.py` — Already implemented: `_pipeline_mode_combo` `QComboBox` + tooltip, populated via `for mode in PIPELINE_MODES`. `currentIndexChanged`→`_on_pipeline_mode_changed`: `currentText()`→`config.set+save`+`_update_pipeline_mode_label`. Init: `findText`+`blockSignals` sync.
+- `tests/gui/test_pipeline_mode_combo.py` — 12 source-scan + 6 logic + 3 @gui+@skip. (1863 passed, 293 skipped).
