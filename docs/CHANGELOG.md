@@ -204,3 +204,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_hotkeys_tab_ui.py` — 13 source-scan + 6 logic + 3 @gui+@skip. (1551 passed, 245 skipped).
 - **FEAT-display-tab-ui** `gui/settings_dialog.py` — Already implemented: `"Display"` `QGroupBox` in Capture tab. `_preview_font_size` `QSpinBox(8–24, 11, " pt")`. `_font_preview_label` with tooltip `"Live font size preview"`. `valueChanged` → `_update_font_preview`. Load reads `"preview_font_size"` (default 11); save writes it.
 - `tests/gui/test_display_tab_ui.py` — 13 source-scan + 6 logic + 3 @gui+@skip. (1570 passed, 248 skipped).
+- **FEAT-pipeline-tab-ui** `gui/settings_dialog.py` — Already implemented: `_mode_combo` `QComboBox` populated via `for mode in PIPELINE_MODES`. Load: `findText("ocr_pipeline_mode", "LOCAL_FAST")`. Save: `currentText()`. `"ocr_pipeline_mode": "LOCAL_FAST"` in `_FACTORY_DEFAULTS`.
+- `tests/gui/test_pipeline_tab_ui.py` — 10 source-scan + 6 logic + 3 @gui+@skip. (1586 passed, 251 skipped).

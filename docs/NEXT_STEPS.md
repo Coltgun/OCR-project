@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-display-tab-ui complete. 1570 passed, 248 skipped. Ready for FEAT-pipeline-tab-ui (SettingsDialog Pipeline tab: audit _mode_combo QComboBox; verify _ACTION_LABELS and PIPELINE_MODES match; write source-scan + logic tests).
+FEAT-pipeline-tab-ui complete. 1586 passed, 251 skipped. Ready for FEAT-capture-tab-working-root (SettingsDialog Capture tab: audit _working_root QLineEdit; verify browse button and load/save; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-pipeline-tab-ui: SettingsDialog Pipeline tab: audit _mode_combo QComboBox populated from PIPELINE_MODES; verify load/save; write source-scan + logic tests.
+- [ ] FEAT-capture-tab-working-root: SettingsDialog Capture tab: audit _working_root QLineEdit + _browse_root_btn; verify load/save of working_root_dir; write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -81,3 +81,4 @@ FEAT-display-tab-ui complete. 1570 passed, 248 skipped. Ready for FEAT-pipeline-
 - [x] FEAT-state-machine-ui: Already implemented: _state_dot QLabel(12x12) + _state_label; _DOT_COLOURS dict maps AppState→CSS. _update_ui_for_state: setText, setStyleSheet, button enable/disable, status bar message. All 5 states covered. 12 source-scan + 7 logic + 3 @gui+@skip. (1532 passed, 242 skipped).
 - [x] FEAT-hotkeys-tab-ui: Already implemented: _hotkeys_table QTableWidget(n_actions, 3) with Action/Default/Override columns. _hotkey_edits dict[str,QLineEdit] per action. _ACTION_LABELS class dict (6 actions). Load: get("keybindings",{}) → iter edits. Save: collect edits → set("keybindings"). 13 source-scan + 6 logic + 3 @gui+@skip. (1551 passed, 245 skipped).
 - [x] FEAT-display-tab-ui: Already implemented: "Display" QGroupBox in Capture tab. _preview_font_size QSpinBox(8–24, 11, " pt"). _font_preview_label with tooltip "Live font size preview". valueChanged→_update_font_preview. Load reads "preview_font_size". Save writes it. 13 source-scan + 6 logic + 3 @gui+@skip. (1570 passed, 248 skipped).
+- [x] FEAT-pipeline-tab-ui: Already implemented: _mode_combo QComboBox populated from PIPELINE_MODES iterator. Load: findText("ocr_pipeline_mode","LOCAL_FAST"). Save: currentText(). "ocr_pipeline_mode": "LOCAL_FAST" in _FACTORY_DEFAULTS. 10 source-scan + 6 logic + 3 @gui+@skip. (1586 passed, 251 skipped).
