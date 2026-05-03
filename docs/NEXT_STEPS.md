@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-open-folder-btn complete. 1514 passed, 239 skipped. Ready for FEAT-state-machine-ui (MainWindow: audit _update_ui_for_state, _state_dot, AppState transitions; write source-scan + logic tests).
+FEAT-state-machine-ui complete. 1532 passed, 242 skipped. Ready for FEAT-hotkeys-tab-ui (SettingsDialog Hotkeys tab: audit _build_hotkeys_tab, keybinding QLineEdits load/save; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-state-machine-ui: MainWindow: audit _update_ui_for_state, _state_dot colour mapping, AppState transitions; write source-scan + logic tests.
+- [ ] FEAT-hotkeys-tab-ui: SettingsDialog Hotkeys tab: audit _build_hotkeys_tab, individual keybinding QLineEdits (capture, new_section, send_to_ocr, reset_area, toggle_overlay, cancel); verify load/save; write tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -78,3 +78,4 @@ FEAT-open-folder-btn complete. 1514 passed, 239 skipped. Ready for FEAT-state-ma
 - [x] FEAT-api-key-ui: Already implemented: _openrouter_key (Password mode), _openrouter_model, _openrouter_base_url in "OpenRouter" group; _llm_base_url, _llm_model in "Ollama" group. All load/save wired. 19 source-scan + 6 logic + 3 @gui+@skip. (1478 passed, 233 skipped).
 - [x] FEAT-dark-mode-persist: Already implemented: _dark_mode_action checkable QAction → _toggle_dark_mode(checked): set("dark_mode") + save() + _apply_theme(). __init__: reads dark_mode, setChecked + _apply_theme. "dark_mode": False in _FACTORY_DEFAULTS. 12 source-scan + 6 logic + 3 @gui+@skip. (1496 passed, 236 skipped).
 - [x] FEAT-open-folder-btn: Already implemented: _open_folder_btn (hidden, status bar). _last_export_path: str="". Export: stores path + setVisible(True). _update_ui_for_state: setVisible(False) when no path. _on_open_export_folder: guard empty, os.startfile(parent), catches OSError. 12 source-scan + 6 logic + 3 @gui+@skip. (1514 passed, 239 skipped).
+- [x] FEAT-state-machine-ui: Already implemented: _state_dot QLabel(12x12) + _state_label; _DOT_COLOURS dict maps AppState→CSS. _update_ui_for_state: setText, setStyleSheet, button enable/disable, status bar message. All 5 states covered. 12 source-scan + 7 logic + 3 @gui+@skip. (1532 passed, 242 skipped).
