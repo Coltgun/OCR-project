@@ -214,3 +214,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_session_dialog_flow.py` — 12 source-scan + 6 logic + 3 @gui+@skip. (1638 passed, 260 skipped).
 - **FEAT-ocr-worker-flow** `gui/main_window.py` — Already implemented: `OCRWorker(cfg, image_paths, parent)` dispatched via `QThreadPool`. Signals: `results_ready`→`_on_ocr_results`, `error_occurred`→`_on_ocr_error`, `progress`→`_on_ocr_progress`. `_on_ocr_results`: confidence filter, avg_conf, `setEnabled(True)`, `_populate_preview`. Numeric sort on `image_paths`.
 - `tests/gui/test_ocr_worker_flow.py` — 14 source-scan + 6 logic + 3 @gui+@skip. (1658 passed, 263 skipped).
+- **FEAT-export-flow** `gui/main_window.py` — Already implemented: `_trigger_export`: `_export_fmt_combo.currentData()`, template→`default_name`, `QFileDialog.getSaveFileName`, persist `epub_output_dir`, `setRange(0,0)+setVisible(True)`, formatter dispatch (epub/txt/md), `write_bytes`, `_last_export_path`, `_open_folder_btn.setVisible(True)`, error→`QMessageBox.critical`.
+- `tests/gui/test_export_flow.py` — 14 source-scan + 6 logic + 3 @gui+@skip. (1678 passed, 266 skipped).
