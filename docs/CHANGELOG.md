@@ -212,3 +212,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_recent_sessions_menu.py` — 13 source-scan + 6 logic + 3 @gui+@skip. (1620 passed, 257 skipped).
 - **FEAT-session-dialog** `gui/main_window.py` — Already implemented: `_start_new_session` `@Slot`: idle guard → `SessionDialog` exec → `CaptureSession(dlg.session_root, resume=dlg.resume)` → `_record_recent_session` → `_update_session_labels` → `_export_btn.setEnabled(False)` → `_update_ui_for_state(IDLE)`.
 - `tests/gui/test_session_dialog_flow.py` — 12 source-scan + 6 logic + 3 @gui+@skip. (1638 passed, 260 skipped).
+- **FEAT-ocr-worker-flow** `gui/main_window.py` — Already implemented: `OCRWorker(cfg, image_paths, parent)` dispatched via `QThreadPool`. Signals: `results_ready`→`_on_ocr_results`, `error_occurred`→`_on_ocr_error`, `progress`→`_on_ocr_progress`. `_on_ocr_results`: confidence filter, avg_conf, `setEnabled(True)`, `_populate_preview`. Numeric sort on `image_paths`.
+- `tests/gui/test_ocr_worker_flow.py` — 14 source-scan + 6 logic + 3 @gui+@skip. (1658 passed, 263 skipped).
