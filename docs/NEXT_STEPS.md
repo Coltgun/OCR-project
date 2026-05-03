@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-recent-sessions-menu complete. 1620 passed, 257 skipped. Ready for FEAT-session-dialog (MainWindow: audit _open_new_session_dialog → SessionDialog; verify _trigger_new_session slot, session creation, _record_recent_session call; write source-scan + logic tests).
+FEAT-session-dialog complete. 1638 passed, 260 skipped. Ready for FEAT-ocr-worker-flow (MainWindow: audit _trigger_ocr, OCRWorker thread, _on_ocr_results signal, _populate_preview; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-session-dialog: MainWindow: audit _trigger_new_session slot → SessionDialog → CaptureSession creation + _record_recent_session; write source-scan + logic tests.
+- [ ] FEAT-ocr-worker-flow: MainWindow: audit _trigger_ocr, OCRWorker thread start/connect, _on_ocr_results signal handling, _populate_preview; write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -84,3 +84,4 @@ FEAT-recent-sessions-menu complete. 1620 passed, 257 skipped. Ready for FEAT-ses
 - [x] FEAT-pipeline-tab-ui: Already implemented: _mode_combo QComboBox populated from PIPELINE_MODES iterator. Load: findText("ocr_pipeline_mode","LOCAL_FAST"). Save: currentText(). "ocr_pipeline_mode": "LOCAL_FAST" in _FACTORY_DEFAULTS. 10 source-scan + 6 logic + 3 @gui+@skip. (1586 passed, 251 skipped).
 - [x] FEAT-capture-tab-working-root: Already implemented: _working_root QLineEdit(placeholder "sessions") in Session Storage group. Load: get_str("working_root_dir","sessions"). Save: strip() or "sessions". "working_root_dir": "sessions" in _FACTORY_DEFAULTS. 9 source-scan + 6 logic + 3 @gui+@skip. (1601 passed, 254 skipped).
 - [x] FEAT-recent-sessions-menu: Already implemented: _record_recent_session: dedup+prepend+cap+save. _update_recent_menu: clear→iter or placeholder. _open_recent_session: idle guard, path.exists() check, QMessageBox.warning if missing. _MAX_RECENT constant. 13 source-scan + 6 logic + 3 @gui+@skip. (1620 passed, 257 skipped).
+- [x] FEAT-session-dialog: Already implemented: _start_new_session @Slot: idle guard, SessionDialog exec, CaptureSession(dlg.session_root, resume=dlg.resume), _record_recent_session, _update_session_labels, _export_btn.setEnabled(False), _update_ui_for_state. 12 source-scan + 6 logic + 3 @gui+@skip. (1638 passed, 260 skipped).

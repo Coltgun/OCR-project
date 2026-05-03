@@ -210,3 +210,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_capture_tab_working_root.py` — 9 source-scan + 6 logic + 3 @gui+@skip. (1601 passed, 254 skipped).
 - **FEAT-recent-sessions-menu** `gui/main_window.py` — Already implemented: `_record_recent_session`: dedup+prepend+cap at `_MAX_RECENT`+save. `_update_recent_menu`: `clear()` → iterate or show `"(no recent sessions)"` placeholder. `_open_recent_session`: idle guard, `path.exists()`, `QMessageBox.warning` if missing.
 - `tests/gui/test_recent_sessions_menu.py` — 13 source-scan + 6 logic + 3 @gui+@skip. (1620 passed, 257 skipped).
+- **FEAT-session-dialog** `gui/main_window.py` — Already implemented: `_start_new_session` `@Slot`: idle guard → `SessionDialog` exec → `CaptureSession(dlg.session_root, resume=dlg.resume)` → `_record_recent_session` → `_update_session_labels` → `_export_btn.setEnabled(False)` → `_update_ui_for_state(IDLE)`.
+- `tests/gui/test_session_dialog_flow.py` — 12 source-scan + 6 logic + 3 @gui+@skip. (1638 passed, 260 skipped).
