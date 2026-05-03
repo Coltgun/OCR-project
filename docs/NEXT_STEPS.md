@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-pipeline-mode-persist complete. 1280 passed, 203 skipped. Ready for FEAT-keyboard-shortcuts-help (Add a "Keyboard Shortcuts" dialog or QMessageBox launched from the Help menu that lists all active hotkeys read from config+defaults).
+FEAT-keyboard-shortcuts-help complete. 1296 passed, 205 skipped. Ready for FEAT-font-size-live-preview (SettingsDialog Preview tab: show live preview of OCR text at selected font size using a sample QLabel; update when _preview_font_size spinbox changes).
 
 ## Up Next
-- [ ] FEAT-keyboard-shortcuts-help: Help menu: "Keyboard Shortcuts" QAction connected to _show_keyboard_shortcuts(). Method builds a plain text or HTML string from _DEFAULT_BINDINGS merged with config keybindings, shows it in a QMessageBox or small QDialog.
+- [ ] FEAT-font-size-live-preview: SettingsDialog: _font_preview_label QLabel below _preview_font_size spinbox showing sample text at current font size. _preview_font_size.valueChanged connected to a lambda that updates label font. Label has fixed text e.g. "AaBbCc 汉字 123".
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -65,3 +65,4 @@ FEAT-pipeline-mode-persist complete. 1280 passed, 203 skipped. Ready for FEAT-ke
 - [x] FEAT-recent-session-limit: SettingsDialog Capture/Session Storage: _max_recent_sessions QSpinBox (1–10, suffix " sessions", default 5). _load_values reads max_recent_sessions; _save_values writes it. _record_recent_session: cap = cfg.get("max_recent_sessions", _MAX_RECENT); recent[:cap]. Fixed test_recent_sessions regression. 7 SD source-scan + 3 MW source-scan + 9 logic + 3 @gui+@skip. (1248 passed, 196 skipped).
 - [x] FEAT-clear-recent-sessions: SettingsDialog Capture/Session Storage: _clear_recent_btn QPushButton ("Clear Recent Sessions", tooltip), connected to _on_clear_recent. Slot: set("recent_sessions", []) + save + recent_sessions_cleared = True + setEnabled(False). MainWindow._open_settings: if dlg.recent_sessions_cleared → _update_recent_menu(). 9 SD source-scan + 2 MW source-scan + 4 logic + 4 @gui+@skip. (1263 passed, 200 skipped).
 - [x] FEAT-pipeline-mode-persist: Removed old notes stub (max 80px, direct textChanged). _pipeline_mode_combo QComboBox populated from PIPELINE_MODES; wired to _on_pipeline_mode_changed. Slot: currentText(), set+save+reload cfg+_update_pipeline_mode_label. Init+settings accept: findText+blockSignals+setCurrentIndex. Fixed test_session_notes regressions (max height 160, timer wiring). 12 source-scan + 5 logic + 3 @gui+@skip. (1280 passed, 203 skipped).
+- [x] FEAT-keyboard-shortcuts-help: Help menu: "Keyboard Shortcuts…" QAction → _show_keyboard_shortcuts(). Slot: imports _DEFAULT_BINDINGS, merges config overrides, builds HTML with _ACTION_LABELS (6 actions), shows QMessageBox.information. Key uppercased; empty → "(unbound)". 10 source-scan + 6 logic + 2 @gui+@skip. (1296 passed, 205 skipped).

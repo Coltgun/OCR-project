@@ -170,6 +170,9 @@ class MainWindow(QMainWindow):
         tools_menu.addAction(settings_action)
 
         help_menu = menu_bar.addMenu("&Help")
+        shortcuts_action = QAction("&Keyboard Shortcuts…", self)
+        shortcuts_action.triggered.connect(self._show_keyboard_shortcuts)
+        help_menu.addAction(shortcuts_action)
         about_action = QAction("&About…", self)
         about_action.triggered.connect(self._open_about)
         help_menu.addAction(about_action)
@@ -812,6 +815,32 @@ class MainWindow(QMainWindow):
         else:
             app.setStyle("Fusion")
             app.setPalette(app.style().standardPalette())
+
+    @Slot()
+    def _show_keyboard_shortcuts(self) -> None:
+        """Show a dialog listing all currently active hotkey bindings."""
+        from capture.hotkeys import _DEFAULT_BINDINGS  # noqa: PLC0415
+        _ACTION_LABELS = {
+            "capture": "Capture screenshot",
+            "new_section": "Start new section",
+            "send_to_ocr": "Run OCR pipeline",
+            "reset_area": "Select capture region",
+            "toggle_overlay": "Toggle region border",
+            "cancel": "Cancel current action",
+        }
+        overrides: dict = self._cfg.get("keybindings", {})  # type: ignore[assignment]
+        if not isinstance(overrides, dict):
+            overrides = {}
+        bindings = {**_DEFAULT_BINDINGS, **overrides}
+        lines = ["<b>Active Hotkey Bindings</b><br>"]
+        for action, label in _ACTION_LABELS.items():
+            key = bindings.get(action, "").upper() or "(unbound)"
+            lines.append(f"<b>{key}</b> &nbsp; {label}")
+        QMessageBox.information(
+            self,
+            "Keyboard Shortcuts",
+            "<br>".join(lines),
+        )
 
     @Slot()
     def _open_about(self) -> None:
