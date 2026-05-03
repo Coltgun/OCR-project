@@ -162,3 +162,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_notes_autosave.py` — 15 source-scan + 5 logic + 4 @gui+@skip. (1200 passed, 186 skipped).
 - **FEAT-log-panel-toggle** `gui/main_window.py` — Removed duplicate `_toggle_log_panel` stub. Single `@Slot(bool)` implementation: `setVisible(checked)`, `setText("Hide/Show Log Panel")`, `set("log_panel_visible", checked)`, `save()`. Loaded on `__init__` from config (default `False`). `_toggle_log_action` already existed in `_build_menu`.
 - `tests/gui/test_log_panel_toggle.py` — 10 source-scan + 5 logic + 4 @gui+@skip. (1215 passed, 190 skipped).
+- **FEAT-export-format-persist** `gui/main_window.py` — `_export_fmt_combo.currentIndexChanged` connected to `_on_export_format_changed(_index)`. Slot reads `currentData()`; if truthy calls `set("export_format", fmt)` + `save()`. `__init__`: reads `export_format` (default `"epub"`), `findData`, `blockSignals`, `setCurrentIndex`.
+- `tests/gui/test_export_format_persist.py` — 8 source-scan + 6 logic + 3 @gui+@skip. (1229 passed, 193 skipped).
