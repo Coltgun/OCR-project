@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-log-panel-toggle complete. 1215 passed, 190 skipped. Ready for FEAT-export-format-persist (Persist the selected export format combo index to config key export_format on every change; restore on init).
+FEAT-export-format-persist complete. 1229 passed, 193 skipped. Ready for FEAT-recent-session-limit (Add a QSpinBox in SettingsDialog General tab for max_recent_sessions (1–10, default 5); _record_recent_session caps list at this value; loaded on init).
 
 ## Up Next
-- [ ] FEAT-export-format-persist: _export_fmt_combo.currentTextChanged connected to _on_export_format_changed(text); _on_export_format_changed: cfg.set("export_format", text) + save. __init__: read export_format (default "epub"), find index in combo, setCurrentIndex.
+- [ ] FEAT-recent-session-limit: SettingsDialog General tab: "Recent Sessions" QGroupBox; _max_recent_sessions QSpinBox (1–10, default 5). _load_values reads max_recent_sessions; _save_values writes it. _record_recent_session uses cfg.get("max_recent_sessions", 5) as cap instead of hardcoded _MAX_RECENT.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -61,3 +61,4 @@ FEAT-log-panel-toggle complete. 1215 passed, 190 skipped. Ready for FEAT-export-
 - [x] FEAT-hotkey-display: _select_region_btn stored as instance var. _update_button_hotkey_labels(): imports _DEFAULT_BINDINGS, merges config keybindings override, sets tooltip f"{label}  [{KEY}]" on all 4 action buttons. Called on __init__ and after settings accept. 9 source-scan + 8 logic + 5 @gui+@skip. (1180 passed, 182 skipped).
 - [x] FEAT-notes-autosave: _notes_edit QTextEdit (disabled, placeholder, 60–160px) below log panel. _notes_save_timer QTimer (singleShot, 2000 ms) connected to _on_notes_changed; textChanged starts timer. _load_notes(): enables edit, blockSignals, reads notes.txt or empty. _on_notes_changed(): writes toPlainText() to session.root/notes.txt. QTimer added to QtCore imports. 15 source-scan + 5 logic + 4 @gui+@skip. (1200 passed, 186 skipped).
 - [x] FEAT-log-panel-toggle: Removed duplicate _toggle_log_panel stub. Single slot: setVisible, setText ("Hide/Show Log Panel"), set("log_panel_visible"), save(). Loaded on init (default False). _toggle_log_action already existed; wiring confirmed. 10 source-scan + 5 logic + 4 @gui+@skip. (1215 passed, 190 skipped).
+- [x] FEAT-export-format-persist: _export_fmt_combo.currentIndexChanged connected to _on_export_format_changed(_index). Slot: currentData(); if truthy set("export_format") + save(). __init__: read export_format (default "epub"), findData, blockSignals, setCurrentIndex. 8 source-scan + 6 logic + 3 @gui+@skip. (1229 passed, 193 skipped).

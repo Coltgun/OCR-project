@@ -105,6 +105,12 @@ class MainWindow(QMainWindow):
         self._word_wrap_action.setChecked(wrap)
         self._apply_word_wrap(wrap)
         self._update_button_hotkey_labels()
+        saved_fmt = str(self._cfg.get("export_format", "epub"))
+        fmt_idx = self._export_fmt_combo.findData(saved_fmt)
+        if fmt_idx >= 0:
+            self._export_fmt_combo.blockSignals(True)
+            self._export_fmt_combo.setCurrentIndex(fmt_idx)
+            self._export_fmt_combo.blockSignals(False)
         log_visible = bool(self._cfg.get("log_panel_visible", False))
         self._toggle_log_action.setChecked(log_visible)
         self._log_panel.setVisible(log_visible)
@@ -249,6 +255,7 @@ class MainWindow(QMainWindow):
         self._export_fmt_combo.addItem("EPUB", userData="epub")
         self._export_fmt_combo.addItem("Plain Text", userData="txt")
         self._export_fmt_combo.addItem("Markdown", userData="md")
+        self._export_fmt_combo.currentIndexChanged.connect(self._on_export_format_changed)
         action_row.addWidget(self._export_fmt_combo)
 
         self._export_btn = QPushButton("Export…")
@@ -726,6 +733,14 @@ class MainWindow(QMainWindow):
             os.startfile(folder)
         except OSError as exc:
             logger.warning("MainWindow: could not open folder '%s': %s", folder, exc)
+
+    @Slot(int)
+    def _on_export_format_changed(self, _index: int) -> None:
+        """Persist the selected export format to config."""
+        fmt = self._export_fmt_combo.currentData()
+        if fmt:
+            self._config.set("export_format", fmt)
+            self._config.save()
 
     @Slot(bool)
     def _toggle_log_panel(self, checked: bool) -> None:
