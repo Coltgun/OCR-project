@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-hotkey-display complete. 1180 passed, 182 skipped. Ready for FEAT-notes-autosave (Auto-save the notes QTextEdit content to session_root/notes.txt on every textChanged signal with a 2-second QTimer debounce; load on session open/resume).
+FEAT-notes-autosave complete. 1200 passed, 186 skipped. Ready for FEAT-log-panel-toggle (Add a "Show Log" checkable QAction in the View menu that toggles visibility of the existing _log_panel; persist log_panel_visible in config; load on init).
 
 ## Up Next
-- [ ] FEAT-notes-autosave: MainWindow: QTimer _notes_save_timer (singleShot, 2000 ms) connected to _save_notes(); _notes_pane.textChanged connected to _notes_save_timer.start(2000). _save_notes(): writes _notes_pane.toPlainText() to session.root/notes.txt if session active. _load_notes(): reads notes.txt if exists, sets pane text (blockSignals). Called on session start and resume.
+- [ ] FEAT-log-panel-toggle: View menu: _log_panel_action QAction ("Show Log", checkable) connected to _toggle_log_panel(checked). _toggle_log_panel: sets _log_panel.setVisible(checked), persists log_panel_visible in config. Loaded on init (default False).
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -59,3 +59,4 @@ FEAT-hotkey-display complete. 1180 passed, 182 skipped. Ready for FEAT-notes-aut
 - [x] FEAT-rotation-mode-ui: SettingsDialog Capture tab: "Image Rotation" QGroupBox; _rotation_mode QComboBox(none/90cw/90ccw/180); row "Rotate captured image:". _load_values: get_str("rotation_mode","none"), findText, setCurrentIndex(max(0,idx)). _save_values: set("rotation_mode", currentText()). 8 source-scan + 6 logic + 4 @gui+@skip. (1141 passed, 174 skipped).
 - [x] FEAT-capture-delay: SettingsDialog Capture tab: "Capture Delay" QGroupBox; _capture_delay QDoubleSpinBox(0.0–5.0 s, step 0.1, SpecialValueText "None", suffix " s"); loads capture_delay_ms/1000; saves value*1000. MainWindow: import time; _trigger_capture reads delay_s = capture_delay_ms/1000; if > 0 time.sleep(delay_s) before grab. 9 settings source-scan + 5 MW source-scan + 8 logic + 3 @gui+@skip. (1163 passed, 177 skipped).
 - [x] FEAT-hotkey-display: _select_region_btn stored as instance var. _update_button_hotkey_labels(): imports _DEFAULT_BINDINGS, merges config keybindings override, sets tooltip f"{label}  [{KEY}]" on all 4 action buttons. Called on __init__ and after settings accept. 9 source-scan + 8 logic + 5 @gui+@skip. (1180 passed, 182 skipped).
+- [x] FEAT-notes-autosave: _notes_edit QTextEdit (disabled, placeholder, 60–160px) below log panel. _notes_save_timer QTimer (singleShot, 2000 ms) connected to _on_notes_changed; textChanged starts timer. _load_notes(): enables edit, blockSignals, reads notes.txt or empty. _on_notes_changed(): writes toPlainText() to session.root/notes.txt. QTimer added to QtCore imports. 15 source-scan + 5 logic + 4 @gui+@skip. (1200 passed, 186 skipped).
