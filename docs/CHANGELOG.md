@@ -226,3 +226,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_section_controls.py` — 15 source-scan + 6 logic + 3 @gui+@skip. (1757 passed, 278 skipped).
 - **FEAT-log-panel** `gui/main_window.py` — Already implemented: `_log_panel` `QTextEdit(readOnly, hidden, Courier New 9pt)`. `QtLogHandler(INFO)` → `_append_log`. `_append_log`: `panel.append` + autoscroll. `_toggle_log_action` (checkable, "Show/Hide Log Panel") → `_toggle_log_panel` → persist `"log_panel_visible"`.
 - `tests/gui/test_log_panel.py` — 15 source-scan + 6 logic + 3 @gui+@skip. (1778 passed, 281 skipped).
+- **FEAT-settings-dialog-apply** `gui/settings_dialog.py` + `gui/main_window.py` — Already implemented: `_on_accept`: threshold guard (`low>=high`) → `QMessageBox.warning`, `_save_values()+accept()`. `_reset_defaults_btn` → `_on_reset_defaults`: question confirm, `_FACTORY_DEFAULTS` restore, `config.save()`, `_load_values()`. `_open_settings`: `SettingsDialog` exec, `_cfg` reload, `hotkeys.reload`, font+pipeline+recent updates.
+- `tests/gui/test_settings_dialog_apply.py` — 17 source-scan + 6 logic + 3 @gui+@skip. (1801 passed, 284 skipped).

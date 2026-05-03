@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-log-panel complete. 1778 passed, 281 skipped. Ready for FEAT-settings-dialog-apply (SettingsDialog: audit _on_accept, _reset_defaults_btn, settings_changed signal emission, MainWindow _on_settings_changed; write source-scan + logic tests).
+FEAT-settings-dialog-apply complete. 1801 passed, 284 skipped. Ready for FEAT-thumbnail-zoom (MainWindow: audit _update_thumbnail, _zoom_thumbnail_btn, _clear_thumbnail, _thumbnail_label; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-settings-dialog-apply: SettingsDialog: audit _on_accept (_save_values, accept()), _reset_defaults_btn, settings_changed signal; MainWindow _on_settings_changed; write source-scan + logic tests.
+- [ ] FEAT-thumbnail-zoom: MainWindow: audit _thumbnail_label QLabel, _zoom_thumbnail_btn, _update_thumbnail (QPixmap scale), _clear_thumbnail; write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -92,3 +92,4 @@ FEAT-log-panel complete. 1778 passed, 281 skipped. Ready for FEAT-settings-dialo
 - [x] FEAT-search-filter: Already implemented: _search_bar QLineEdit+placeholder. textChanged→_on_search_changed. Filter: strip().lower(), case-insensitive in r.text.lower(). Empty query resets to all. Updates _preview_pane + _preview_label with filtered count + avg_conf. 12 source-scan + 6 logic + 3 @gui+@skip. (1736 passed, 275 skipped).
 - [x] FEAT-section-controls: Already implemented: _trigger_new_section: session+idle guards, session.new_section(), _section_label.setText, _clear_preview, _clear_thumbnail. _trigger_cancel: overlay.close()+None, state_machine.cancel(), _update_ui_for_state(IDLE). _on_region_cancelled: cancel+update. 15 source-scan + 6 logic + 3 @gui+@skip. (1757 passed, 278 skipped).
 - [x] FEAT-log-panel: Already implemented: _log_panel QTextEdit(readOnly, hidden, Courier New 9pt). QtLogHandler(INFO)→_append_log. _append_log: panel.append+autoscroll. _toggle_log_action (checkable, "Show/Hide Log Panel")→_toggle_log_panel→persist "log_panel_visible". 15 source-scan + 6 logic + 3 @gui+@skip. (1778 passed, 281 skipped).
+- [x] FEAT-settings-dialog-apply: Already implemented: _on_accept: threshold guard (low>=high)→QMessageBox.warning, _save_values()+accept(). _reset_defaults_btn→_on_reset_defaults: question confirm, _FACTORY_DEFAULTS restore, config.save(), _load_values(). _open_settings: SettingsDialog exec, _cfg reload, hotkeys.reload, font+pipeline+recent updates. 17 source-scan + 6 logic + 3 @gui+@skip. (1801 passed, 284 skipped).
