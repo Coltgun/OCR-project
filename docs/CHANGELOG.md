@@ -218,3 +218,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_export_flow.py` — 14 source-scan + 6 logic + 3 @gui+@skip. (1678 passed, 266 skipped).
 - **FEAT-capture-flow** `gui/main_window.py` — Already implemented: `_trigger_capture`: session+region guards, `state_machine.capture()`, `grab_and_rotate(region, rotation_mode)`, `cv2.imwrite(save_path)`, `_update_thumbnail`, `_last_capture_path`, `auto_new_section_threshold` check → `_trigger_new_section`, `capture_error` on exception.
 - `tests/gui/test_capture_flow.py` — 14 source-scan + 6 logic + 3 @gui+@skip. (1698 passed, 269 skipped).
+- **FEAT-notes-editor** `gui/main_window.py` — Already implemented: `_notes_edit` `QTextEdit(disabled, placeholder, 60–160px)`. `_notes_save_timer` `QTimer(singleShot)` → `textChanged` starts timer. `_load_notes`: `blockSignals` + enable/disable + read `notes.txt` or `""`. `_on_notes_changed`: `write_text` + `OSError` catch.
+- `tests/gui/test_notes_editor.py` — 14 source-scan + 6 logic + 3 @gui+@skip. (1718 passed, 272 skipped).
