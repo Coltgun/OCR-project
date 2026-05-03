@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-word-wrap-persist complete. 1392 passed, 221 skipped. Ready for FEAT-auto-section-threshold-ui (SettingsDialog Capture tab: add _auto_section_threshold QSpinBox (0–20, 0 = disabled, suffix " captures") to a new "Auto Section" QGroupBox; load/save auto_new_section_threshold).
+FEAT-auto-section-threshold-ui complete. 1409 passed, 224 skipped. Ready for FEAT-vram-tier-ui (SettingsDialog VRAM tab: _vram_tier_combo QComboBox ("8gb"/"16gb"); loads vram_tier from config; saves on accept; updates model defaults label).
 
 ## Up Next
-- [ ] FEAT-auto-section-threshold-ui: SettingsDialog Capture tab: _auto_section_threshold QSpinBox (0–20, suffix " captures", SpecialValueText "Disabled"). _load_values reads auto_new_section_threshold (default 0). _save_values writes it. MainWindow already reads the value.
+- [ ] FEAT-vram-tier-ui: SettingsDialog VRAM tab: audit existing _vram_tier_combo and _vram_info_label; if absent, add QComboBox ("8gb"/"16gb") + info QLabel; load/save vram_tier.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -72,3 +72,4 @@ FEAT-word-wrap-persist complete. 1392 passed, 221 skipped. Ready for FEAT-auto-s
 - [x] FEAT-ocr-confidence-display: _populate_preview: avg_conf = sum(r.confidence)/n; label appended " | Avg conf: X.XX". _on_search_changed: same with guard total>0. 7 source-scan + 6 logic + 2 @gui+@skip. (1362 passed, 216 skipped).
 - [x] FEAT-export-progress: Already implemented in _trigger_export: setRange(0,0) + setVisible(True) before work; setVisible(False) on success and on error. Tests document and lock all four paths. 8 source-scan + 6 logic + 2 @gui+@skip. (1376 passed, 218 skipped).
 - [x] FEAT-word-wrap-persist: Already implemented: _toggle_word_wrap saves "preview_word_wrap" + save(); __init__ reads it, setChecked + _apply_word_wrap. Tests document and lock all paths. "preview_word_wrap": True in _FACTORY_DEFAULTS. 11 source-scan + 5 logic + 3 @gui+@skip. (1392 passed, 221 skipped).
+- [x] FEAT-auto-section-threshold-ui: Already implemented: _auto_section_threshold QSpinBox(0–99, "Disabled", " captures") in "Auto Section" QGroupBox. _load_values reads auto_new_section_threshold. _save_values writes it. MW reads threshold > 0. 9 SD source-scan + 2 MW source-scan + 6 logic + 3 @gui+@skip. (1409 passed, 224 skipped).
