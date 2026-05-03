@@ -33,7 +33,7 @@ class TestSessionNotesSource:
         assert "self._notes_edit = QTextEdit()" in _MW_SRC
 
     def test_notes_edit_max_height(self) -> None:
-        assert "self._notes_edit.setMaximumHeight(80)" in _MW_SRC
+        assert "self._notes_edit.setMaximumHeight(160)" in _MW_SRC
 
     def test_notes_edit_placeholder(self) -> None:
         assert "self._notes_edit.setPlaceholderText" in _MW_SRC
@@ -41,8 +41,8 @@ class TestSessionNotesSource:
     def test_notes_edit_initially_disabled(self) -> None:
         assert "self._notes_edit.setEnabled(False)" in _MW_SRC
 
-    def test_notes_edit_wired_to_slot(self) -> None:
-        assert "self._notes_edit.textChanged.connect(self._on_notes_changed)" in _MW_SRC
+    def test_notes_edit_wired_to_timer(self) -> None:
+        assert "_notes_save_timer.start()" in _MW_SRC
 
     def test_load_notes_called_on_new_session(self) -> None:
         idx = _MW_SRC.index("def _start_new_session")
