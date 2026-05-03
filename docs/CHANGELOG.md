@@ -176,3 +176,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_keyboard_shortcuts_help.py` — 10 source-scan + 6 logic + 2 @gui+@skip. (1296 passed, 205 skipped).
 - **FEAT-font-size-live-preview** `gui/settings_dialog.py` — Display group: `_font_preview_label` `QLabel("AaBbCc 汉字 123")` with tooltip; row `"Preview:"`. `_preview_font_size.valueChanged` → `_update_font_preview(size)`: reads label font, `setPointSize(size)`, `setFont`. `_load_values` calls `_update_font_preview` to initialise.
 - `tests/gui/test_font_size_live_preview.py` — 10 source-scan + 6 logic + 3 @gui+@skip. (1312 passed, 208 skipped).
+- **FEAT-reset-to-defaults** `gui/settings_dialog.py` — `_reset_defaults_btn` `QPushButton("Reset to Defaults")` with tooltip placed above OK/Cancel. `_FACTORY_DEFAULTS` class dict (22 keys). `_on_reset_defaults()`: `QMessageBox.question` confirm; iterates `_FACTORY_DEFAULTS.items()` → `cfg.set`; `cfg.save()`; `_load_values()`.
+- `tests/gui/test_reset_to_defaults.py` — 12 source-scan + 6 logic + 3 @gui+@skip. (1330 passed, 211 skipped).

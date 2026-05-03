@@ -86,6 +86,11 @@ class SettingsDialog(QDialog):
         tabs.addTab(self._build_hotkeys_tab(), "Hotkeys")
         root.addWidget(tabs)
 
+        self._reset_defaults_btn = QPushButton("Reset to Defaults")
+        self._reset_defaults_btn.setToolTip("Restore all settings to factory defaults")
+        self._reset_defaults_btn.clicked.connect(self._on_reset_defaults)
+        root.addWidget(self._reset_defaults_btn)
+
         buttons = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Ok
             | QDialogButtonBox.StandardButton.Cancel
@@ -312,6 +317,31 @@ class SettingsDialog(QDialog):
         return widget
 
     # --- Hotkeys tab ----------------------------------------------------
+
+    _FACTORY_DEFAULTS: dict[str, object] = {
+        "ocr_pipeline_mode": "LOCAL_FAST",
+        "vram_tier": "8gb",
+        "minhash_threshold": 0.85,
+        "embedding_similarity_threshold": 0.92,
+        "ocr_min_confidence": 0.6,
+        "hybrid_high_threshold": 0.90,
+        "hybrid_low_threshold": 0.70,
+        "bert_batch_size": 16,
+        "bert_max_length": 512,
+        "embedding_batch_size": 32,
+        "working_root_dir": "sessions",
+        "export_filename_template": "{session}_{timestamp}",
+        "max_recent_sessions": 5,
+        "auto_new_section_threshold": 0,
+        "rotation_mode": "none",
+        "capture_delay_ms": 0,
+        "preview_font_size": 11,
+        "dark_mode": False,
+        "preview_word_wrap": True,
+        "log_panel_visible": False,
+        "export_format": "epub",
+        "keybindings": {},
+    }
 
     _ACTION_LABELS: dict[str, str] = {
         "capture": "Capture screenshot",
@@ -541,6 +571,22 @@ class SettingsDialog(QDialog):
         font = self._font_preview_label.font()
         font.setPointSize(size)
         self._font_preview_label.setFont(font)
+
+    def _on_reset_defaults(self) -> None:
+        """Confirm, then restore all settings to factory defaults and refresh widgets."""
+        reply = QMessageBox.question(
+            self,
+            "Reset to Defaults",
+            "Reset all settings to factory defaults?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
+        )
+        if reply != QMessageBox.StandardButton.Yes:
+            return
+        for key, value in self._FACTORY_DEFAULTS.items():
+            self._config.set(key, value)
+        self._config.save()
+        self._load_values()
 
     # ------------------------------------------------------------------
     # Widget factories
