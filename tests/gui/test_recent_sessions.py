@@ -69,7 +69,7 @@ class TestRecentSessionsSource:
         assert "recent.remove(path)" in _MW_SRC
 
     def test_list_capped_at_max_recent(self) -> None:
-        assert "recent[: self._MAX_RECENT]" in _MW_SRC
+        assert "recent[:cap]" in _MW_SRC
 
     def test_config_saved_after_record(self) -> None:
         idx = _MW_SRC.index("def _record_recent_session")

@@ -867,14 +867,15 @@ class MainWindow(QMainWindow):
     _MAX_RECENT = 5
 
     def _record_recent_session(self, path: str) -> None:
-        """Prepend path to recent_sessions list, cap at _MAX_RECENT, persist."""
+        """Prepend path to recent_sessions list, cap at max_recent_sessions, persist."""
         recent: list = list(self._config.get("recent_sessions", []))  # type: ignore[arg-type]
         if not isinstance(recent, list):
             recent = []
         if path in recent:
             recent.remove(path)
         recent.insert(0, path)
-        recent = recent[: self._MAX_RECENT]
+        cap = int(self._cfg.get("max_recent_sessions", self._MAX_RECENT))
+        recent = recent[:cap]
         self._config.set("recent_sessions", recent)
         self._config.save()
         self._cfg = self._config._data
