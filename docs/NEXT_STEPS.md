@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-pipeline-mode-combo complete. 1863 passed, 293 skipped. Ready for FEAT-export-format-combo (MainWindow: audit _export_fmt_combo QComboBox, _on_export_format_changed, init sync, _EXT_MAP; write source-scan + logic tests).
+FEAT-export-format-combo complete. 1883 passed, 296 skipped. Ready for FEAT-copy-clipboard (MainWindow: audit _copy_btn, _copy_section_btn, _copy_results_to_clipboard, _copy_section_to_clipboard; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-export-format-combo: MainWindow: audit _export_fmt_combo QComboBox (epub/txt/md), _on_export_format_changed→config persist, _EXT_MAP, init sync; write source-scan + logic tests.
+- [ ] FEAT-copy-clipboard: MainWindow: audit _copy_btn, _copy_section_btn, _copy_results_to_clipboard (clipboard.setText), _copy_section_to_clipboard (section filter); write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -96,3 +96,4 @@ FEAT-pipeline-mode-combo complete. 1863 passed, 293 skipped. Ready for FEAT-expo
 - [x] FEAT-thumbnail-zoom: Already implemented: _thumbnail_label QLabel(120x90, AlignCenter, border). _zoom_thumbnail_btn (hidden, Zoom, clicked→_zoom_thumbnail). _update_thumbnail: QPixmap+isNull guard+scaled(KeepAspectRatio, SmoothTransformation). _clear_thumbnail: label.clear+btn.hide+path=None. _zoom_thumbnail: path+exists guard. 16 source-scan + 6 logic + 3 @gui+@skip. (1823 passed, 287 skipped).
 - [x] FEAT-region-select: Already implemented: _trigger_select_region: state_machine.select_region() guard, _border_overlay.hide(), CaptureOverlay()+region_selected→_on_region_selected+cancelled→_on_region_cancelled+show_fullscreen(). _on_region_selected: CaptureRegion(x,y,w,h), _region_label.setText, _border_overlay.update_region_from_qrect+show, selection_done. 16 source-scan + 6 logic + 3 @gui+@skip. (1845 passed, 290 skipped).
 - [x] FEAT-pipeline-mode-combo: Already implemented: _pipeline_mode_combo QComboBox+tooltip, populated via `for mode in PIPELINE_MODES`. currentIndexChanged→_on_pipeline_mode_changed: currentText()→config.set+save+_update_pipeline_mode_label. Init: findText+blockSignals sync. 12 source-scan + 6 logic + 3 @gui+@skip. (1863 passed, 293 skipped).
+- [x] FEAT-export-format-combo: Already implemented: _export_fmt_combo QComboBox with 3 items (EPUB/epub, Plain Text/txt, Markdown/md). currentIndexChanged→_on_export_format_changed: currentData()→config.set("export_format")+save. _EXT_MAP dict. Init: findData+blockSignals sync. 14 source-scan + 6 logic + 3 @gui+@skip. (1883 passed, 296 skipped).
