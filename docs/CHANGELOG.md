@@ -194,3 +194,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_bert_threshold_ui.py` — 20 source-scan + 6 logic + 3 @gui+@skip. (1454 passed, 230 skipped).
 - **FEAT-api-key-ui** `gui/settings_dialog.py` — Already implemented: `_openrouter_key` (`Password` mode, placeholder `"sk-or-…"`), `_openrouter_model`, `_openrouter_base_url` in `"OpenRouter"` group; `_llm_base_url`, `_llm_model` in `"Ollama (local LLM)"` group. All 5 fields load/save via `get_str`/`set`.
 - `tests/gui/test_api_key_ui.py` — 19 source-scan + 6 logic + 3 @gui+@skip. (1478 passed, 233 skipped).
+- **FEAT-dark-mode-persist** `gui/main_window.py` — Already implemented: `_dark_mode_action` checkable `QAction` → `_toggle_dark_mode(checked)`: `set("dark_mode")` + `save()` + `_apply_theme(checked)`. `__init__`: reads `"dark_mode"`, `setChecked(dark)` + `_apply_theme(dark)`. `"dark_mode": False` in `_FACTORY_DEFAULTS`.
+- `tests/gui/test_dark_mode_persist.py` — 12 source-scan + 6 logic + 3 @gui+@skip. (1496 passed, 236 skipped).
