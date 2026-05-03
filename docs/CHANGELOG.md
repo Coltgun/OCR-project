@@ -174,3 +174,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_pipeline_mode_persist.py` — 12 source-scan + 5 logic + 3 @gui+@skip. (1280 passed, 203 skipped).
 - **FEAT-keyboard-shortcuts-help** `gui/main_window.py` — Help menu: `"&Keyboard Shortcuts…"` `QAction` → `_show_keyboard_shortcuts()`. Slot: imports `_DEFAULT_BINDINGS`, merges `config["keybindings"]`, builds HTML with `_ACTION_LABELS` (6 actions), shows `QMessageBox.information`. Key `.upper()`, empty key → `"(unbound)"`.
 - `tests/gui/test_keyboard_shortcuts_help.py` — 10 source-scan + 6 logic + 2 @gui+@skip. (1296 passed, 205 skipped).
+- **FEAT-font-size-live-preview** `gui/settings_dialog.py` — Display group: `_font_preview_label` `QLabel("AaBbCc 汉字 123")` with tooltip; row `"Preview:"`. `_preview_font_size.valueChanged` → `_update_font_preview(size)`: reads label font, `setPointSize(size)`, `setFont`. `_load_values` calls `_update_font_preview` to initialise.
+- `tests/gui/test_font_size_live_preview.py` — 10 source-scan + 6 logic + 3 @gui+@skip. (1312 passed, 208 skipped).
