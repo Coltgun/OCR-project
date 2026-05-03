@@ -167,3 +167,6 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - **FEAT-recent-session-limit** `gui/settings_dialog.py` — `_max_recent_sessions` `QSpinBox(1–10, suffix " sessions", default 5)` added to Session Storage group; row `"Recent session history:"`. `_load_values`: reads `max_recent_sessions` (default 5). `_save_values`: writes it.
 - `gui/main_window.py` — `_record_recent_session`: replaced `self._MAX_RECENT` slice with `cap = cfg.get("max_recent_sessions", _MAX_RECENT); recent[:cap]`. Fixed regression in `tests/gui/test_recent_sessions.py`.
 - `tests/gui/test_recent_session_limit.py` — 7 SD source-scan + 3 MW source-scan + 9 logic + 3 @gui+@skip. (1248 passed, 196 skipped).
+- **FEAT-clear-recent-sessions** `gui/settings_dialog.py` — `recent_sessions_cleared: bool = False` flag on dialog. `_clear_recent_btn` `QPushButton("Clear Recent Sessions")` with tooltip; `_on_clear_recent()`: `set("recent_sessions", [])`, `save()`, sets flag `True`, disables button.
+- `gui/main_window.py` — `_open_settings`: after accept, if `dlg.recent_sessions_cleared` → `_update_recent_menu()`.
+- `tests/gui/test_clear_recent_sessions.py` — 9 SD source-scan + 2 MW source-scan + 4 logic + 4 @gui+@skip. (1263 passed, 200 skipped).

@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-recent-session-limit complete. 1248 passed, 196 skipped. Ready for FEAT-clear-recent-sessions (Add a QPushButton "Clear Recent Sessions" in the SettingsDialog Capture/Session Storage group; clicking it calls cfg.set("recent_sessions", []) + save + updates the recent menu).
+FEAT-clear-recent-sessions complete. 1263 passed, 200 skipped. Ready for FEAT-pipeline-mode-persist (Persist the QComboBox pipeline mode selection to config on every change in the MainWindow action_row; restore on init alongside existing pipeline_mode_label update).
 
 ## Up Next
-- [ ] FEAT-clear-recent-sessions: SettingsDialog Capture tab / Session Storage group: _clear_recent_btn QPushButton ("Clear Recent Sessions"). Clicked: cfg.set("recent_sessions", []) + cfg.save() + emit a signal or store a flag so MainWindow._update_recent_menu() is called after dialog accept.
+- [ ] FEAT-pipeline-mode-persist: MainWindow: _pipeline_mode_combo (already exists in action_row); wire currentIndexChanged to _on_pipeline_mode_changed(idx). Slot: reads currentText(), set("ocr_pipeline_mode", mode) + save + _update_pipeline_mode_label(). Init: read ocr_pipeline_mode, find in combo, blockSignals+setCurrentIndex.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -63,3 +63,4 @@ FEAT-recent-session-limit complete. 1248 passed, 196 skipped. Ready for FEAT-cle
 - [x] FEAT-log-panel-toggle: Removed duplicate _toggle_log_panel stub. Single slot: setVisible, setText ("Hide/Show Log Panel"), set("log_panel_visible"), save(). Loaded on init (default False). _toggle_log_action already existed; wiring confirmed. 10 source-scan + 5 logic + 4 @gui+@skip. (1215 passed, 190 skipped).
 - [x] FEAT-export-format-persist: _export_fmt_combo.currentIndexChanged connected to _on_export_format_changed(_index). Slot: currentData(); if truthy set("export_format") + save(). __init__: read export_format (default "epub"), findData, blockSignals, setCurrentIndex. 8 source-scan + 6 logic + 3 @gui+@skip. (1229 passed, 193 skipped).
 - [x] FEAT-recent-session-limit: SettingsDialog Capture/Session Storage: _max_recent_sessions QSpinBox (1–10, suffix " sessions", default 5). _load_values reads max_recent_sessions; _save_values writes it. _record_recent_session: cap = cfg.get("max_recent_sessions", _MAX_RECENT); recent[:cap]. Fixed test_recent_sessions regression. 7 SD source-scan + 3 MW source-scan + 9 logic + 3 @gui+@skip. (1248 passed, 196 skipped).
+- [x] FEAT-clear-recent-sessions: SettingsDialog Capture/Session Storage: _clear_recent_btn QPushButton ("Clear Recent Sessions", tooltip), connected to _on_clear_recent. Slot: set("recent_sessions", []) + save + recent_sessions_cleared = True + setEnabled(False). MainWindow._open_settings: if dlg.recent_sessions_cleared → _update_recent_menu(). 9 SD source-scan + 2 MW source-scan + 4 logic + 4 @gui+@skip. (1263 passed, 200 skipped).
