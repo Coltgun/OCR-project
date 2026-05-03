@@ -234,12 +234,21 @@ class MainWindow(QMainWindow):
         count_row.addWidget(self._reset_count_btn)
         root_layout.addLayout(count_row)
 
+        thumb_row = QHBoxLayout()
         self._thumbnail_label = QLabel()
         self._thumbnail_label.setFixedSize(120, 90)
         self._thumbnail_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._thumbnail_label.setToolTip("Last captured image")
         self._thumbnail_label.setStyleSheet("border: 1px solid #888;")
-        root_layout.addWidget(self._thumbnail_label)
+        thumb_row.addWidget(self._thumbnail_label)
+        self._zoom_thumbnail_btn = QPushButton("Zoom")
+        self._zoom_thumbnail_btn.setToolTip("View last captured image at full size")
+        self._zoom_thumbnail_btn.setVisible(False)
+        self._zoom_thumbnail_btn.clicked.connect(self._zoom_thumbnail)
+        thumb_row.addWidget(self._zoom_thumbnail_btn)
+        thumb_row.addStretch()
+        root_layout.addLayout(thumb_row)
+        self._last_capture_path: Path | None = None
 
         root_layout.addStretch()
 
@@ -524,6 +533,8 @@ class MainWindow(QMainWindow):
             self._update_count_label()
             self._refresh_section_count_list()
             self._update_session_info_label()
+            self._last_capture_path = save_path
+            self._zoom_thumbnail_btn.setVisible(True)
             self._update_thumbnail(save_path)
             self._state_machine.capture_done()
             threshold = int(self._cfg.get("auto_new_section_threshold", 0))
@@ -886,6 +897,30 @@ class MainWindow(QMainWindow):
     def _clear_thumbnail(self) -> None:
         """Remove any pixmap from the thumbnail label."""
         self._thumbnail_label.clear()
+        self._zoom_thumbnail_btn.setVisible(False)
+        self._last_capture_path = None
+
+    @Slot()
+    def _zoom_thumbnail(self) -> None:
+        """Open the last captured image in a larger preview dialog."""
+        if self._last_capture_path is None or not self._last_capture_path.exists():
+            return
+        pixmap = QPixmap(str(self._last_capture_path))
+        if pixmap.isNull():
+            return
+        dlg = QDialog(self)
+        dlg.setWindowTitle(self._last_capture_path.name)
+        dlg_layout = QVBoxLayout(dlg)
+        img_label = QLabel()
+        scaled = pixmap.scaled(
+            600, 450,
+            Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.SmoothTransformation,
+        )
+        img_label.setPixmap(scaled)
+        img_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        dlg_layout.addWidget(img_label)
+        dlg.exec()
 
     def _update_pipeline_mode_label(self) -> None:
         """Refresh the pipeline mode permanent status bar label from config."""
