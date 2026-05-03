@@ -196,3 +196,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_api_key_ui.py` — 19 source-scan + 6 logic + 3 @gui+@skip. (1478 passed, 233 skipped).
 - **FEAT-dark-mode-persist** `gui/main_window.py` — Already implemented: `_dark_mode_action` checkable `QAction` → `_toggle_dark_mode(checked)`: `set("dark_mode")` + `save()` + `_apply_theme(checked)`. `__init__`: reads `"dark_mode"`, `setChecked(dark)` + `_apply_theme(dark)`. `"dark_mode": False` in `_FACTORY_DEFAULTS`.
 - `tests/gui/test_dark_mode_persist.py` — 12 source-scan + 6 logic + 3 @gui+@skip. (1496 passed, 236 skipped).
+- **FEAT-open-folder-btn** `gui/main_window.py` — Already implemented: `_open_folder_btn` (hidden, status bar). `_last_export_path: str = ""`. Export: stores path + `setVisible(True)`. `_update_ui_for_state`: `setVisible(False)` when no path. `_on_open_export_folder`: guard empty path, `os.startfile(parent)`, catches `OSError`.
+- `tests/gui/test_open_folder_btn.py` — 12 source-scan + 6 logic + 3 @gui+@skip. (1514 passed, 239 skipped).
