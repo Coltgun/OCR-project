@@ -814,6 +814,8 @@ class MainWindow(QMainWindow):
             self._apply_preview_font_size(int(self._cfg.get("preview_font_size", 11)))
             self._update_pipeline_mode_label()
             self._update_button_hotkey_labels()
+            if dlg.recent_sessions_cleared:
+                self._update_recent_menu()
             logger.info("MainWindow: settings updated.")
 
     # ------------------------------------------------------------------

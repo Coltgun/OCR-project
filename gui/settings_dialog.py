@@ -64,6 +64,8 @@ class SettingsDialog(QDialog):
         self.setMinimumHeight(400)
         self.setModal(True)
 
+        self.recent_sessions_cleared: bool = False
+
         self._build_ui()
         self._load_values()
 
@@ -252,6 +254,11 @@ class SettingsDialog(QDialog):
         self._max_recent_sessions.setValue(5)
         self._max_recent_sessions.setSuffix(" sessions")
         session_form.addRow("Recent session history:", self._max_recent_sessions)
+
+        self._clear_recent_btn = QPushButton("Clear Recent Sessions")
+        self._clear_recent_btn.setToolTip("Remove all entries from the Recent Sessions menu")
+        self._clear_recent_btn.clicked.connect(self._on_clear_recent)
+        session_form.addRow("", self._clear_recent_btn)
 
         layout.addWidget(session_group)
 
@@ -515,6 +522,13 @@ class SettingsDialog(QDialog):
 
         self._save_values()
         self.accept()
+
+    def _on_clear_recent(self) -> None:
+        """Clear the recent sessions list immediately and flag the change."""
+        self._config.set("recent_sessions", [])
+        self._config.save()
+        self.recent_sessions_cleared = True
+        self._clear_recent_btn.setEnabled(False)
 
     # ------------------------------------------------------------------
     # Widget factories
