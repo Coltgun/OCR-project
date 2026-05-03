@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-ocr-confidence-display complete. 1362 passed, 216 skipped. Ready for FEAT-export-progress (Show a QProgressBar in the status bar while the export worker is running; hide it on success/error; use existing _progress_bar widget already in _build_status_bar).
+FEAT-export-progress complete. 1376 passed, 218 skipped. Ready for FEAT-word-wrap-persist (Restore _word_wrap_action.setChecked from config on __init__ and apply it — already done; write source-scan + logic tests to document and lock the behaviour).
 
 ## Up Next
-- [ ] FEAT-export-progress: MainWindow: _export_worker_started → _progress_bar.setVisible(True) + setValue(0) + setRange(0,0) (indeterminate). Export worker finished/error → _progress_bar.setVisible(False). Already have _progress_bar in _build_status_bar.
+- [ ] FEAT-word-wrap-persist: MainWindow: _toggle_word_wrap slot: saves preview_word_wrap to config + calls save(). __init__ restores checkbox and applies wrap. Add source-scan + logic + GUI-skip tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -70,3 +70,4 @@ FEAT-ocr-confidence-display complete. 1362 passed, 216 skipped. Ready for FEAT-e
 - [x] FEAT-reset-to-defaults: SettingsDialog: _reset_defaults_btn QPushButton ("Reset to Defaults", tooltip) above OK/Cancel. _FACTORY_DEFAULTS class dict (22 keys). _on_reset_defaults: QMessageBox.question confirm; iterate _FACTORY_DEFAULTS.items() → cfg.set; cfg.save(); _load_values(). 12 source-scan + 6 logic + 3 @gui+@skip. (1330 passed, 211 skipped).
 - [x] FEAT-session-thumbnail-zoom: thumb_row QHBoxLayout holds _thumbnail_label + _zoom_thumbnail_btn (hidden, tooltip). _last_capture_path: Path|None = None. Capture: stores save_path, shows btn. _clear_thumbnail: hides btn, clears path. _zoom_thumbnail: guards None+exists, QPixmap, QDialog with scaled QLabel (600x450 KeepAspectRatio). 14 source-scan + 5 logic + 3 @gui+@skip. (1349 passed, 214 skipped).
 - [x] FEAT-ocr-confidence-display: _populate_preview: avg_conf = sum(r.confidence)/n; label appended " | Avg conf: X.XX". _on_search_changed: same with guard total>0. 7 source-scan + 6 logic + 2 @gui+@skip. (1362 passed, 216 skipped).
+- [x] FEAT-export-progress: Already implemented in _trigger_export: setRange(0,0) + setVisible(True) before work; setVisible(False) on success and on error. Tests document and lock all four paths. 8 source-scan + 6 logic + 2 @gui+@skip. (1376 passed, 218 skipped).
