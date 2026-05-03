@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-session-dialog complete. 1638 passed, 260 skipped. Ready for FEAT-ocr-worker-flow (MainWindow: audit _trigger_ocr, OCRWorker thread, _on_ocr_results signal, _populate_preview; write source-scan + logic tests).
+FEAT-ocr-worker-flow complete. 1658 passed, 263 skipped. Ready for FEAT-export-flow (MainWindow: audit _trigger_export, EpubFormatter/MarkdownFormatter, _progress_bar lifecycle, _open_folder_btn show; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-ocr-worker-flow: MainWindow: audit _trigger_ocr, OCRWorker thread start/connect, _on_ocr_results signal handling, _populate_preview; write source-scan + logic tests.
+- [ ] FEAT-export-flow: MainWindow: audit _trigger_export: format selection, _progress_bar lifecycle, save_path building, _last_export_path, _open_folder_btn show; write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -85,3 +85,4 @@ FEAT-session-dialog complete. 1638 passed, 260 skipped. Ready for FEAT-ocr-worke
 - [x] FEAT-capture-tab-working-root: Already implemented: _working_root QLineEdit(placeholder "sessions") in Session Storage group. Load: get_str("working_root_dir","sessions"). Save: strip() or "sessions". "working_root_dir": "sessions" in _FACTORY_DEFAULTS. 9 source-scan + 6 logic + 3 @gui+@skip. (1601 passed, 254 skipped).
 - [x] FEAT-recent-sessions-menu: Already implemented: _record_recent_session: dedup+prepend+cap+save. _update_recent_menu: clear→iter or placeholder. _open_recent_session: idle guard, path.exists() check, QMessageBox.warning if missing. _MAX_RECENT constant. 13 source-scan + 6 logic + 3 @gui+@skip. (1620 passed, 257 skipped).
 - [x] FEAT-session-dialog: Already implemented: _start_new_session @Slot: idle guard, SessionDialog exec, CaptureSession(dlg.session_root, resume=dlg.resume), _record_recent_session, _update_session_labels, _export_btn.setEnabled(False), _update_ui_for_state. 12 source-scan + 6 logic + 3 @gui+@skip. (1638 passed, 260 skipped).
+- [x] FEAT-ocr-worker-flow: Already implemented: OCRWorker(cfg, image_paths, parent); signals: results_ready→_on_ocr_results, error_occurred→_on_ocr_error, progress→_on_ocr_progress; QThreadPool.globalInstance().start(). _on_ocr_results: confidence filter, avg_conf, _export_btn.setEnabled(True), _populate_preview. Numeric sort on image_paths. 14 source-scan + 6 logic + 3 @gui+@skip. (1658 passed, 263 skipped).
