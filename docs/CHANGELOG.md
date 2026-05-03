@@ -236,3 +236,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_pipeline_mode_combo.py` — 12 source-scan + 6 logic + 3 @gui+@skip. (1863 passed, 293 skipped).
 - **FEAT-export-format-combo** `gui/main_window.py` — Already implemented: `_export_fmt_combo` `QComboBox` with 3 items (EPUB/epub, Plain Text/txt, Markdown/md). `currentIndexChanged`→`_on_export_format_changed`: `currentData()`→`config.set("export_format")+save`. `_EXT_MAP` dict. Init: `findData`+`blockSignals` sync.
 - `tests/gui/test_export_format_combo.py` — 14 source-scan + 6 logic + 3 @gui+@skip. (1883 passed, 296 skipped).
+- **FEAT-copy-clipboard** `gui/main_window.py` — Already implemented: `_copy_btn` (disabled, clicked→`_copy_results_to_clipboard`). `_copy_section_btn` (disabled, tooltip, clicked→`_copy_section_to_clipboard`). `_copy_results`: `preview_pane.toPlainText`+`clipboard.setText`+status. `_copy_section`: session+results guard, folder filter, `setText`+status.
+- `tests/gui/test_copy_clipboard.py` — 16 source-scan + 6 logic + 3 @gui+@skip. (1905 passed, 299 skipped).
