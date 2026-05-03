@@ -238,3 +238,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_export_format_combo.py` — 14 source-scan + 6 logic + 3 @gui+@skip. (1883 passed, 296 skipped).
 - **FEAT-copy-clipboard** `gui/main_window.py` — Already implemented: `_copy_btn` (disabled, clicked→`_copy_results_to_clipboard`). `_copy_section_btn` (disabled, tooltip, clicked→`_copy_section_to_clipboard`). `_copy_results`: `preview_pane.toPlainText`+`clipboard.setText`+status. `_copy_section`: session+results guard, folder filter, `setText`+status.
 - `tests/gui/test_copy_clipboard.py` — 16 source-scan + 6 logic + 3 @gui+@skip. (1905 passed, 299 skipped).
+- **FEAT-hotkey-reload** `gui/main_window.py` — Already implemented: `_hotkeys.reload(cfg)` on settings accept. `_update_button_hotkey_labels`: `_DEFAULT_BINDINGS` merge with overrides (`isinstance` guard), `_BTN_MAP` 4 buttons, `btn.setToolTip(f"{label}  [{KEY}]")`, `.upper()+"(unbound)"` fallback.
+- `tests/gui/test_hotkey_reload.py` — 14 source-scan + 6 logic + 3 @gui+@skip. (1925 passed, 302 skipped).

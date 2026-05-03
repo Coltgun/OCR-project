@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-copy-clipboard complete. 1905 passed, 299 skipped. Ready for FEAT-hotkey-reload (MainWindow: audit HotkeyListener.reload, _update_button_hotkey_labels, keybindings config; write source-scan + logic tests).
+FEAT-hotkey-reload complete. 1925 passed, 302 skipped. Ready for FEAT-ocr-progress (MainWindow: audit _on_ocr_progress, _progress_bar show/hide, OCRWorker progress signal, timing label; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-hotkey-reload: MainWindow: audit _hotkeys.reload(cfg), _update_button_hotkey_labels, keybindings config dict, default labels; write source-scan + logic tests.
+- [ ] FEAT-ocr-progress: MainWindow: audit _on_ocr_progress slot, _progress_bar setRange/setValue/setVisible, OCRWorker progress signal, OCR timing; write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -98,3 +98,4 @@ FEAT-copy-clipboard complete. 1905 passed, 299 skipped. Ready for FEAT-hotkey-re
 - [x] FEAT-pipeline-mode-combo: Already implemented: _pipeline_mode_combo QComboBox+tooltip, populated via `for mode in PIPELINE_MODES`. currentIndexChanged→_on_pipeline_mode_changed: currentText()→config.set+save+_update_pipeline_mode_label. Init: findText+blockSignals sync. 12 source-scan + 6 logic + 3 @gui+@skip. (1863 passed, 293 skipped).
 - [x] FEAT-export-format-combo: Already implemented: _export_fmt_combo QComboBox with 3 items (EPUB/epub, Plain Text/txt, Markdown/md). currentIndexChanged→_on_export_format_changed: currentData()→config.set("export_format")+save. _EXT_MAP dict. Init: findData+blockSignals sync. 14 source-scan + 6 logic + 3 @gui+@skip. (1883 passed, 296 skipped).
 - [x] FEAT-copy-clipboard: Already implemented: _copy_btn (disabled, clicked→_copy_results_to_clipboard). _copy_section_btn (disabled, tooltip, clicked→_copy_section_to_clipboard). _copy_results: preview_pane.toPlainText+clipboard.setText+status. _copy_section: session+results guard, folder filter, setText+status. 16 source-scan + 6 logic + 3 @gui+@skip. (1905 passed, 299 skipped).
+- [x] FEAT-hotkey-reload: Already implemented: _hotkeys.reload(cfg) on settings accept. _update_button_hotkey_labels: _DEFAULT_BINDINGS merge with overrides (isinstance guard), _BTN_MAP 4 buttons, btn.setToolTip("{label}  [{KEY}]"), upper()+"(unbound)" fallback. 14 source-scan + 6 logic + 3 @gui+@skip. (1925 passed, 302 skipped).
