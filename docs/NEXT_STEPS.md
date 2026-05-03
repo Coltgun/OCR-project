@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-reset-to-defaults complete. 1330 passed, 211 skipped. Ready for FEAT-session-thumbnail-zoom (Add a QPushButton "Zoom" next to the thumbnail label that opens the last captured image in a larger QDialog or scales the thumbnail on click).
+FEAT-session-thumbnail-zoom complete. 1349 passed, 214 skipped. Ready for FEAT-ocr-confidence-display (After OCR runs, show average confidence score in the status bar or preview header as "Avg confidence: X.XX"; read from OCRResult.confidence fields).
 
 ## Up Next
-- [ ] FEAT-session-thumbnail-zoom: MainWindow: _zoom_thumbnail_btn QPushButton ("Zoom", hidden by default) next to thumbnail label. On click opens _last_capture_path in a QDialog with a scaled QLabel (max 600x450). Shown/hidden alongside the thumbnail label.
+- [ ] FEAT-ocr-confidence-display: After OCR completes, compute mean confidence across all OCRResult items (guard empty list). Show in preview header label as "OCR Results: N items | Avg conf: X.XX". Update _populate_preview to format the label.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -68,3 +68,4 @@ FEAT-reset-to-defaults complete. 1330 passed, 211 skipped. Ready for FEAT-sessio
 - [x] FEAT-keyboard-shortcuts-help: Help menu: "Keyboard Shortcuts…" QAction → _show_keyboard_shortcuts(). Slot: imports _DEFAULT_BINDINGS, merges config overrides, builds HTML with _ACTION_LABELS (6 actions), shows QMessageBox.information. Key uppercased; empty → "(unbound)". 10 source-scan + 6 logic + 2 @gui+@skip. (1296 passed, 205 skipped).
 - [x] FEAT-font-size-live-preview: SettingsDialog Display group: _font_preview_label QLabel ("AaBbCc 汉字 123", tooltip "Live font size preview") row below spinbox. _preview_font_size.valueChanged → _update_font_preview(size): sets font point size on label. _load_values calls _update_font_preview to initialise. 10 source-scan + 6 logic + 3 @gui+@skip. (1312 passed, 208 skipped).
 - [x] FEAT-reset-to-defaults: SettingsDialog: _reset_defaults_btn QPushButton ("Reset to Defaults", tooltip) above OK/Cancel. _FACTORY_DEFAULTS class dict (22 keys). _on_reset_defaults: QMessageBox.question confirm; iterate _FACTORY_DEFAULTS.items() → cfg.set; cfg.save(); _load_values(). 12 source-scan + 6 logic + 3 @gui+@skip. (1330 passed, 211 skipped).
+- [x] FEAT-session-thumbnail-zoom: thumb_row QHBoxLayout holds _thumbnail_label + _zoom_thumbnail_btn (hidden, tooltip). _last_capture_path: Path|None = None. Capture: stores save_path, shows btn. _clear_thumbnail: hides btn, clears path. _zoom_thumbnail: guards None+exists, QPixmap, QDialog with scaled QLabel (600x450 KeepAspectRatio). 14 source-scan + 5 logic + 3 @gui+@skip. (1349 passed, 214 skipped).
