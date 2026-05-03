@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-ocr-worker-flow complete. 1658 passed, 263 skipped. Ready for FEAT-export-flow (MainWindow: audit _trigger_export, EpubFormatter/MarkdownFormatter, _progress_bar lifecycle, _open_folder_btn show; write source-scan + logic tests).
+FEAT-export-flow complete. 1678 passed, 266 skipped. Ready for FEAT-capture-flow (MainWindow: audit _trigger_capture, ScreenCapture, _on_capture_done signal, _update_thumbnail, auto-section logic; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-export-flow: MainWindow: audit _trigger_export: format selection, _progress_bar lifecycle, save_path building, _last_export_path, _open_folder_btn show; write source-scan + logic tests.
+- [ ] FEAT-capture-flow: MainWindow: audit _trigger_capture, ScreenCapture, _on_capture_done signal, _update_thumbnail, auto-section threshold logic; write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -86,3 +86,4 @@ FEAT-ocr-worker-flow complete. 1658 passed, 263 skipped. Ready for FEAT-export-f
 - [x] FEAT-recent-sessions-menu: Already implemented: _record_recent_session: dedup+prepend+cap+save. _update_recent_menu: clear→iter or placeholder. _open_recent_session: idle guard, path.exists() check, QMessageBox.warning if missing. _MAX_RECENT constant. 13 source-scan + 6 logic + 3 @gui+@skip. (1620 passed, 257 skipped).
 - [x] FEAT-session-dialog: Already implemented: _start_new_session @Slot: idle guard, SessionDialog exec, CaptureSession(dlg.session_root, resume=dlg.resume), _record_recent_session, _update_session_labels, _export_btn.setEnabled(False), _update_ui_for_state. 12 source-scan + 6 logic + 3 @gui+@skip. (1638 passed, 260 skipped).
 - [x] FEAT-ocr-worker-flow: Already implemented: OCRWorker(cfg, image_paths, parent); signals: results_ready→_on_ocr_results, error_occurred→_on_ocr_error, progress→_on_ocr_progress; QThreadPool.globalInstance().start(). _on_ocr_results: confidence filter, avg_conf, _export_btn.setEnabled(True), _populate_preview. Numeric sort on image_paths. 14 source-scan + 6 logic + 3 @gui+@skip. (1658 passed, 263 skipped).
+- [x] FEAT-export-flow: Already implemented: _trigger_export: _export_fmt_combo.currentData(), template→default_name, QFileDialog.getSaveFileName, persist epub_output_dir, setRange(0,0)+setVisible(True), formatter dispatch (epub/txt/md), write_bytes, _last_export_path, _open_folder_btn.setVisible(True), error→QMessageBox.critical. 14 source-scan + 6 logic + 3 @gui+@skip. (1678 passed, 266 skipped).
