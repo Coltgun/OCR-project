@@ -51,7 +51,7 @@ from gui.overlay import CaptureOverlay, RegionBorderOverlay
 from gui.qt_log_handler import QtLogHandler
 from gui.session_dialog import SessionDialog
 from gui.settings_dialog import SettingsDialog
-from ocr.pipeline import Pipeline
+from ocr.pipeline import PIPELINE_MODES, Pipeline
 from ocr.worker import OCRWorker
 from output.epub_formatter import EpubFormatter
 from output.markdown_formatter import MarkdownFormatter
@@ -105,6 +105,12 @@ class MainWindow(QMainWindow):
         self._word_wrap_action.setChecked(wrap)
         self._apply_word_wrap(wrap)
         self._update_button_hotkey_labels()
+        saved_mode = str(self._cfg.get("ocr_pipeline_mode", "LOCAL_FAST"))
+        mode_idx = self._pipeline_mode_combo.findText(saved_mode)
+        if mode_idx >= 0:
+            self._pipeline_mode_combo.blockSignals(True)
+            self._pipeline_mode_combo.setCurrentIndex(mode_idx)
+            self._pipeline_mode_combo.blockSignals(False)
         saved_fmt = str(self._cfg.get("export_format", "epub"))
         fmt_idx = self._export_fmt_combo.findData(saved_fmt)
         if fmt_idx >= 0:
@@ -211,17 +217,6 @@ class MainWindow(QMainWindow):
         self._section_count_list.setToolTip("Images captured per section")
         root_layout.addWidget(self._section_count_list)
 
-        # Session notes
-        notes_header = QHBoxLayout()
-        notes_header.addWidget(QLabel("<b>Session notes:</b>"))
-        root_layout.addLayout(notes_header)
-        self._notes_edit = QTextEdit()
-        self._notes_edit.setMaximumHeight(80)
-        self._notes_edit.setPlaceholderText("Optional notes for this session…")
-        self._notes_edit.setEnabled(False)
-        self._notes_edit.textChanged.connect(self._on_notes_changed)
-        root_layout.addWidget(self._notes_edit)
-
         # Image count row
         count_row = QHBoxLayout()
         count_row.addWidget(QLabel("<b>Images captured:</b>"))
@@ -250,6 +245,15 @@ class MainWindow(QMainWindow):
         self._ocr_btn = QPushButton("Run OCR (F11)")
         self._ocr_btn.clicked.connect(self._trigger_run_ocr)
         action_row.addWidget(self._ocr_btn)
+
+        self._pipeline_mode_combo = QComboBox()
+        self._pipeline_mode_combo.setToolTip("Active OCR pipeline mode")
+        for mode in PIPELINE_MODES:
+            self._pipeline_mode_combo.addItem(mode)
+        self._pipeline_mode_combo.currentIndexChanged.connect(
+            self._on_pipeline_mode_changed
+        )
+        action_row.addWidget(self._pipeline_mode_combo)
 
         self._export_fmt_combo = QComboBox()
         self._export_fmt_combo.addItem("EPUB", userData="epub")
@@ -735,6 +739,16 @@ class MainWindow(QMainWindow):
             logger.warning("MainWindow: could not open folder '%s': %s", folder, exc)
 
     @Slot(int)
+    def _on_pipeline_mode_changed(self, _index: int) -> None:
+        """Persist the selected pipeline mode to config and update the status label."""
+        mode = self._pipeline_mode_combo.currentText()
+        if mode:
+            self._config.set("ocr_pipeline_mode", mode)
+            self._config.save()
+            self._cfg = self._config._data
+            self._update_pipeline_mode_label()
+
+    @Slot(int)
     def _on_export_format_changed(self, _index: int) -> None:
         """Persist the selected export format to config."""
         fmt = self._export_fmt_combo.currentData()
@@ -814,6 +828,12 @@ class MainWindow(QMainWindow):
             self._apply_preview_font_size(int(self._cfg.get("preview_font_size", 11)))
             self._update_pipeline_mode_label()
             self._update_button_hotkey_labels()
+            saved_mode = str(self._cfg.get("ocr_pipeline_mode", "LOCAL_FAST"))
+            mode_idx = self._pipeline_mode_combo.findText(saved_mode)
+            if mode_idx >= 0:
+                self._pipeline_mode_combo.blockSignals(True)
+                self._pipeline_mode_combo.setCurrentIndex(mode_idx)
+                self._pipeline_mode_combo.blockSignals(False)
             if dlg.recent_sessions_cleared:
                 self._update_recent_menu()
             logger.info("MainWindow: settings updated.")

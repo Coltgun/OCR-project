@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-clear-recent-sessions complete. 1263 passed, 200 skipped. Ready for FEAT-pipeline-mode-persist (Persist the QComboBox pipeline mode selection to config on every change in the MainWindow action_row; restore on init alongside existing pipeline_mode_label update).
+FEAT-pipeline-mode-persist complete. 1280 passed, 203 skipped. Ready for FEAT-keyboard-shortcuts-help (Add a "Keyboard Shortcuts" dialog or QMessageBox launched from the Help menu that lists all active hotkeys read from config+defaults).
 
 ## Up Next
-- [ ] FEAT-pipeline-mode-persist: MainWindow: _pipeline_mode_combo (already exists in action_row); wire currentIndexChanged to _on_pipeline_mode_changed(idx). Slot: reads currentText(), set("ocr_pipeline_mode", mode) + save + _update_pipeline_mode_label(). Init: read ocr_pipeline_mode, find in combo, blockSignals+setCurrentIndex.
+- [ ] FEAT-keyboard-shortcuts-help: Help menu: "Keyboard Shortcuts" QAction connected to _show_keyboard_shortcuts(). Method builds a plain text or HTML string from _DEFAULT_BINDINGS merged with config keybindings, shows it in a QMessageBox or small QDialog.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -64,3 +64,4 @@ FEAT-clear-recent-sessions complete. 1263 passed, 200 skipped. Ready for FEAT-pi
 - [x] FEAT-export-format-persist: _export_fmt_combo.currentIndexChanged connected to _on_export_format_changed(_index). Slot: currentData(); if truthy set("export_format") + save(). __init__: read export_format (default "epub"), findData, blockSignals, setCurrentIndex. 8 source-scan + 6 logic + 3 @gui+@skip. (1229 passed, 193 skipped).
 - [x] FEAT-recent-session-limit: SettingsDialog Capture/Session Storage: _max_recent_sessions QSpinBox (1–10, suffix " sessions", default 5). _load_values reads max_recent_sessions; _save_values writes it. _record_recent_session: cap = cfg.get("max_recent_sessions", _MAX_RECENT); recent[:cap]. Fixed test_recent_sessions regression. 7 SD source-scan + 3 MW source-scan + 9 logic + 3 @gui+@skip. (1248 passed, 196 skipped).
 - [x] FEAT-clear-recent-sessions: SettingsDialog Capture/Session Storage: _clear_recent_btn QPushButton ("Clear Recent Sessions", tooltip), connected to _on_clear_recent. Slot: set("recent_sessions", []) + save + recent_sessions_cleared = True + setEnabled(False). MainWindow._open_settings: if dlg.recent_sessions_cleared → _update_recent_menu(). 9 SD source-scan + 2 MW source-scan + 4 logic + 4 @gui+@skip. (1263 passed, 200 skipped).
+- [x] FEAT-pipeline-mode-persist: Removed old notes stub (max 80px, direct textChanged). _pipeline_mode_combo QComboBox populated from PIPELINE_MODES; wired to _on_pipeline_mode_changed. Slot: currentText(), set+save+reload cfg+_update_pipeline_mode_label. Init+settings accept: findText+blockSignals+setCurrentIndex. Fixed test_session_notes regressions (max height 160, timer wiring). 12 source-scan + 5 logic + 3 @gui+@skip. (1280 passed, 203 skipped).
