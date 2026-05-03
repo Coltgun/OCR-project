@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-dark-mode-persist complete. 1496 passed, 236 skipped. Ready for FEAT-open-folder-btn (MainWindow: audit _open_folder_btn visibility, _last_export_path, and _open_export_folder slot; write source-scan + logic tests).
+FEAT-open-folder-btn complete. 1514 passed, 239 skipped. Ready for FEAT-state-machine-ui (MainWindow: audit _update_ui_for_state, _state_dot, AppState transitions; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-open-folder-btn: MainWindow: audit _open_folder_btn (shown after export, hidden on new session/OCR), _last_export_path, _open_export_folder slot; write source-scan + logic tests.
+- [ ] FEAT-state-machine-ui: MainWindow: audit _update_ui_for_state, _state_dot colour mapping, AppState transitions; write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -77,3 +77,4 @@ FEAT-dark-mode-persist complete. 1496 passed, 236 skipped. Ready for FEAT-open-f
 - [x] FEAT-bert-threshold-ui: Fixed _FACTORY_DEFAULTS key mismatch (minhash_threshold→dedup_threshold, embedding_similarity_threshold→embedding_threshold). 5 spinboxes verified: _minhash_threshold, _embedding_threshold, _ocr_min_confidence, _hybrid_high, _hybrid_low. 20 source-scan + 6 logic + 3 @gui+@skip. (1454 passed, 230 skipped).
 - [x] FEAT-api-key-ui: Already implemented: _openrouter_key (Password mode), _openrouter_model, _openrouter_base_url in "OpenRouter" group; _llm_base_url, _llm_model in "Ollama" group. All load/save wired. 19 source-scan + 6 logic + 3 @gui+@skip. (1478 passed, 233 skipped).
 - [x] FEAT-dark-mode-persist: Already implemented: _dark_mode_action checkable QAction → _toggle_dark_mode(checked): set("dark_mode") + save() + _apply_theme(). __init__: reads dark_mode, setChecked + _apply_theme. "dark_mode": False in _FACTORY_DEFAULTS. 12 source-scan + 6 logic + 3 @gui+@skip. (1496 passed, 236 skipped).
+- [x] FEAT-open-folder-btn: Already implemented: _open_folder_btn (hidden, status bar). _last_export_path: str="". Export: stores path + setVisible(True). _update_ui_for_state: setVisible(False) when no path. _on_open_export_folder: guard empty, os.startfile(parent), catches OSError. 12 source-scan + 6 logic + 3 @gui+@skip. (1514 passed, 239 skipped).
