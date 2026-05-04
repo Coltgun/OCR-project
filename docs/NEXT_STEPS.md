@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-build-chapters complete. 2173 passed, 332 skipped. Ready for FEAT-settings-keys (SettingsDialog: audit all config keys written by _save_values, types, defaults, guards; write source-scan + logic tests).
+FEAT-settings-keys complete. 2206 passed, 335 skipped. Ready for FEAT-search-bar (MainWindow: audit _search_bar QLineEdit, _on_search_changed filter logic, _apply_search_filter, section/image_id filtering; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-settings-keys: SettingsDialog: audit all config keys written by _save_values (ocr_min_confidence, bert_threshold, auto_new_section_threshold, vram_tier, preview_font_size, capture_delay_ms, rotation_mode, export_filename_template, api_key); write source-scan + logic tests.
+- [ ] FEAT-search-bar: MainWindow: audit _search_bar QLineEdit (placeholder, textChanged→_on_search_changed), _on_search_changed (empty→_populate_preview, filter by text contains query, section filter); write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -111,3 +111,4 @@ FEAT-build-chapters complete. 2173 passed, 332 skipped. Ready for FEAT-settings-
 - [x] FEAT-ocr-trigger: Already implemented: _trigger_run_ocr: session+run_ocr() guards, numeric folder iteration (range+key=lambda x:x), PNG filter+sort(key=int(stem)), empty images guard+status+ocr_done, OCRWorker(cfg,paths)+signals wiring (results_ready, error_occurred, progress), _ocr_start_time=now(), QThreadPool.start, status msg. 17 source-scan + 6 logic + 3 @gui+@skip. (2127 passed, 326 skipped).
 - [x] FEAT-capture-trigger: Already implemented: _trigger_capture: session+region guard, state_machine.capture(), deferred cv2, rotation_mode, capture_delay_ms/1000, time.sleep, grab_and_rotate, get_next_image_path, cv2.imwrite, _update_count_label, _refresh_section_count_list, _last_capture_path, zoom_thumbnail_btn.setVisible(True), _update_thumbnail, capture_done, auto_new_section_threshold, Exception+capture_error, _update_ui_for_state(IDLE). 22 source-scan + 6 logic + 3 @gui+@skip. (2155 passed, 329 skipped).
 - [x] FEAT-build-chapters: Already implemented: _build_chapters_from_results: None-session fallback (Chapter(1,all)), chapters_map dict, iterate ocr_results+range(1,current_folder+1), root/str(fn)+image_id match, setdefault+append, else→folder-1 fallback, sorted(key=lambda x:x[0])+Chapter(fn,results). 12 source-scan + 6 logic + 3 @gui+@skip. (2173 passed, 332 skipped).
+- [x] FEAT-settings-keys: Already implemented: _FACTORY_DEFAULTS (20 keys incl. ocr_pipeline_mode, vram_tier, ocr_min_confidence, rotation_mode, preview_font_size, dark_mode, preview_word_wrap, keybindings). _save_values: 23 cfg.set() calls (pipeline, thresholds, API keys, vram, batch sizes, paths, template, threshold, delay*1000, font, keybindings)+cfg.save(). 27 source-scan + 6 logic + 3 @gui+@skip. (2206 passed, 335 skipped).
