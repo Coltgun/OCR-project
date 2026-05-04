@@ -13,7 +13,7 @@ import logging
 
 from PySide6.QtCore import QPoint, QRect, QSize, Signal
 from PySide6.QtGui import QColor, QPainter, QPen
-from PySide6.QtWidgets import QRubberBand, QWidget
+from PySide6.QtWidgets import QRubberBand, QWidget, QApplication
 from PySide6.QtCore import Qt
 
 logger = logging.getLogger(__name__)
@@ -42,13 +42,21 @@ class CaptureOverlay(QWidget):
             | Qt.WindowType.Tool
         )
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setAttribute(Qt.WidgetAttribute.WA_NoSystemBackground)
         self.setCursor(Qt.CursorShape.CrossCursor)
 
         self._rubber_band = QRubberBand(QRubberBand.Shape.Rectangle, self)
         self._origin = QPoint()
 
+    def paintEvent(self, event) -> None:
+        painter = QPainter(self)
+        painter.fillRect(self.rect(), QColor(0, 0, 0, 1))
+
     def show_fullscreen(self) -> None:
         """Show the overlay covering the full primary screen."""
+        screen = QApplication.primaryScreen()
+        if screen is not None:
+            self.setGeometry(screen.geometry())
         self.showFullScreen()
 
     def mousePressEvent(self, event) -> None:
