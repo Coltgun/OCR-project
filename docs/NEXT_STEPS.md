@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-trigger-ocr complete. 2532 passed, 365 skipped. Ready for FEAT-trigger-export (MainWindow: audit _trigger_export, _FORMATTER_MAP, EpubFormatter/txt/md paths, _last_export_path, export_btn, _open_folder_btn, state_machine.export_done; write source-scan + logic tests).
+FEAT-trigger-export complete. 2574 passed, 368 skipped. Ready for FEAT-search-bar (MainWindow: audit _search_bar QLineEdit, _on_search_changed, highlight logic, _clear_search; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-trigger-export: MainWindow: audit _trigger_export (is_idle+results guard, state_machine.export(), _FORMATTER_MAP, _last_export_path, progress_bar, export_done, open_folder_btn visible, except QMessageBox+state_machine.export_failed, update_ui_idle); write source-scan + logic tests.
+- [ ] FEAT-search-bar: MainWindow: audit _search_bar QLineEdit(placeholder, textChanged→_on_search_changed), _on_search_changed (highlight matching lines in _preview_pane, case-insensitive, ExtraSelection), _clear_search; write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -134,3 +134,4 @@ FEAT-trigger-ocr complete. 2532 passed, 365 skipped. Ready for FEAT-trigger-expo
 - [x] FEAT-start-session: Already implemented: _start_new_session: is_idle guard, SessionDialog exec+Accepted check, CaptureSession(session_root, resume), ocr_results=[], clear preview/thumbnail, load_notes, record_recent, update_session_labels, export_btn disabled, logger.info, status msg, update_ui_idle. 16 source-scan + 6 logic + 3 @gui+@skip. (2461 passed, 359 skipped).
 - [x] FEAT-trigger-capture: Already implemented: _trigger_capture: session+region None guard, state_machine.capture() guard, deferred cv2, rotation_mode+capture_delay_ms config, time.sleep, grab_and_rotate, get_next_image_path, cv2.imwrite, update_count/section/info labels, last_capture_path, zoom_btn visible, update_thumbnail, capture_done, auto_new_section_threshold, except logger.error+status+capture_error, update_ui_idle. 25 source-scan + 7 logic + 3 @gui+@skip. (2493 passed, 362 skipped).
 - [x] FEAT-trigger-ocr: Already implemented: _trigger_run_ocr: session guard, run_ocr() guard, numeric folder+png sort, empty guard+ocr_done, OCRWorker(cfg,paths), signals(results_ready/error_occurred/progress), ocr_start_time, QThreadPool.start, status. _on_ocr_results: min_conf filter, kept_count, avg_conf, ocr_results, export_btn, ocr_done, progress_bar hidden, filtered_note, status, populate_preview, update_ui_idle. _on_ocr_error: logger.error, trigger(error), progress_bar, status, QMessageBox.critical, update_ui_idle. 32 source-scan + 7 logic + 3 @gui+@skip. (2532 passed, 365 skipped).
+- [x] FEAT-trigger-export: Already implemented: _trigger_export: ocr_results+export() guard, currentData fmt, _EXT/_FILTER/_TITLE_MAP, timestamp, session_name, export_filename_template, QFileDialog.getSaveFileName, cancel→state_machine.cancel, epub_output_dir persist, build_chapters, progress_bar(0,0), _FORMATTER_MAP(epub/txt/md), formatter.format, write_bytes, last_export_path, open_folder_btn visible, export_done; except logger.error+progress hidden+QMessageBox.critical+trigger(error)+update_ui_idle. 34 source-scan + 8 logic + 3 @gui+@skip. (2574 passed, 368 skipped).
