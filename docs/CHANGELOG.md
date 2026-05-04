@@ -253,3 +253,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_word_wrap.py` — 15 source-scan + 6 logic + 3 @gui+@skip. (2039 passed, 317 skipped).
 - **FEAT-open-folder** `gui/main_window.py` — Already implemented: `_open_folder_btn` `QPushButton(hidden, permanent, clicked→_on_open_export_folder)`. `_last_export_path=""`. `_on_open_export_folder`: empty guard, `Path.parent`, `os.startfile`, `OSError` catch+`logger.warning`. `_update_ui_for_state`: hidden unless `IDLE+last_export_path`. Shown after export success.
 - `tests/gui/test_open_folder.py` — 15 source-scan + 6 logic + 3 @gui+@skip. (2060 passed, 320 skipped).
+- **FEAT-export-progress** `gui/main_window.py` — Already implemented: `_trigger_export`: idle+results guard, fmt from combo, `_EXT_MAP`/`_FILTER_MAP`/`_TITLE_MAP`, `QFileDialog`, cancel path, `epub_output_dir` persist, `_progress_bar(0,0)+setVisible(True)`, `EpubFormatter`/`PlainTextFormatter`/`MarkdownFormatter`, hide+`open_folder_btn` shown on success, hide+`QMessageBox.critical` on error.
+- `tests/gui/test_export_progress.py` — Extended: 20 source-scan + 9 logic + 2 @gui+@skip. (2073 passed, 320 skipped).
