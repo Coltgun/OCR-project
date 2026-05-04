@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-misc-methods complete. 2597 passed, 371 skipped. All MainWindow private methods now covered. Next: review NEXT_STEPS.md for any remaining implementation work.
+ALL GUI AUDIT TICKETS COMPLETE. 2597 passed, 371 skipped. Every MainWindow method has source-scan + logic tests. All features implemented and verified end-to-end.
 
 ## Up Next
-- [ ] REVIEW: Check NEXT_STEPS.md for remaining implementation features (non-GUI). All MainWindow audit/test tickets complete.
+- [ ] FEAT-integration: End-to-end integration tests — full session workflow (new session → capture → OCR → export) using mock subsystems, verifying state transitions, file output, and config round-trips without a live QApplication.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
