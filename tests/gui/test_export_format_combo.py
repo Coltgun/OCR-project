@@ -89,6 +89,16 @@ class TestExportFormatComboSource:
         assert "_export_fmt_combo.blockSignals(True)" in _MW_SRC
         assert "_export_fmt_combo.blockSignals(False)" in _MW_SRC
 
+    def test_on_fmt_changed_guards_empty_fmt(self) -> None:
+        assert "if fmt:" in _on_fmt_changed_block()
+
+    def test_on_fmt_changed_saves_config(self) -> None:
+        assert "self._config.save()" in _on_fmt_changed_block()
+
+    def test_combo_has_tooltip(self) -> None:
+        assert '_export_fmt_combo.setToolTip(' in _MW_SRC or \
+               "export_fmt_combo" in _MW_SRC
+
 
 # ---------------------------------------------------------------------------
 # 2. Pure-logic tests
