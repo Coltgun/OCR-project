@@ -23,6 +23,7 @@ import logging
 from typing import Sequence
 
 from core.types import OCRResult
+import ocr.stages  # noqa: F401 — triggers stage self-registration via __init__.py
 from ocr.stages.base import PostProcessStage
 
 logger = logging.getLogger(__name__)
