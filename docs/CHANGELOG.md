@@ -242,3 +242,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_hotkey_reload.py` — 14 source-scan + 6 logic + 3 @gui+@skip. (1925 passed, 302 skipped).
 - **FEAT-ocr-progress** `gui/main_window.py` — Already implemented: `_progress_bar` `QProgressBar(width=200, hidden, permanent)`. `_on_ocr_progress`: elapsed, `pct(done/total*100, 0 guard)`, `setRange(0,total)+setValue(done)+setVisible(True)`. `_on_ocr_error`/`_on_ocr_results`: `setVisible(False)`.
 - `tests/gui/test_ocr_progress.py` — 15 source-scan + 6 logic + 3 @gui+@skip. (1945 passed, 305 skipped).
+- **FEAT-state-dot** `gui/main_window.py` — Already implemented: `_state_dot` `QLabel(12x12, tooltip, permanent)`. `_state_label` `QLabel("IDLE", permanent)`. `_DOT_IDLE(#4CAF50)`/`_DOT_BUSY(#FFC107)`/`_DOT_ERROR(#F44336)`. `_DOT_COLOURS` map 5 `AppState`s. `_update_ui_for_state`: `setText`, `setStyleSheet`, `is_idle` guards for 5 buttons, `state_messages` dict.
+- `tests/gui/test_state_dot.py` — 21 source-scan + 6 logic + 3 @gui+@skip. (1972 passed, 308 skipped).

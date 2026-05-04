@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-ocr-progress complete. 1945 passed, 305 skipped. Ready for FEAT-state-dot (MainWindow: audit _state_dot QLabel, _update_ui_for_state colour/text, AppState enum states; write source-scan + logic tests).
+FEAT-state-dot complete. 1972 passed, 308 skipped. Ready for FEAT-recent-sessions (MainWindow: audit _update_recent_menu, _record_recent_session, recent_sessions config list, _MAX_RECENT; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-state-dot: MainWindow: audit _state_dot QLabel, _state_label, _update_ui_for_state: colour map per AppState, button enable/disable; write source-scan + logic tests.
+- [ ] FEAT-recent-sessions: MainWindow: audit _update_recent_menu QMenu, _record_recent_session (prepend+cap+persist), recent_sessions config list, _MAX_RECENT=5, _open_recent_session; write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -100,3 +100,4 @@ FEAT-ocr-progress complete. 1945 passed, 305 skipped. Ready for FEAT-state-dot (
 - [x] FEAT-copy-clipboard: Already implemented: _copy_btn (disabled, clicked→_copy_results_to_clipboard). _copy_section_btn (disabled, tooltip, clicked→_copy_section_to_clipboard). _copy_results: preview_pane.toPlainText+clipboard.setText+status. _copy_section: session+results guard, folder filter, setText+status. 16 source-scan + 6 logic + 3 @gui+@skip. (1905 passed, 299 skipped).
 - [x] FEAT-hotkey-reload: Already implemented: _hotkeys.reload(cfg) on settings accept. _update_button_hotkey_labels: _DEFAULT_BINDINGS merge with overrides (isinstance guard), _BTN_MAP 4 buttons, btn.setToolTip("{label}  [{KEY}]"), upper()+"(unbound)" fallback. 14 source-scan + 6 logic + 3 @gui+@skip. (1925 passed, 302 skipped).
 - [x] FEAT-ocr-progress: Already implemented: _progress_bar QProgressBar(width=200, hidden, permanent). _on_ocr_progress: elapsed, pct(done/total*100, 0 guard), setRange(0,total)+setValue(done)+setVisible(True). _on_ocr_error/_on_ocr_results: setVisible(False). 15 source-scan + 6 logic + 3 @gui+@skip. (1945 passed, 305 skipped).
+- [x] FEAT-state-dot: Already implemented: _state_dot QLabel(12x12, tooltip, permanent). _state_label QLabel("IDLE", permanent). _DOT_IDLE(#4CAF50)/_DOT_BUSY(#FFC107)/_DOT_ERROR(#F44336). _DOT_COLOURS map 5 AppStates. _update_ui_for_state: setText, setStyleSheet, is_idle guards for 5 buttons, state_messages dict. 21 source-scan + 6 logic + 3 @gui+@skip. (1972 passed, 308 skipped).
