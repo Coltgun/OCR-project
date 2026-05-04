@@ -275,3 +275,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_log_panel.py` — Extended: 23 source-scan + 6 logic + 3 @gui+@skip. (2294 passed, 344 skipped).
 - **FEAT-section-controls** `gui/main_window.py` — Already implemented: `_new_section_btn` `QPushButton(clicked→_trigger_new_section)`. `_trigger_new_section`: None+`is_idle` guard, `new_section()+_section_label.setText+_refresh_section_count_list+status+_clear_preview+_clear_thumbnail`. `_section_count_list` `QListWidget(maxH=70, disabled)`. `_refresh_section_count_list`: `clear+None guard+range(1,current+1)+addItem(Section fn: N image(s))`.
 - `tests/gui/test_section_controls.py` — Extended: 25 source-scan + 8 logic + 3 @gui+@skip. (2305 passed, 344 skipped).
+- **FEAT-session-info** `gui/main_window.py` — Already implemented: `_session_info_label` `QLabel(tooltip, addPermanentWidget)`. `_update_session_info_label`: None→`setText("")`, `total_images()`, `f"Session: {root.name} | {total} image(s)"`. Called from `_update_session_labels` + capture success path.
+- `tests/gui/test_session_info.py` — 12 source-scan + 6 logic + 3 @gui+@skip. (2323 passed, 347 skipped).
