@@ -251,3 +251,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_dark_mode.py` — 16 source-scan + 6 logic + 3 @gui+@skip. (2018 passed, 314 skipped).
 - **FEAT-word-wrap** `gui/main_window.py` — Already implemented: `_word_wrap_action` `QAction(checkable, triggered→_toggle_word_wrap)`. Init: `bool(cfg.get("preview_word_wrap",True))+setChecked+_apply_word_wrap`. `_toggle_word_wrap`: `config.set("preview_word_wrap")+save+_apply_word_wrap`. `_apply_word_wrap`: `WidgetWidth` vs `NoWrap` on `_preview_pane.setLineWrapMode`.
 - `tests/gui/test_word_wrap.py` — 15 source-scan + 6 logic + 3 @gui+@skip. (2039 passed, 317 skipped).
+- **FEAT-open-folder** `gui/main_window.py` — Already implemented: `_open_folder_btn` `QPushButton(hidden, permanent, clicked→_on_open_export_folder)`. `_last_export_path=""`. `_on_open_export_folder`: empty guard, `Path.parent`, `os.startfile`, `OSError` catch+`logger.warning`. `_update_ui_for_state`: hidden unless `IDLE+last_export_path`. Shown after export success.
+- `tests/gui/test_open_folder.py` — 15 source-scan + 6 logic + 3 @gui+@skip. (2060 passed, 320 skipped).
