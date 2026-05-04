@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-word-wrap complete. 2039 passed, 317 skipped. Ready for FEAT-open-folder (MainWindow: audit _open_folder_btn, _last_export_path, _trigger_open_folder, visibility logic in _update_ui_for_state; write source-scan + logic tests).
+FEAT-open-folder complete. 2060 passed, 320 skipped. Ready for FEAT-export-progress (MainWindow: audit _trigger_export, _progress_bar(0,0) indeterminate, export thread, _on_export_done/_on_export_error; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-open-folder: MainWindow: audit _open_folder_btn (hidden), _last_export_path, _trigger_open_folder (os.startfile/subprocess), visibility in _update_ui_for_state (IDLE+last_export_path); write source-scan + logic tests.
+- [ ] FEAT-export-progress: MainWindow: audit _trigger_export (idle+results guard, _EXT_MAP, QFileDialog, QThreadPool, _progress_bar(0,0)), _on_export_done (last_export_path, open_folder_btn shown), _on_export_error; write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -105,3 +105,4 @@ FEAT-word-wrap complete. 2039 passed, 317 skipped. Ready for FEAT-open-folder (M
 - [x] FEAT-session-labels: Already implemented: _session_label("No session active"), _region_label("Not set"), _section_label, _count_label("0"). _update_session_labels: None guard, setText(root/current_folder), _update_count_label, _refresh_section_count_list, _update_session_info_label. _update_count_label: "{total} total (section: {current})". 18 source-scan + 6 logic + 3 @gui+@skip. (1996 passed, 311 skipped).
 - [x] FEAT-dark-mode: Already implemented: _dark_mode_action QAction(checkable, triggered→_toggle_dark_mode, added to view_menu). Init: setChecked(dark)+_apply_theme(dark). _toggle_dark_mode: config.set("dark_mode")+save+_apply_theme. _apply_theme: None guard, Fusion style, dark QPalette (Window#2D2D2D, Highlight#2A82DA) or standardPalette. 16 source-scan + 6 logic + 3 @gui+@skip. (2018 passed, 314 skipped).
 - [x] FEAT-word-wrap: Already implemented: _word_wrap_action QAction(checkable, triggered→_toggle_word_wrap). Init: bool(cfg.get("preview_word_wrap",True))+setChecked+_apply_word_wrap. _toggle_word_wrap: config.set("preview_word_wrap")+save+_apply_word_wrap. _apply_word_wrap: WidgetWidth vs NoWrap on _preview_pane.setLineWrapMode. 15 source-scan + 6 logic + 3 @gui+@skip. (2039 passed, 317 skipped).
+- [x] FEAT-open-folder: Already implemented: _open_folder_btn QPushButton(hidden, permanent, clicked→_on_open_export_folder). _last_export_path="". _on_open_export_folder: empty guard, Path.parent, os.startfile, OSError catch+logger.warning. _update_ui_for_state: hidden unless IDLE+last_export_path. Shown after export success. 15 source-scan + 6 logic + 3 @gui+@skip. (2060 passed, 320 skipped).
