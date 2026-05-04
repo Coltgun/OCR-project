@@ -291,3 +291,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_dark_mode.py` — Extended: 29 source-scan + 6 logic + 3 @gui+@skip. (2370 passed, 350 skipped).
 - **FEAT-word-wrap** `gui/main_window.py` — Already implemented: `_word_wrap_action` `QAction(checkable, triggered→_toggle_word_wrap, view_menu)`. Init: `setChecked(wrap)+_apply_word_wrap(wrap)`. `_toggle_word_wrap`: `config.set+save+_apply_word_wrap`. `_apply_word_wrap`: ternary `WidgetWidth/NoWrap+setLineWrapMode`.
 - `tests/gui/test_word_wrap.py` — Extended: 26 source-scan + 7 logic + 3 @gui+@skip. (2372 passed, 350 skipped).
+- **FEAT-state-machine-ui** `gui/main_window.py` — Already implemented: `_update_ui_for_state`: `state_label.setText+dot.setStyleSheet`, `is_idle/has_session/has_region/has_results` flags, `capture_btn(is_idle+session+region)`, `ocr_btn(is_idle+session+total>0)`, `export_btn(is_idle+results)`, `state_messages` dict (5 states), `status_bar.showMessage`.
+- `tests/gui/test_state_machine_ui.py` — Extended: 32 source-scan + 7 logic + 3 @gui+@skip. (2381 passed, 350 skipped).
