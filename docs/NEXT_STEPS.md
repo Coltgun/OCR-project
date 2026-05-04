@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-preview-font complete. 2406 passed, 353 skipped. Ready for FEAT-populate-preview (MainWindow: audit _populate_preview: ocr_results, image_id grouping, setPlainText, avg_conf, _preview_label.setText, enable copy btns; write source-scan + logic tests).
+FEAT-populate-preview complete. 2433 passed, 356 skipped. Ready for FEAT-recent-sessions (MainWindow: audit _update_recent_menu, _open_recent_session, _MAX_RECENT, recent_sessions config key, QAction per entry; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-populate-preview: MainWindow: audit _populate_preview (ocr_results, image_id grouping/sort, setPlainText, avg_conf, _preview_label.setText, enable _copy_btn+_copy_section_btn), _clear_preview (setText+disable btns+blockSignals+search clear); write source-scan + logic tests.
+- [ ] FEAT-recent-sessions: MainWindow: audit _update_recent_menu (_MAX_RECENT=5, recent_sessions config, QAction per entry, triggered→_open_recent_session), _open_recent_session (Path exists guard, CaptureSession, _load_session); write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -129,3 +129,4 @@ FEAT-preview-font complete. 2406 passed, 353 skipped. Ready for FEAT-populate-pr
 - [x] FEAT-open-folder: Already implemented: _open_folder_btn QPushButton(hidden, permanent, clicked→_on_open_export_folder). _last_export_path str init="". _on_open_export_folder: empty guard, str(Path.parent), os.startfile, OSError+logger.warning. Shown after export+setVisible(True), hidden in _update_ui_for_state. Extended existing test: 27 source-scan + 8 logic + 3 @gui+@skip. (2384 passed, 350 skipped).
 - [x] FEAT-progress-bar: Already implemented: _progress_bar QProgressBar(fixedWidth=200, setTextVisible(True), setVisible(False), addPermanentWidget). OCR progress: setRange(0,total)+setValue(done)+setVisible(True). Export: setRange(0,0)+setVisible(True). Hidden on OCR results/error and export done/error. Extended existing test: 21 source-scan + 4 logic + 6 @gui+@skip. (2388 passed, 350 skipped).
 - [x] FEAT-preview-font: Already implemented: _apply_preview_font_size(size:int): preview_pane.font()+setPointSize(max(8,min(size,24)))+setFont. Config key preview_font_size default 11, int-cast on read. Called on init+settings accept. 12 source-scan + 6 logic + 3 @gui+@skip. (2406 passed, 353 skipped).
+- [x] FEAT-populate-preview: Already implemented: _populate_preview: empty guard(setPlainText+label 0 blocks), image_id grouping separator, setPlainText(join), avg_conf(sum/n:.2f), _preview_label.setText, copy_btn+copy_section_btn enable. _clear_preview: search_bar blockSignals+clear, setPlainText, label reset, copy btns disable. 20 source-scan + 7 logic + 3 @gui+@skip. (2433 passed, 356 skipped).
