@@ -211,28 +211,28 @@ if image is None:
     print('[]')
     sys.exit(0)
 
-raw = engine.ocr(image, cls=True)
+raw = engine.predict(image)
 results = []
-if raw:
-    for page in raw:
-        if page is None:
-            continue
-        for line in page:
-            if line is None:
+image_id = os.path.splitext(os.path.basename(r'{safe_path}'))[0]
+for page in (raw or []):
+    if page is None:
+        continue
+    try:
+        texts  = page['rec_texts']
+        scores = page['rec_scores']
+        boxes  = page['rec_boxes']   # [[x1,y1,x2,y2], ...]
+        for text, conf, box in zip(texts, scores, boxes):
+            if text is None or str(text).strip() == '':
                 continue
-            try:
-                points, (text, conf) = line
-                xs = [float(p[0]) for p in points]
-                ys = [float(p[1]) for p in points]
-                results.append({{
-                    'text': str(text),
-                    'confidence': float(conf),
-                    'bbox': {{'x1': int(min(xs)), 'y1': int(min(ys)),
-                              'x2': int(max(xs)), 'y2': int(max(ys))}},
-                    'image_id': os.path.splitext(os.path.basename(r'{safe_path}'))[0],
-                }})
-            except Exception:
-                pass
+            x1, y1, x2, y2 = int(box[0]), int(box[1]), int(box[2]), int(box[3])
+            results.append({{
+                'text': str(text),
+                'confidence': float(conf),
+                'bbox': {{'x1': x1, 'y1': y1, 'x2': x2, 'y2': y2}},
+                'image_id': image_id,
+            }})
+    except Exception as e:
+        sys.stderr.write(f'result parse error: {{e}}\\n')
 
 print(json.dumps(results))
 """
