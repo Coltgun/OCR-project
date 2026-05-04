@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-session-info complete. 2323 passed, 347 skipped. Ready for FEAT-copy-clipboard (MainWindow: audit _copy_all_btn, _copy_section_btn, _copy_section_to_clipboard, _copy_all_to_clipboard; write source-scan + logic tests).
+FEAT-copy-clipboard complete. 2331 passed, 347 skipped. Ready for FEAT-hotkey-buttons (MainWindow: audit _capture_btn, _ocr_btn, _export_btn, _cancel_btn button creation, tooltips, _update_button_hotkey_labels, _DEFAULT_BINDINGS; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-copy-clipboard: MainWindow: audit _copy_all_btn, _copy_section_btn (enabled/disabled by _populate_preview/_clear_preview), _copy_all_to_clipboard (join all ocr_results texts), _copy_section_to_clipboard (filter by current_folder image_id); write source-scan + logic tests.
+- [ ] FEAT-hotkey-buttons: MainWindow: audit _capture_btn, _ocr_btn, _export_btn, _cancel_btn creation+disabled state, _update_button_hotkey_labels (_DEFAULT_BINDINGS merge+setToolTip), called on init+settings accept; write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -118,3 +118,4 @@ FEAT-session-info complete. 2323 passed, 347 skipped. Ready for FEAT-copy-clipbo
 - [x] FEAT-log-panel: Already implemented: _log_panel QTextEdit(readOnly, hidden, minH=60, maxH=200, Courier New 9pt, placeholder). _toggle_log_action QAction(checkable, triggered→_toggle_log_panel). _install_log_handler: QtLogHandler+addHandler+connect(_append_log). _append_log: append+verticalScrollBar autoscroll. _toggle_log_panel: setVisible+setText(Hide/Show)+config.set(log_panel_visible)+save. Extended existing test: 23 source-scan + 6 logic + 3 @gui+@skip. (2294 passed, 344 skipped).
 - [x] FEAT-section-controls: Already implemented: _new_section_btn QPushButton(clicked→_trigger_new_section). _trigger_new_section: None+is_idle guard, new_section()+_section_label.setText+_refresh_section_count_list+status+_clear_preview+_clear_thumbnail. _section_count_list QListWidget(maxH=70, disabled). _refresh_section_count_list: clear+None guard+range(1,current+1)+addItem(Section fn: N image(s)). Extended existing test: 25 source-scan + 8 logic + 3 @gui+@skip. (2305 passed, 344 skipped).
 - [x] FEAT-session-info: Already implemented: _session_info_label QLabel(tooltip, addPermanentWidget). _update_session_info_label: None→setText(""), total_images(), f"Session: {root.name} | {total} image(s)". Called from _update_session_labels+capture success. 12 source-scan + 6 logic + 3 @gui+@skip. (2323 passed, 347 skipped).
+- [x] FEAT-copy-clipboard: Already implemented: _copy_btn QPushButton(disabled, clicked→_copy_results_to_clipboard). _copy_section_btn QPushButton(disabled, tooltip, clicked→_copy_section_to_clipboard). _copy_results_to_clipboard: toPlainText+if text+setText+status. _copy_section_to_clipboard: None+results guard, folder_path, image_id filter (exists or startswith), join+if text+setText+status. Extended existing test: 21 source-scan + 9 logic + 3 @gui+@skip. (2331 passed, 347 skipped).

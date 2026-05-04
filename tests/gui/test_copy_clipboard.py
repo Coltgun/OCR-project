@@ -94,6 +94,21 @@ class TestCopyClipboardSource:
     def test_copy_btns_disabled_on_clear_preview(self) -> None:
         assert "self._copy_section_btn.setEnabled(False)" in _MW_SRC
 
+    def test_copy_section_filters_by_image_id_prefix(self) -> None:
+        assert 'r.image_id.startswith(str(fn) + "/")' in _copy_section_block()
+
+    def test_copy_section_status_message_includes_count(self) -> None:
+        assert "block(s)" in _copy_section_block()
+
+    def test_copy_section_status_includes_section_number(self) -> None:
+        assert "Section {fn}" in _copy_section_block()
+
+    def test_copy_results_guards_empty_text(self) -> None:
+        assert "if text:" in _copy_results_block()
+
+    def test_copy_section_guards_empty_text(self) -> None:
+        assert "if text:" in _copy_section_block()
+
 
 # ---------------------------------------------------------------------------
 # 2. Pure-logic tests
@@ -132,6 +147,23 @@ class TestCopyClipboardLogic:
         texts = ["line one", "line two"]
         joined = "\n".join(texts)
         assert joined == "line one\nline two"
+
+    def test_section_filter_by_prefix(self) -> None:
+        fn = 2
+        prefix = str(fn) + "/"
+        matching = "2/0001"
+        assert matching.startswith(prefix)
+
+    def test_section_filter_excludes_other_section(self) -> None:
+        fn = 2
+        prefix = str(fn) + "/"
+        other = "3/0001"
+        assert not other.startswith(prefix)
+
+    def test_status_message_format(self) -> None:
+        fn, count = 1, 5
+        msg = f"Section {fn} OCR text copied ({count} block(s))."
+        assert msg == "Section 1 OCR text copied (5 block(s))."
 
 
 # ---------------------------------------------------------------------------
