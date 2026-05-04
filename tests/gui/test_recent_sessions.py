@@ -95,6 +95,29 @@ class TestRecentSessionsSource:
         block = _MW_SRC[idx:end]
         assert "self._state_machine.is_idle" in block
 
+    def _open_block(self) -> str:
+        idx = _MW_SRC.index("def _open_recent_session")
+        end = _MW_SRC.index("\n    def ", idx + 1)
+        return _MW_SRC[idx:end]
+
+    def test_open_recent_clears_preview(self) -> None:
+        assert "self._clear_preview()" in self._open_block()
+
+    def test_open_recent_clears_thumbnail(self) -> None:
+        assert "self._clear_thumbnail()" in self._open_block()
+
+    def test_open_recent_loads_notes(self) -> None:
+        assert "self._load_notes()" in self._open_block()
+
+    def test_open_recent_records_session(self) -> None:
+        assert "_record_recent_session(path)" in self._open_block()
+
+    def test_open_recent_shows_status_message(self) -> None:
+        assert "_status_bar.showMessage(" in self._open_block()
+
+    def test_open_recent_calls_update_ui_idle(self) -> None:
+        assert "_update_ui_for_state(AppState.IDLE)" in self._open_block()
+
 
 # ---------------------------------------------------------------------------
 # 2. Pure-logic tests (no Qt)
