@@ -42,6 +42,8 @@ The installer will:
 - Auto-download and install **Miniconda3** if `conda` is not found
 - Create the `chinese-ocr` conda environment (Python 3.11)
 - Install all packages in the correct order (conda-forge → PaddlePaddle → PyTorch → pip)
+- Install **opencv headless** (no Qt6 GUI build) — avoids a Qt DLL conflict with PySide6
+- Install **PySide6 6.8.3** (pinned — this version bundles its own ICU DLLs, required on Windows)
 - Optionally install **Ollama** (prompts you — needed only for LLM pipeline modes)
 - Copy `config.example.json` → `config.json` if it doesn't exist
 - Run `scripts/verify_env.py` and print a PASS/FAIL summary
@@ -107,6 +109,21 @@ Get a key at [openrouter.ai](https://openrouter.ai).
 
 **`conda` not found after install:**
 Close and reopen PowerShell (Miniconda adds itself to PATH on next shell launch).
+
+**`DLL load failed while importing QtWidgets` / `WinError 127`:**
+This means PySide6 is the wrong version or there is a Qt DLL conflict.
+Fix: ensure PySide6 6.8.3 is installed and conda-forge `qt6-main` is not present:
+```powershell
+conda run -n chinese-ocr pip install PySide6==6.8.3
+conda remove -n chinese-ocr qt6-main --force -y   # only if present
+```
+
+**numpy crash (`blas_fpe_check` / `fatal exception 0xc06d007f`):**
+The pip numpy build conflicts with conda-forge MKL. Fix:
+```powershell
+conda run -n chinese-ocr pip uninstall numpy -y
+conda install -n chinese-ocr -c conda-forge "numpy>=2.0,<2.3" -y
+```
 
 **PaddlePaddle import error / DLL conflict:**
 PaddlePaddle GPU and PyTorch bundle incompatible cuDNN versions. The app runs them

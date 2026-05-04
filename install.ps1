@@ -182,26 +182,32 @@ if ($envList -match "\b$ENV_NAME\b") {
     Write-OK "Environment '$ENV_NAME' created."
 }
 
+Write-Host ""
+Write-Host "  NOTE: opencv is installed as headless (no Qt6 GUI) to avoid a Qt DLL" -ForegroundColor DarkGray
+Write-Host "  conflict with pip PySide6. PySide6 is pinned to 6.8.3 which bundles" -ForegroundColor DarkGray
+Write-Host "  its own ICU DLLs — required on Windows without a system CUDA Qt." -ForegroundColor DarkGray
+
 # ---------------------------------------------------------------------------
 # Step 4 — conda-forge packages
 # ---------------------------------------------------------------------------
 
-Write-Header "Step 4/12 — conda-forge: numpy, pillow, opencv"
-Write-Step "Installing numpy, pillow, opencv via conda-forge..."
-& $condaExe install -n $ENV_NAME -c conda-forge numpy pillow -y 2>&1 | Write-Host
+Write-Header "Step 4/12 — conda-forge: numpy, pillow, opencv (headless)"
+Write-Step "Installing numpy, pillow via conda-forge..."
+& $condaExe install -n $ENV_NAME -c conda-forge "numpy>=2.0,<2.3" pillow -y 2>&1 | Write-Host
 if ($LASTEXITCODE -ne 0) { throw "Failed to install numpy/pillow." }
-& $condaExe install -n $ENV_NAME -c conda-forge opencv -y 2>&1 | Write-Host
-if ($LASTEXITCODE -ne 0) { throw "Failed to install opencv." }
+Write-Step "Installing opencv headless (no Qt6 GUI build) via conda-forge..."
+& $condaExe install -n $ENV_NAME -c conda-forge "opencv=4.13.0=headless_py311hda24cb1_1" -y 2>&1 | Write-Host
+if ($LASTEXITCODE -ne 0) { throw "Failed to install opencv headless." }
 Write-OK "conda-forge packages installed."
 
 # ---------------------------------------------------------------------------
 # Step 5 — PySide6
 # ---------------------------------------------------------------------------
 
-Write-Header "Step 5/12 — PySide6"
-Write-Step "Installing PySide6..."
-Invoke-CondaPip $condaExe "install PySide6" | Write-Host
-Write-OK "PySide6 installed."
+Write-Header "Step 5/12 — PySide6 6.8.3"
+Write-Step "Installing PySide6==6.8.3 (bundles its own ICU DLLs — required on Windows)..."
+Invoke-CondaPip $condaExe "install PySide6==6.8.3" | Write-Host
+Write-OK "PySide6 6.8.3 installed."
 
 # ---------------------------------------------------------------------------
 # Step 6 — PaddlePaddle GPU

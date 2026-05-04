@@ -2,8 +2,8 @@
 main.py — application entry point.
 
 Usage:
-    conda activate chinese-ocr
-    python main.py
+    Double-click run.bat  (recommended)
+    Or: conda activate chinese-ocr && python main.py
 """
 
 from __future__ import annotations
