@@ -277,3 +277,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_section_controls.py` — Extended: 25 source-scan + 8 logic + 3 @gui+@skip. (2305 passed, 344 skipped).
 - **FEAT-session-info** `gui/main_window.py` — Already implemented: `_session_info_label` `QLabel(tooltip, addPermanentWidget)`. `_update_session_info_label`: None→`setText("")`, `total_images()`, `f"Session: {root.name} | {total} image(s)"`. Called from `_update_session_labels` + capture success path.
 - `tests/gui/test_session_info.py` — 12 source-scan + 6 logic + 3 @gui+@skip. (2323 passed, 347 skipped).
+- **FEAT-copy-clipboard** `gui/main_window.py` — Already implemented: `_copy_btn` `QPushButton(disabled, clicked→_copy_results_to_clipboard)`. `_copy_section_btn` `QPushButton(disabled, tooltip, clicked→_copy_section_to_clipboard)`. `_copy_results_to_clipboard`: `toPlainText+if text+setText+status`. `_copy_section_to_clipboard`: None+results guard, `folder_path`, `image_id` filter (`exists or startswith`), `join+if text+setText+status`.
+- `tests/gui/test_copy_clipboard.py` — Extended: 21 source-scan + 9 logic + 3 @gui+@skip. (2331 passed, 347 skipped).
