@@ -263,3 +263,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_capture_trigger.py` — 22 source-scan + 6 logic + 3 @gui+@skip. (2155 passed, 329 skipped).
 - **FEAT-build-chapters** `gui/main_window.py` — Already implemented: `_build_chapters_from_results`: None-session fallback (`Chapter(1,all)`), `chapters_map` dict, iterate `ocr_results+range(1,current_folder+1)`, `root/str(fn)+image_id` match, `setdefault+append`, `else`→folder-1 fallback, `sorted(key=lambda x:x[0])+Chapter(fn,results)`.
 - `tests/gui/test_build_chapters.py` — 12 source-scan + 6 logic + 3 @gui+@skip. (2173 passed, 332 skipped).
+- **FEAT-settings-keys** `gui/settings_dialog.py` — Already implemented: `_FACTORY_DEFAULTS` (20 keys). `_save_values`: 23 `cfg.set()` calls covering pipeline, thresholds, API keys, vram, batch sizes, paths, template, auto-section threshold, `capture_delay_ms` (`int(val*1000)`), font size, keybindings; `cfg.save()`.
+- `tests/gui/test_settings_keys.py` — 27 source-scan + 6 logic + 3 @gui+@skip. (2206 passed, 335 skipped).
