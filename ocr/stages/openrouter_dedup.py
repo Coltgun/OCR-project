@@ -89,8 +89,8 @@ class OpenRouterDeduplicationStage(PostProcessStage, register_as="openrouter_ded
         if len(results) < 2:
             return results
 
-        model: str = str(config.get("openrouter_dedup_model", _DEFAULT_MODEL))
-        base_url: str = str(config.get("openrouter_base_url", _DEFAULT_BASE_URL))
+        model: str = str(config.get("openrouter_dedup_model") or _DEFAULT_MODEL)
+        base_url: str = str(config.get("openrouter_base_url") or _DEFAULT_BASE_URL)
         api_key: str = str(
             config.get("openrouter_api_key")
             or os.environ.get("OPENROUTER_API_KEY", "")

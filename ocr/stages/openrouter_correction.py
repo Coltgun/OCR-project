@@ -58,15 +58,16 @@ class OpenRouterCorrectionStage(LlmCorrectionBase, register_as="openrouter_corre
             config.get("openrouter_api_key")
             or os.environ.get("OPENROUTER_API_KEY", "")
         )
+        base_url = str(config.get("openrouter_base_url") or _DEFAULT_BASE_URL)
         return OpenAI(
-            base_url=str(config.get("openrouter_base_url", _DEFAULT_BASE_URL)),
+            base_url=base_url,
             api_key=api_key,
         )
 
     def _read_config(self, config: dict) -> tuple[str, float, float, int]:
         """Return (model, temperature, timeout, batch_size) from config."""
         return (
-            str(config.get("openrouter_model", _DEFAULT_MODEL)),
+            str(config.get("openrouter_model") or _DEFAULT_MODEL),
             float(config.get("openrouter_temperature", _DEFAULT_TEMPERATURE)),
             float(config.get("openrouter_timeout", _DEFAULT_TIMEOUT)),
             int(config.get("openrouter_batch_size", _DEFAULT_BATCH_SIZE)),

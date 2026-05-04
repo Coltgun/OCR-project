@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import subprocess
 import sys
 
@@ -124,11 +125,25 @@ class EmbeddingDeduplicationStage(PostProcessStage, register_as="embedding_dedup
         })
         script = _build_subprocess_script(payload)
 
+        clean_env = {
+            k: v for k, v in os.environ.items()
+            if k.upper() in (
+                "SYSTEMROOT", "SYSTEMDRIVE", "WINDIR", "TEMP", "TMP",
+                "USERPROFILE", "HOMEDRIVE", "HOMEPATH",
+                "PYTHONPATH", "PYTHONHOME",
+                "CONDA_PREFIX", "CONDA_DEFAULT_ENV",
+            )
+        }
+        clean_env["PATH"] = os.path.join(
+            os.environ.get("SYSTEMROOT", "C:\\Windows"), "System32"
+        )
+
         result = subprocess.run(
             [sys.executable, "-c", script],
             capture_output=True,
             text=True,
             timeout=300,
+            env=clean_env,
         )
 
         if result.returncode != 0:

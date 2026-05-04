@@ -46,14 +46,14 @@ class LlmCorrectionStage(LlmCorrectionBase, register_as="llm_correction"):
     def _make_client(self, config: dict) -> OpenAI:
         """Return an OpenAI client pointed at the local Ollama server."""
         return OpenAI(
-            base_url=str(config.get("llm_base_url", _DEFAULT_BASE_URL)),
-            api_key=str(config.get("llm_api_key", _DEFAULT_API_KEY)),
+            base_url=str(config.get("llm_base_url") or _DEFAULT_BASE_URL),
+            api_key=str(config.get("llm_api_key") or _DEFAULT_API_KEY),
         )
 
     def _read_config(self, config: dict) -> tuple[str, float, float, int]:
         """Return (model, temperature, timeout, batch_size) from config."""
         return (
-            str(config.get("llm_model", _DEFAULT_MODEL)),
+            str(config.get("llm_model") or _DEFAULT_MODEL),
             float(config.get("llm_temperature", _DEFAULT_TEMPERATURE)),
             float(config.get("llm_timeout", _DEFAULT_TIMEOUT)),
             int(config.get("llm_batch_size", _DEFAULT_BATCH_SIZE)),
