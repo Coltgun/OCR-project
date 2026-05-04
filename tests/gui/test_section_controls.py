@@ -35,6 +35,11 @@ def _new_section_block() -> str:
     end = _MW_SRC.index("\n    @Slot", idx + 1)
     return _MW_SRC[idx:end]
 
+def _refresh_block() -> str:
+    idx = _MW_SRC.index("def _refresh_section_count_list")
+    end = _MW_SRC.index("\n    def _update_count_label", idx + 1)
+    return _MW_SRC[idx:end]
+
 def _cancel_block() -> str:
     idx = _MW_SRC.index("def _trigger_cancel")
     end = _MW_SRC.index("\n    @Slot", idx + 1)
@@ -96,6 +101,35 @@ class TestSectionControlsSource:
     def test_region_cancelled_updates_ui(self) -> None:
         assert "_update_ui_for_state(AppState.IDLE)" in _region_cancelled_block()
 
+    def test_section_count_list_created(self) -> None:
+        assert "self._section_count_list = QListWidget()" in _MW_SRC
+
+    def test_section_count_list_max_height(self) -> None:
+        assert "_section_count_list.setMaximumHeight(70)" in _MW_SRC
+
+    def test_section_count_list_disabled_on_init(self) -> None:
+        idx = _MW_SRC.index("self._section_count_list = QListWidget()")
+        snippet = _MW_SRC[idx:idx+200]
+        assert "_section_count_list.setEnabled(False)" in snippet
+
+    def test_refresh_section_count_list_exists(self) -> None:
+        assert "def _refresh_section_count_list" in _MW_SRC
+
+    def test_refresh_clears_list(self) -> None:
+        assert "_section_count_list.clear()" in _refresh_block()
+
+    def test_refresh_disables_on_no_session(self) -> None:
+        assert "_section_count_list.setEnabled(False)" in _refresh_block()
+
+    def test_refresh_iterates_folders_numerically(self) -> None:
+        assert "range(1, self._session.current_folder + 1)" in _refresh_block()
+
+    def test_refresh_adds_item_with_count(self) -> None:
+        assert "_section_count_list.addItem(" in _refresh_block()
+
+    def test_new_section_refreshes_count_list(self) -> None:
+        assert "_refresh_section_count_list()" in _new_section_block()
+
 
 # ---------------------------------------------------------------------------
 # 2. Pure-logic tests
@@ -138,6 +172,16 @@ class TestSectionControlsLogic:
         folder = 3
         label_text = str(folder)
         assert label_text == "3"
+
+    def test_refresh_item_format(self) -> None:
+        fn, count = 2, 5
+        item = f"Section {fn}: {count} image(s)"
+        assert item == "Section 2: 5 image(s)"
+
+    def test_refresh_numeric_range(self) -> None:
+        current_folder = 3
+        folders = list(range(1, current_folder + 1))
+        assert folders == [1, 2, 3]
 
 
 # ---------------------------------------------------------------------------
