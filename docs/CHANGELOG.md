@@ -293,3 +293,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_word_wrap.py` — Extended: 26 source-scan + 7 logic + 3 @gui+@skip. (2372 passed, 350 skipped).
 - **FEAT-state-machine-ui** `gui/main_window.py` — Already implemented: `_update_ui_for_state`: `state_label.setText+dot.setStyleSheet`, `is_idle/has_session/has_region/has_results` flags, `capture_btn(is_idle+session+region)`, `ocr_btn(is_idle+session+total>0)`, `export_btn(is_idle+results)`, `state_messages` dict (5 states), `status_bar.showMessage`.
 - `tests/gui/test_state_machine_ui.py` — Extended: 32 source-scan + 7 logic + 3 @gui+@skip. (2381 passed, 350 skipped).
+- **FEAT-open-folder** `gui/main_window.py` — Already implemented: `_open_folder_btn` `QPushButton(hidden, permanent, clicked→_on_open_export_folder)`. `_last_export_path str=""` init. `_on_open_export_folder`: empty guard, `str(Path.parent)`, `os.startfile`, `OSError+logger.warning`. Shown after export, hidden in `_update_ui_for_state`.
+- `tests/gui/test_open_folder.py` — Extended: 27 source-scan + 8 logic + 3 @gui+@skip. (2384 passed, 350 skipped).

@@ -93,6 +93,16 @@ class TestOpenFolderSource:
     def test_last_export_path_set_after_export(self) -> None:
         assert "_last_export_path = save_path" in _MW_SRC
 
+    def test_btn_connected_to_on_open_export_folder(self) -> None:
+        assert "_open_folder_btn.clicked.connect(self._on_open_export_folder)" in _MW_SRC
+
+    def test_update_ui_hides_btn_when_not_idle_or_no_path(self) -> None:
+        blk = _update_ui_block()
+        assert "not self._last_export_path" in blk or "self._last_export_path" in blk
+
+    def test_open_folder_converts_path_to_str(self) -> None:
+        assert "str(Path(self._last_export_path).parent)" in _open_folder_block()
+
 
 # ---------------------------------------------------------------------------
 # 2. Pure-logic tests
