@@ -315,3 +315,6 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_search_bar.py` — Extended: 27 source-scan + 10 logic + 3 @gui+@skip. (2576 passed, 368 skipped).
 - **FEAT-notes-panel** `gui/main_window.py` — Already implemented: `_notes_edit` `QTextEdit(placeholder, disabled, textChanged→timer.start)`. `_notes_save_timer` `QTimer(singleShot, 2000ms, timeout→_on_notes_changed)`. `_load_notes`: no-session `disable+blockSignals+clear`, `OSError` guard, `notes.txt` read+`setPlainText`. `_on_notes_changed`: `@Slot()`, no-session guard, `write_text`, `OSError→logger.warning`.
 - `tests/gui/test_notes_autosave.py` — Extended: 29 source-scan + 5 logic + 4 @gui+@skip. (2581 passed, 368 skipped).
+- **FEAT-thumbnail** `gui/main_window.py` — Already fully covered by existing `test_thumbnail.py+test_thumbnail_zoom.py` (34+25=59 tests). No new tests needed. (2581 passed, 368 skipped).
+- **FEAT-misc-methods** `gui/main_window.py` — Already implemented: `_toggle_border_overlay` `@Slot()`: `isVisible` guard, `hide/show`, `capture_region is not None` guard. `_on_state_changed` `@Slot(object,object)`: `logger.debug(old.name/new.name)`, `_update_ui_for_state(new)`.
+- `tests/gui/test_misc_methods.py` — 11 source-scan + 5 logic + 3 @gui+@skip. (2597 passed, 371 skipped).
