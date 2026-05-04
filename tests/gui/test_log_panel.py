@@ -95,6 +95,27 @@ class TestLogPanelSource:
     def test_toggle_log_persists_config(self) -> None:
         assert '"log_panel_visible"' in _toggle_block()
 
+    def test_log_panel_min_height(self) -> None:
+        assert "_log_panel.setMinimumHeight(60)" in _MW_SRC
+
+    def test_log_panel_max_height(self) -> None:
+        assert "_log_panel.setMaximumHeight(200)" in _MW_SRC
+
+    def test_log_panel_font_size_9(self) -> None:
+        assert "font.setPointSize(9)" in _MW_SRC
+
+    def test_toggle_panel_sets_visible(self) -> None:
+        assert "_log_panel.setVisible(checked)" in _toggle_block()
+
+    def test_toggle_panel_sets_action_text(self) -> None:
+        assert "_toggle_log_action.setText(" in _toggle_block()
+
+    def test_append_log_uses_vertical_scrollbar(self) -> None:
+        assert "_log_panel.verticalScrollBar()" in _append_block()
+
+    def test_log_panel_connected_to_toggle(self) -> None:
+        assert "_toggle_log_action.triggered.connect(self._toggle_log_panel)" in _MW_SRC
+
 
 # ---------------------------------------------------------------------------
 # 2. Pure-logic tests

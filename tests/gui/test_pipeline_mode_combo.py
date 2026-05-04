@@ -85,6 +85,18 @@ class TestPipelineModeComboSource:
     def test_init_uses_find_text(self) -> None:
         assert "_pipeline_mode_combo.findText(saved_mode)" in _MW_SRC
 
+    def test_on_mode_changed_syncs_cfg_data(self) -> None:
+        assert "self._cfg = self._config._data" in _on_mode_changed_block()
+
+    def test_on_mode_changed_guards_empty_mode(self) -> None:
+        assert "if mode:" in _on_mode_changed_block()
+
+    def test_pipeline_mode_label_permanent_widget(self) -> None:
+        assert "self._status_bar.addPermanentWidget(self._pipeline_mode_label)" in _MW_SRC
+
+    def test_pipeline_mode_label_tooltip(self) -> None:
+        assert '_pipeline_mode_label.setToolTip("Active pipeline mode")' in _MW_SRC
+
 
 # ---------------------------------------------------------------------------
 # 2. Pure-logic tests

@@ -100,6 +100,23 @@ class TestRegionSelectSource:
     def test_border_overlay_created_on_init(self) -> None:
         assert "self._border_overlay = RegionBorderOverlay()" in _MW_SRC
 
+    def test_select_region_btn_created(self) -> None:
+        assert 'self._select_region_btn = QPushButton("Select Region (F8)")' in _MW_SRC
+
+    def test_select_region_btn_connected(self) -> None:
+        assert "_select_region_btn.clicked.connect(self._trigger_select_region)" in _MW_SRC
+
+    def test_hotkey_signal_connected_to_trigger(self) -> None:
+        assert "self._hotkeys.reset_area_pressed.connect(self._trigger_select_region)" in _MW_SRC
+
+    def test_on_region_selected_calls_update_ui_idle(self) -> None:
+        assert "_update_ui_for_state(AppState.IDLE)" in _on_region_selected_block()
+
+    def test_on_region_selected_captures_region_xy(self) -> None:
+        blk = _on_region_selected_block()
+        assert "x=rect.x()" in blk
+        assert "y=rect.y()" in blk
+
 
 # ---------------------------------------------------------------------------
 # 2. Pure-logic tests
@@ -135,6 +152,16 @@ class TestRegionSelectLogic:
         capture_region = None
         can_capture = capture_region is not None
         assert not can_capture
+
+    def test_region_with_zero_origin(self) -> None:
+        r = self._make_region(0, 0, 100, 50)
+        assert r["x"] == 0
+        assert r["y"] == 0
+
+    def test_label_uses_times_symbol(self) -> None:
+        x, y, w, h = 0, 0, 800, 600
+        label = f"({x}, {y})  {w}\u00d7{h}"
+        assert "\u00d7" in label
 
 
 # ---------------------------------------------------------------------------

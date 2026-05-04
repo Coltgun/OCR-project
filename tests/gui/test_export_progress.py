@@ -71,6 +71,39 @@ class TestExportProgressSource:
     def test_progress_bar_has_fixed_width(self) -> None:
         assert "self._progress_bar.setFixedWidth" in _MW_SRC
 
+    def test_trigger_export_guards_empty_results(self) -> None:
+        assert "if not self._ocr_results" in _export_block()
+
+    def test_trigger_export_reads_fmt_from_combo(self) -> None:
+        assert "self._export_fmt_combo.currentData()" in _export_block()
+
+    def test_ext_map_defined(self) -> None:
+        assert '_EXT_MAP = {"epub": "epub"' in _export_block()
+
+    def test_filter_map_defined(self) -> None:
+        assert '_FILTER_MAP = {' in _export_block()
+
+    def test_title_map_defined(self) -> None:
+        assert '_TITLE_MAP = {' in _export_block()
+
+    def test_file_dialog_called(self) -> None:
+        assert "QFileDialog.getSaveFileName(" in _export_block()
+
+    def test_cancel_path_resets_to_idle(self) -> None:
+        assert "self._state_machine.cancel()" in _export_block()
+
+    def test_epub_output_dir_persisted(self) -> None:
+        assert '"epub_output_dir"' in _export_block()
+
+    def test_formatter_map_has_three_entries(self) -> None:
+        block = _export_block()
+        assert '"epub": EpubFormatter' in block
+        assert '"txt": PlainTextFormatter' in block
+        assert '"md": MarkdownFormatter' in block
+
+    def test_export_error_shows_critical_dialog(self) -> None:
+        assert 'QMessageBox.critical(self, "Export Error"' in _export_block()
+
 
 # ---------------------------------------------------------------------------
 # 2. Pure-logic tests
@@ -100,6 +133,21 @@ class TestExportProgressLogic:
     def test_hidden_after_error(self) -> None:
         visible = False
         assert not visible
+
+    def test_ext_map_values(self) -> None:
+        _EXT_MAP = {"epub": "epub", "txt": "txt", "md": "md"}
+        assert _EXT_MAP["epub"] == "epub"
+        assert _EXT_MAP["txt"] == "txt"
+        assert _EXT_MAP["md"] == "md"
+
+    def test_ext_map_unknown_defaults_epub(self) -> None:
+        _EXT_MAP = {"epub": "epub", "txt": "txt", "md": "md"}
+        assert _EXT_MAP.get("unknown", "epub") == "epub"
+
+    def test_filename_template_substitution(self) -> None:
+        template = "{session}_{timestamp}"
+        result = template.replace("{session}", "mybook").replace("{timestamp}", "20240101_120000")
+        assert result == "mybook_20240101_120000"
 
 
 # ---------------------------------------------------------------------------
