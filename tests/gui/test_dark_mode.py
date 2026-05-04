@@ -95,6 +95,20 @@ class TestDarkModeSource:
     def test_dark_mode_config_key(self) -> None:
         assert '"dark_mode"' in _MW_SRC
 
+    def test_apply_theme_light_also_sets_fusion(self) -> None:
+        blk = _apply_theme_block()
+        count = blk.count('app.setStyle("Fusion")')
+        assert count >= 2
+
+    def test_apply_theme_dark_highlighted_text_black(self) -> None:
+        assert "QColor(0, 0, 0)" in _apply_theme_block()
+
+    def test_apply_theme_dark_window_text_colour(self) -> None:
+        assert "QColor(220, 220, 220)" in _apply_theme_block()
+
+    def test_apply_theme_dark_base_colour(self) -> None:
+        assert "QColor(30, 30, 30)" in _apply_theme_block()
+
 
 # ---------------------------------------------------------------------------
 # 2. Pure-logic tests
