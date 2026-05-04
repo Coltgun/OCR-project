@@ -90,6 +90,14 @@ class TestSearchBarSource:
     def test_clear_preview_blocks_search_signals(self) -> None:
         assert "_search_bar.blockSignals(True)" in _MW_SRC
 
+    def test_on_search_changed_slot_str_decorated(self) -> None:
+        idx = _MW_SRC.index("def _on_search_changed")
+        decorator_zone = _MW_SRC[max(0, idx - 30):idx]
+        assert "@Slot(str)" in decorator_zone
+
+    def test_query_stripped_and_lowered(self) -> None:
+        assert "query.strip().lower()" in _search_changed_block()
+
 
 # ---------------------------------------------------------------------------
 # 2. Pure-logic tests
