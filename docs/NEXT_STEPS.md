@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-copy-clipboard complete. 2331 passed, 347 skipped. Ready for FEAT-hotkey-buttons (MainWindow: audit _capture_btn, _ocr_btn, _export_btn, _cancel_btn button creation, tooltips, _update_button_hotkey_labels, _DEFAULT_BINDINGS; write source-scan + logic tests).
+FEAT-hotkey-buttons complete. 2353 passed, 350 skipped. Ready for FEAT-region-select (MainWindow: audit _select_region_btn, _trigger_select_region, CaptureOverlay, _on_region_selected signal+slot, _capture_region storage; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-hotkey-buttons: MainWindow: audit _capture_btn, _ocr_btn, _export_btn, _cancel_btn creation+disabled state, _update_button_hotkey_labels (_DEFAULT_BINDINGS merge+setToolTip), called on init+settings accept; write source-scan + logic tests.
+- [ ] FEAT-region-select: MainWindow: audit _select_region_btn (clicked→_trigger_select_region), _trigger_select_region (state guard, CaptureOverlay, region_selected signal→_on_region_selected), _on_region_selected (QRect→tuple, _capture_region, _region_label, _update_ui_for_state); write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -119,3 +119,4 @@ FEAT-copy-clipboard complete. 2331 passed, 347 skipped. Ready for FEAT-hotkey-bu
 - [x] FEAT-section-controls: Already implemented: _new_section_btn QPushButton(clicked→_trigger_new_section). _trigger_new_section: None+is_idle guard, new_section()+_section_label.setText+_refresh_section_count_list+status+_clear_preview+_clear_thumbnail. _section_count_list QListWidget(maxH=70, disabled). _refresh_section_count_list: clear+None guard+range(1,current+1)+addItem(Section fn: N image(s)). Extended existing test: 25 source-scan + 8 logic + 3 @gui+@skip. (2305 passed, 344 skipped).
 - [x] FEAT-session-info: Already implemented: _session_info_label QLabel(tooltip, addPermanentWidget). _update_session_info_label: None→setText(""), total_images(), f"Session: {root.name} | {total} image(s)". Called from _update_session_labels+capture success. 12 source-scan + 6 logic + 3 @gui+@skip. (2323 passed, 347 skipped).
 - [x] FEAT-copy-clipboard: Already implemented: _copy_btn QPushButton(disabled, clicked→_copy_results_to_clipboard). _copy_section_btn QPushButton(disabled, tooltip, clicked→_copy_section_to_clipboard). _copy_results_to_clipboard: toPlainText+if text+setText+status. _copy_section_to_clipboard: None+results guard, folder_path, image_id filter (exists or startswith), join+if text+setText+status. Extended existing test: 21 source-scan + 9 logic + 3 @gui+@skip. (2331 passed, 347 skipped).
+- [x] FEAT-hotkey-buttons: Already implemented: _capture_btn QPushButton(clicked→_trigger_capture). _ocr_btn QPushButton(clicked→_trigger_run_ocr). _export_btn QPushButton(disabled, clicked→_trigger_export). _update_button_hotkey_labels: _BTN_MAP 4-button, .upper()+"(unbound)" fallback, setToolTip f"{label} [{key}]". Called on init+settings accept. 16 source-scan + 6 logic + 3 @gui+@skip. (2353 passed, 350 skipped).
