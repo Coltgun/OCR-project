@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import subprocess
 import sys
 import tempfile
@@ -108,15 +109,35 @@ class OCRWorker(QRunnable):
         self.signals.results_ready.emit(ocr_results)
 
     def _run_single_subprocess(self, image_path: Path) -> list[dict]:
-        """Run OCR on one image in a clean subprocess, return list of result dicts."""
+        """Run OCR on one image in a clean subprocess, return list of result dicts.
+
+        A minimal environment (no PATH inherited from parent) is passed so that
+        torch/paddle cuDNN DLL conflicts from the parent process never affect the
+        child.  The subprocess bootstrap script rebuilds the correct PATH itself.
+        """
         config_json = json.dumps(self._config)
         script = _build_subprocess_script(str(image_path), config_json)
+
+        # Minimal env: keep only variables the subprocess needs to locate itself.
+        # Explicitly exclude PATH so the subprocess bootstrap owns it entirely.
+        clean_env = {
+            k: v for k, v in os.environ.items()
+            if k.upper() in (
+                "SYSTEMROOT", "SYSTEMDRIVE", "WINDIR", "TEMP", "TMP",
+                "USERPROFILE", "HOMEDRIVE", "HOMEPATH",
+                "PYTHONPATH", "PYTHONHOME",
+                "CONDA_PREFIX", "CONDA_DEFAULT_ENV",
+            )
+        }
+        # Always provide a minimal PATH so Windows can find system32 DLLs
+        clean_env["PATH"] = os.path.join(os.environ.get("SYSTEMROOT", "C:\\Windows"), "System32")
 
         result = subprocess.run(
             [sys.executable, "-c", script],
             capture_output=True,
             text=True,
             timeout=120,
+            env=clean_env,
         )
 
         if result.returncode != 0:
