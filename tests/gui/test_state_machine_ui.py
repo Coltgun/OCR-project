@@ -77,6 +77,37 @@ class TestStateMachineUiSource:
         block = _MW_SRC[idx:end]
         assert "_update_ui_for_state(AppState.IDLE)" in block
 
+    def test_update_ui_computes_is_idle(self) -> None:
+        assert "is_idle = state == AppState.IDLE" in self._ui_block()
+
+    def test_update_ui_computes_has_session(self) -> None:
+        assert "has_session = self._session is not None" in self._ui_block()
+
+    def test_update_ui_computes_has_region(self) -> None:
+        assert "has_region = self._capture_region is not None" in self._ui_block()
+
+    def test_update_ui_computes_has_results(self) -> None:
+        assert "has_results = bool(self._ocr_results)" in self._ui_block()
+
+    def test_capture_btn_requires_idle_session_region(self) -> None:
+        assert "is_idle and has_session and has_region" in self._ui_block()
+
+    def test_export_btn_requires_idle_results(self) -> None:
+        assert "is_idle and has_results" in self._ui_block()
+
+    def test_state_messages_dict_exists(self) -> None:
+        assert "state_messages = {" in self._ui_block()
+
+    def test_state_messages_covers_all_states(self) -> None:
+        blk = self._ui_block()
+        for state in ("AppState.IDLE", "AppState.SELECTING",
+                      "AppState.CAPTURING", "AppState.OCR_RUNNING",
+                      "AppState.EXPORTING"):
+            assert state in blk
+
+    def test_status_bar_uses_state_messages(self) -> None:
+        assert "state_messages.get(state" in self._ui_block()
+
 
 # ---------------------------------------------------------------------------
 # 2. Pure-logic tests

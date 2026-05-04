@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-word-wrap complete. 2372 passed, 350 skipped. Ready for FEAT-state-machine-ui (_update_ui_for_state: per-AppState button enable/disable map, status messages, border overlay, progress bar hide; write source-scan + logic tests).
+FEAT-state-machine-ui complete. 2381 passed, 350 skipped. Ready for FEAT-open-folder (_open_folder_btn: QPushButton hidden, _trigger_open_folder, _last_export_path, show after export; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-state-machine-ui: MainWindow: audit _update_ui_for_state (AppState enum, per-state button enable/disable, state_messages dict, status bar, border_overlay show/hide, progress_bar hide); write source-scan + logic tests.
+- [ ] FEAT-open-folder: MainWindow: audit _open_folder_btn QPushButton(hidden, clicked→_trigger_open_folder), _trigger_open_folder (os.startfile/_last_export_path), shown after export success, _last_export_path=None on session start; write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -125,3 +125,4 @@ FEAT-word-wrap complete. 2372 passed, 350 skipped. Ready for FEAT-state-machine-
 - [x] FEAT-export-format-combo: Already implemented: _export_fmt_combo QComboBox(EPUB/txt/md items with userData). Init: findData+blockSignals sync. _on_export_format_changed: currentData+if fmt+config.set+save. Extended existing test: 26 source-scan + 9 logic + 3 @gui+@skip. (2366 passed, 350 skipped).
 - [x] FEAT-dark-mode: Already implemented: _dark_mode_action QAction(checkable, triggered→_toggle_dark_mode). Init: setChecked(dark)+_apply_theme(dark). _toggle_dark_mode: config.set+save+_apply_theme. _apply_theme: None app guard, dark→Fusion+QPalette(45/30/220/42,130,218 colours)+setPalette, light→Fusion+standardPalette. Extended existing test: 29 source-scan + 6 logic + 3 @gui+@skip. (2370 passed, 350 skipped).
 - [x] FEAT-word-wrap: Already implemented: _word_wrap_action QAction(checkable, triggered→_toggle_word_wrap, view_menu). Init: setChecked(wrap)+_apply_word_wrap(wrap). _toggle_word_wrap: config.set+save+_apply_word_wrap. _apply_word_wrap: ternary WidgetWidth/NoWrap+setLineWrapMode. Extended existing test: 26 source-scan + 7 logic + 3 @gui+@skip. (2372 passed, 350 skipped).
+- [x] FEAT-state-machine-ui: Already implemented: _update_ui_for_state: state_label.setText+dot.setStyleSheet, is_idle/has_session/has_region/has_results flags, capture_btn(is_idle+session+region), ocr_btn(is_idle+session+total>0), export_btn(is_idle+results), state_messages dict (5 states), status_bar.showMessage. Extended existing test: 32 source-scan + 7 logic + 3 @gui+@skip. (2381 passed, 350 skipped).
