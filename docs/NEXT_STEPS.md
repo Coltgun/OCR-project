@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-region-select complete. 2360 passed, 350 skipped. Ready for FEAT-pipeline-mode-combo (MainWindow: audit _pipeline_mode_combo QComboBox, _on_pipeline_mode_changed, ocr_pipeline_mode config persist, _update_pipeline_mode_label; write source-scan + logic tests).
+FEAT-pipeline-mode-combo complete. 2364 passed, 350 skipped. Ready for FEAT-export-format-combo (MainWindow: audit _export_fmt_combo QComboBox, _on_export_format_changed, export_format config persist; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-pipeline-mode-combo: MainWindow: audit _pipeline_mode_combo (addItems PIPELINE_MODES, currentIndexChanged→_on_pipeline_mode_changed), _on_pipeline_mode_changed (config.set+save+_update_pipeline_mode_label), _update_pipeline_mode_label (permanent widget setText); write source-scan + logic tests.
+- [ ] FEAT-export-format-combo: MainWindow: audit _export_fmt_combo (addItems epub/txt/md with userData, currentIndexChanged→_on_export_format_changed), _on_export_format_changed (currentData+config.set+save), init sync with blockSignals+findData; write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -121,3 +121,4 @@ FEAT-region-select complete. 2360 passed, 350 skipped. Ready for FEAT-pipeline-m
 - [x] FEAT-copy-clipboard: Already implemented: _copy_btn QPushButton(disabled, clicked→_copy_results_to_clipboard). _copy_section_btn QPushButton(disabled, tooltip, clicked→_copy_section_to_clipboard). _copy_results_to_clipboard: toPlainText+if text+setText+status. _copy_section_to_clipboard: None+results guard, folder_path, image_id filter (exists or startswith), join+if text+setText+status. Extended existing test: 21 source-scan + 9 logic + 3 @gui+@skip. (2331 passed, 347 skipped).
 - [x] FEAT-hotkey-buttons: Already implemented: _capture_btn QPushButton(clicked→_trigger_capture). _ocr_btn QPushButton(clicked→_trigger_run_ocr). _export_btn QPushButton(disabled, clicked→_trigger_export). _update_button_hotkey_labels: _BTN_MAP 4-button, .upper()+"(unbound)" fallback, setToolTip f"{label} [{key}]". Called on init+settings accept. 16 source-scan + 6 logic + 3 @gui+@skip. (2353 passed, 350 skipped).
 - [x] FEAT-region-select: Already implemented: _select_region_btn QPushButton(clicked→_trigger_select_region). reset_area_pressed→_trigger_select_region. _trigger_select_region: state_machine.select_region() guard, border_overlay.hide, CaptureOverlay, signals wiring, show_fullscreen. _on_region_selected: CaptureRegion(x,y,w,h), _region_label.setText, border_overlay update+show, selection_done, _update_ui_for_state(IDLE). Extended existing test: 22 source-scan + 8 logic + 3 @gui+@skip. (2360 passed, 350 skipped).
+- [x] FEAT-pipeline-mode-combo: Already implemented: _pipeline_mode_combo QComboBox(tooltip, PIPELINE_MODES items, currentIndexChanged→_on_pipeline_mode_changed). Init: findText+blockSignals sync. _on_pipeline_mode_changed: if mode+config.set+save+_cfg=_data+_update_pipeline_mode_label. _pipeline_mode_label addPermanentWidget+tooltip. Extended existing test: 25 source-scan + 7 logic + 3 @gui+@skip. (2364 passed, 350 skipped).
