@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-recent-sessions complete. 2439 passed, 356 skipped. Ready for FEAT-start-session (MainWindow: audit _start_new_session, _load_session, SessionDialog wiring, recent session record, _update_session_labels; write source-scan + logic tests).
+FEAT-start-session complete. 2461 passed, 359 skipped. Ready for FEAT-trigger-capture (MainWindow: audit _trigger_capture, _on_capture_success, _on_capture_error, CaptureWorker wiring; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-start-session: MainWindow: audit _start_new_session (SessionDialog, CaptureSession, _load_session, _record_recent_session, _update_session_labels, _update_ui_for_state(IDLE)), _load_session (clear preview/thumbnail/notes, _load_notes, _update_session_labels); write source-scan + logic tests.
+- [ ] FEAT-trigger-capture: MainWindow: audit _trigger_capture (is_idle+session+region guards, state_machine.capture(), CaptureWorker, worker signals→_on_capture_success/_on_capture_error), _on_capture_success (save image, _update_thumbnail, _update_session_labels, status), _on_capture_error (QMessageBox, state_machine.capture_failed); write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -131,3 +131,4 @@ FEAT-recent-sessions complete. 2439 passed, 356 skipped. Ready for FEAT-start-se
 - [x] FEAT-preview-font: Already implemented: _apply_preview_font_size(size:int): preview_pane.font()+setPointSize(max(8,min(size,24)))+setFont. Config key preview_font_size default 11, int-cast on read. Called on init+settings accept. 12 source-scan + 6 logic + 3 @gui+@skip. (2406 passed, 353 skipped).
 - [x] FEAT-populate-preview: Already implemented: _populate_preview: empty guard(setPlainText+label 0 blocks), image_id grouping separator, setPlainText(join), avg_conf(sum/n:.2f), _preview_label.setText, copy_btn+copy_section_btn enable. _clear_preview: search_bar blockSignals+clear, setPlainText, label reset, copy btns disable. 20 source-scan + 7 logic + 3 @gui+@skip. (2433 passed, 356 skipped).
 - [x] FEAT-recent-sessions: Already implemented: _update_recent_menu: clear+config.get+isinstance guard, QAction per path, lambda triggered→_open_recent_session. _open_recent_session: is_idle guard, exists guard+QMessageBox.warning, CaptureSession(resume=True), clear preview/thumbnail, load_notes, record+status+update_ui_idle. Extended existing test: 37+6 source-scan + 16 logic + 15 @gui+@skip. (2439 passed, 356 skipped).
+- [x] FEAT-start-session: Already implemented: _start_new_session: is_idle guard, SessionDialog exec+Accepted check, CaptureSession(session_root, resume), ocr_results=[], clear preview/thumbnail, load_notes, record_recent, update_session_labels, export_btn disabled, logger.info, status msg, update_ui_idle. 16 source-scan + 6 logic + 3 @gui+@skip. (2461 passed, 359 skipped).
