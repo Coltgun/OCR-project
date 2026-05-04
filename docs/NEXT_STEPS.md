@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-recent-sessions complete. 1972 passed, 308 skipped (test file already existed from prior session). Ready for FEAT-session-labels (MainWindow: audit _update_session_labels, _section_label, _count_label, _region_label; write source-scan + logic tests).
+FEAT-session-labels complete. 1996 passed, 311 skipped. Ready for FEAT-dark-mode (MainWindow: audit _dark_mode_action, _apply_theme, dark_mode config persist; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-session-labels: MainWindow: audit _update_session_labels, _session_label, _section_label, _count_label, _region_label setText logic; write source-scan + logic tests.
+- [ ] FEAT-dark-mode: MainWindow: audit _dark_mode_action QAction (checkable), _apply_theme (stylesheet), dark_mode config persist; write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -102,3 +102,4 @@ FEAT-recent-sessions complete. 1972 passed, 308 skipped (test file already exist
 - [x] FEAT-ocr-progress: Already implemented: _progress_bar QProgressBar(width=200, hidden, permanent). _on_ocr_progress: elapsed, pct(done/total*100, 0 guard), setRange(0,total)+setValue(done)+setVisible(True). _on_ocr_error/_on_ocr_results: setVisible(False). 15 source-scan + 6 logic + 3 @gui+@skip. (1945 passed, 305 skipped).
 - [x] FEAT-state-dot: Already implemented: _state_dot QLabel(12x12, tooltip, permanent). _state_label QLabel("IDLE", permanent). _DOT_IDLE(#4CAF50)/_DOT_BUSY(#FFC107)/_DOT_ERROR(#F44336). _DOT_COLOURS map 5 AppStates. _update_ui_for_state: setText, setStyleSheet, is_idle guards for 5 buttons, state_messages dict. 21 source-scan + 6 logic + 3 @gui+@skip. (1972 passed, 308 skipped).
 - [x] FEAT-recent-sessions: Already implemented + test file present from prior session: _recent_menu QMenu, _record_recent_session (prepend+dedup+cap+save), _update_recent_menu (clear+rebuild+placeholder), _open_recent_session (idle+exists guard, resume=True). 18 source-scan + 7 logic + 6 @gui+@skip. (1972 passed, 308 skipped — no net new tests).
+- [x] FEAT-session-labels: Already implemented: _session_label("No session active"), _region_label("Not set"), _section_label, _count_label("0"). _update_session_labels: None guard, setText(root/current_folder), _update_count_label, _refresh_section_count_list, _update_session_info_label. _update_count_label: "{total} total (section: {current})". 18 source-scan + 6 logic + 3 @gui+@skip. (1996 passed, 311 skipped).
