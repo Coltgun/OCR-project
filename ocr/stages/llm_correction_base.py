@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from abc import abstractmethod
 from dataclasses import replace
 
@@ -152,8 +153,8 @@ class LlmCorrectionBase(PostProcessStage):
     def _parse_response(raw: str, originals: list[str]) -> list[str]:
         """Parse the LLM JSON response into a list of corrected strings.
 
-        Falls back to *originals* on any parse error or length mismatch.
-        Strips markdown code fences if present.
+        Strips markdown code fences, then tries progressively more lenient
+        strategies before falling back to *originals*.
         """
         raw = raw.strip()
         if raw.startswith("```"):
@@ -162,27 +163,40 @@ class LlmCorrectionBase(PostProcessStage):
                 line for line in lines if not line.startswith("```")
             ).strip()
 
+        # Strategy 1: parse the whole response as JSON
+        parsed = None
         try:
             parsed = json.loads(raw)
-        except json.JSONDecodeError as exc:
-            logger.warning(
-                "LlmCorrectionBase._parse_response: JSON parse error (%s) "
-                "— keeping originals.", exc,
-            )
-            return originals
+        except json.JSONDecodeError:
+            pass
+
+        # Strategy 2: extract first JSON array from anywhere in the response
+        if not isinstance(parsed, list):
+            m = re.search(r"\[.*\]", raw, re.DOTALL)
+            if m:
+                try:
+                    parsed = json.loads(m.group(0))
+                except json.JSONDecodeError:
+                    pass
 
         if not isinstance(parsed, list):
             logger.warning(
-                "LlmCorrectionBase._parse_response: response is not a list "
-                "(%s) — keeping originals.", type(parsed).__name__,
+                "LlmCorrectionBase._parse_response: could not extract a JSON array "
+                "— keeping originals."
             )
             return originals
 
-        if len(parsed) != len(originals):
-            logger.warning(
-                "LlmCorrectionBase._parse_response: length %d != expected %d "
-                "— keeping originals.", len(parsed), len(originals),
-            )
-            return originals
+        expected = len(originals)
+        if len(parsed) == expected:
+            return [str(t) for t in parsed]
 
-        return [str(t) for t in parsed]
+        # Strategy 3: length mismatch — pad short responses with originals,
+        # truncate long ones. Better than discarding all corrections.
+        logger.warning(
+            "LlmCorrectionBase._parse_response: length %d != expected %d "
+            "— using partial corrections.", len(parsed), expected,
+        )
+        result = list(originals)
+        for i, t in enumerate(parsed[:expected]):
+            result[i] = str(t)
+        return result

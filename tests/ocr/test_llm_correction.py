@@ -80,10 +80,22 @@ class TestParseResponse:
         out = LlmCorrectionStage._parse_response('{"key":"val"}', originals)
         assert out == originals
 
-    def test_length_mismatch_returns_originals(self) -> None:
+    def test_length_mismatch_uses_partial_corrections(self) -> None:
         originals = ["a", "b", "c"]
+        # Short response: first two corrected, third preserved from originals
         out = LlmCorrectionStage._parse_response('["x","y"]', originals)
-        assert out == originals
+        assert out == ["x", "y", "c"]
+
+    def test_length_mismatch_truncates_long_response(self) -> None:
+        originals = ["a", "b"]
+        out = LlmCorrectionStage._parse_response('["x","y","z"]', originals)
+        assert out == ["x", "y"]
+
+    def test_array_extracted_from_preamble(self) -> None:
+        originals = ["a", "b"]
+        raw = 'Here are the corrections: ["x", "y"]'
+        out = LlmCorrectionStage._parse_response(raw, originals)
+        assert out == ["x", "y"]
 
     def test_markdown_code_fence_stripped(self) -> None:
         originals = ["a"]

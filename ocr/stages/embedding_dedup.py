@@ -147,8 +147,12 @@ class EmbeddingDeduplicationStage(PostProcessStage, register_as="embedding_dedup
         )
 
         if result.returncode != 0:
-            stderr_tail = (result.stderr or "").strip().splitlines()
-            last = stderr_tail[-1] if stderr_tail else "unknown error"
+            stderr_text = (result.stderr or "").strip()
+            logger.error(
+                "EmbeddingDeduplicationStage: subprocess stderr:\n%s",
+                stderr_text
+            )
+            last = stderr_text.splitlines()[-1] if stderr_text else "unknown error"
             raise RuntimeError(f"Embedding subprocess failed: {last}")
 
         output = result.stdout.strip()
