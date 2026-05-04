@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-notes-panel complete. 2581 passed, 368 skipped. Ready for FEAT-thumbnail (MainWindow: audit _update_thumbnail, _clear_thumbnail, _zoom_thumbnail_btn, _thumbnail_label; write source-scan + logic tests).
+FEAT-misc-methods complete. 2597 passed, 371 skipped. All MainWindow private methods now covered. Next: review NEXT_STEPS.md for any remaining implementation work.
 
 ## Up Next
-- [ ] FEAT-thumbnail: MainWindow: audit _thumbnail_label QLabel, _update_thumbnail (cv2 read+resize+QPixmap, setPixmap), _clear_thumbnail (setPixmap(None)+hide zoom btn), _zoom_thumbnail_btn (clicked→_open_zoom_window); write source-scan + logic tests.
+- [ ] REVIEW: Check NEXT_STEPS.md for remaining implementation features (non-GUI). All MainWindow audit/test tickets complete.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -137,3 +137,5 @@ FEAT-notes-panel complete. 2581 passed, 368 skipped. Ready for FEAT-thumbnail (M
 - [x] FEAT-trigger-export: Already implemented: _trigger_export: ocr_results+export() guard, currentData fmt, _EXT/_FILTER/_TITLE_MAP, timestamp, session_name, export_filename_template, QFileDialog.getSaveFileName, cancel→state_machine.cancel, epub_output_dir persist, build_chapters, progress_bar(0,0), _FORMATTER_MAP(epub/txt/md), formatter.format, write_bytes, last_export_path, open_folder_btn visible, export_done; except logger.error+progress hidden+QMessageBox.critical+trigger(error)+update_ui_idle. 34 source-scan + 8 logic + 3 @gui+@skip. (2574 passed, 368 skipped).
 - [x] FEAT-search-bar: Already implemented: _search_bar QLineEdit(placeholder, setClearButtonEnabled, textChanged→_on_search_changed). @Slot(str) _on_search_changed: empty results guard, query.strip().lower(), filter(q in r.text.lower()), empty q→all results, grouping separator, setPlainText, filtered suffix label, avg_conf over all results. blockSignals in _clear_preview. Extended existing test: 27 source-scan + 10 logic + 3 @gui+@skip. (2576 passed, 368 skipped).
 - [x] FEAT-notes-panel: Already implemented: _notes_edit QTextEdit(placeholder, disabled, textChanged→timer.start). _notes_save_timer QTimer(singleShot, 2000ms, timeout→_on_notes_changed). _load_notes: no-session disable+blockSignals+clear, OSError guard, notes.txt read+setPlainText. _on_notes_changed: @Slot(), no-session guard, write_text, OSError→logger.warning. Extended existing test: 29 source-scan + 5 logic + 4 @gui+@skip. (2581 passed, 368 skipped).
+- [x] FEAT-thumbnail: Already fully covered by existing test_thumbnail.py+test_thumbnail_zoom.py (34+25=59 tests). _update_thumbnail: QPixmap, isNull, KeepAspectRatio, SmoothTransformation, setPixmap. _clear_thumbnail: clear, zoom_btn hidden, _last_capture_path=None. _zoom_thumbnail: path guards, QDialog, 600x450. No new tests needed. (2581 passed, 368 skipped).
+- [x] FEAT-misc-methods: Already implemented: _toggle_border_overlay @Slot(): isVisible guard, hide/show, capture_region None guard. _on_state_changed @Slot(object,object): logger.debug(old.name/new.name), _update_ui_for_state(new). 11 source-scan + 5 logic + 3 @gui+@skip. (2597 passed, 371 skipped).
