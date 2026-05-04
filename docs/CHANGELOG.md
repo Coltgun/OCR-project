@@ -303,3 +303,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_populate_preview.py` — 20 source-scan + 7 logic + 3 @gui+@skip. (2433 passed, 356 skipped).
 - **FEAT-recent-sessions** `gui/main_window.py` — Already implemented: `_update_recent_menu`: `clear+config.get+isinstance` guard, `QAction` per path, `lambda triggered→_open_recent_session`. `_open_recent_session`: `is_idle` guard, `exists` guard+`QMessageBox.warning`, `CaptureSession(resume=True)`, clear preview/thumbnail, `load_notes`, `record+status+update_ui_idle`.
 - `tests/gui/test_recent_sessions.py` — Extended: 37+6 source-scan + 16 logic + 15 @gui+@skip. (2439 passed, 356 skipped).
+- **FEAT-start-session** `gui/main_window.py` — Already implemented: `_start_new_session`: `is_idle` guard, `SessionDialog` exec+Accepted check, `CaptureSession(session_root, resume)`, `ocr_results=[]`, clear preview/thumbnail, `load_notes`, `record_recent`, `update_session_labels`, `export_btn` disabled, `logger.info`, status msg, `update_ui_idle`.
+- `tests/gui/test_start_session.py` — 16 source-scan + 6 logic + 3 @gui+@skip. (2461 passed, 359 skipped).
