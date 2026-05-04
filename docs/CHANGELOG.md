@@ -295,3 +295,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_state_machine_ui.py` — Extended: 32 source-scan + 7 logic + 3 @gui+@skip. (2381 passed, 350 skipped).
 - **FEAT-open-folder** `gui/main_window.py` — Already implemented: `_open_folder_btn` `QPushButton(hidden, permanent, clicked→_on_open_export_folder)`. `_last_export_path str=""` init. `_on_open_export_folder`: empty guard, `str(Path.parent)`, `os.startfile`, `OSError+logger.warning`. Shown after export, hidden in `_update_ui_for_state`.
 - `tests/gui/test_open_folder.py` — Extended: 27 source-scan + 8 logic + 3 @gui+@skip. (2384 passed, 350 skipped).
+- **FEAT-progress-bar** `gui/main_window.py` — Already implemented: `_progress_bar` `QProgressBar(fixedWidth=200, setTextVisible(True), setVisible(False), addPermanentWidget)`. OCR progress: `setRange(0,total)+setValue(done)+setVisible(True)`. Export: `setRange(0,0)+setVisible(True)`. Hidden on OCR results/error and export done/error.
+- `tests/gui/test_progress_ui.py` — Extended: 21 source-scan + 4 logic + 6 @gui+@skip. (2388 passed, 350 skipped).

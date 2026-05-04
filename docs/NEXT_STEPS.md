@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-open-folder complete. 2384 passed, 350 skipped. Ready for FEAT-progress-bar (_progress_bar: QProgressBar fixed width, hidden init, shown during export, setRange+setValue signals, setVisible(False) on done/error; write source-scan + logic tests).
+FEAT-progress-bar complete. 2388 passed, 350 skipped. Ready for FEAT-preview-font (MainWindow: audit _apply_preview_font_size, preview_font_size config, settings_dialog font spin, _populate_preview font apply; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-progress-bar: MainWindow: audit _progress_bar QProgressBar(fixedWidth=200, hidden), shown on export start, progress_updated signal→setRange+setValue, hidden on export done/error; write source-scan + logic tests.
+- [ ] FEAT-preview-font: MainWindow: audit _apply_preview_font_size (preview_pane.font+setPointSize+setFont), called on init+settings accept, preview_font_size config key; write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -127,3 +127,4 @@ FEAT-open-folder complete. 2384 passed, 350 skipped. Ready for FEAT-progress-bar
 - [x] FEAT-word-wrap: Already implemented: _word_wrap_action QAction(checkable, triggered→_toggle_word_wrap, view_menu). Init: setChecked(wrap)+_apply_word_wrap(wrap). _toggle_word_wrap: config.set+save+_apply_word_wrap. _apply_word_wrap: ternary WidgetWidth/NoWrap+setLineWrapMode. Extended existing test: 26 source-scan + 7 logic + 3 @gui+@skip. (2372 passed, 350 skipped).
 - [x] FEAT-state-machine-ui: Already implemented: _update_ui_for_state: state_label.setText+dot.setStyleSheet, is_idle/has_session/has_region/has_results flags, capture_btn(is_idle+session+region), ocr_btn(is_idle+session+total>0), export_btn(is_idle+results), state_messages dict (5 states), status_bar.showMessage. Extended existing test: 32 source-scan + 7 logic + 3 @gui+@skip. (2381 passed, 350 skipped).
 - [x] FEAT-open-folder: Already implemented: _open_folder_btn QPushButton(hidden, permanent, clicked→_on_open_export_folder). _last_export_path str init="". _on_open_export_folder: empty guard, str(Path.parent), os.startfile, OSError+logger.warning. Shown after export+setVisible(True), hidden in _update_ui_for_state. Extended existing test: 27 source-scan + 8 logic + 3 @gui+@skip. (2384 passed, 350 skipped).
+- [x] FEAT-progress-bar: Already implemented: _progress_bar QProgressBar(fixedWidth=200, setTextVisible(True), setVisible(False), addPermanentWidget). OCR progress: setRange(0,total)+setValue(done)+setVisible(True). Export: setRange(0,0)+setVisible(True). Hidden on OCR results/error and export done/error. Extended existing test: 21 source-scan + 4 logic + 6 @gui+@skip. (2388 passed, 350 skipped).

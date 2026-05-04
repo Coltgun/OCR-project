@@ -89,6 +89,23 @@ class TestProgressBarWiring:
         export_block = source[idx_export:]
         assert "_progress_bar.setVisible(False)" in export_block
 
+    def test_progress_bar_fixed_width_200(self) -> None:
+        source = (Path(__file__).parent.parent.parent / "gui" / "main_window.py").read_text(encoding="utf-8")
+        assert "_progress_bar.setFixedWidth(200)" in source
+
+    def test_progress_bar_text_visible(self) -> None:
+        source = (Path(__file__).parent.parent.parent / "gui" / "main_window.py").read_text(encoding="utf-8")
+        assert "_progress_bar.setTextVisible(True)" in source
+
+    def test_progress_bar_added_to_status_bar(self) -> None:
+        source = (Path(__file__).parent.parent.parent / "gui" / "main_window.py").read_text(encoding="utf-8")
+        assert "_status_bar.addPermanentWidget(self._progress_bar)" in source
+
+    def test_ocr_progress_sets_range_and_value(self) -> None:
+        source = (Path(__file__).parent.parent.parent / "gui" / "main_window.py").read_text(encoding="utf-8")
+        assert "_progress_bar.setRange(0, total)" in source
+        assert "_progress_bar.setValue(done)" in source
+
 
 # ---------------------------------------------------------------------------
 # GUI tests (require QApplication + compatible DLL env)
