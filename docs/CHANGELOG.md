@@ -249,3 +249,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_session_labels.py` — 18 source-scan + 6 logic + 3 @gui+@skip. (1996 passed, 311 skipped).
 - **FEAT-dark-mode** `gui/main_window.py` — Already implemented: `_dark_mode_action` `QAction(checkable, triggered→_toggle_dark_mode)`. Init: `setChecked(dark)+_apply_theme(dark)`. `_toggle_dark_mode`: `config.set("dark_mode")+save+_apply_theme`. `_apply_theme`: None guard, Fusion style, dark `QPalette` (`Window#2D2D2D`, `Highlight#2A82DA`) or `standardPalette`.
 - `tests/gui/test_dark_mode.py` — 16 source-scan + 6 logic + 3 @gui+@skip. (2018 passed, 314 skipped).
+- **FEAT-word-wrap** `gui/main_window.py` — Already implemented: `_word_wrap_action` `QAction(checkable, triggered→_toggle_word_wrap)`. Init: `bool(cfg.get("preview_word_wrap",True))+setChecked+_apply_word_wrap`. `_toggle_word_wrap`: `config.set("preview_word_wrap")+save+_apply_word_wrap`. `_apply_word_wrap`: `WidgetWidth` vs `NoWrap` on `_preview_pane.setLineWrapMode`.
+- `tests/gui/test_word_wrap.py` — 15 source-scan + 6 logic + 3 @gui+@skip. (2039 passed, 317 skipped).
