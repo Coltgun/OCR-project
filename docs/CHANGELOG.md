@@ -265,3 +265,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_build_chapters.py` — 12 source-scan + 6 logic + 3 @gui+@skip. (2173 passed, 332 skipped).
 - **FEAT-settings-keys** `gui/settings_dialog.py` — Already implemented: `_FACTORY_DEFAULTS` (20 keys). `_save_values`: 23 `cfg.set()` calls covering pipeline, thresholds, API keys, vram, batch sizes, paths, template, auto-section threshold, `capture_delay_ms` (`int(val*1000)`), font size, keybindings; `cfg.save()`.
 - `tests/gui/test_settings_keys.py` — 27 source-scan + 6 logic + 3 @gui+@skip. (2206 passed, 335 skipped).
+- **FEAT-search-bar** `gui/main_window.py` — Already implemented: `_search_bar` `QLineEdit(placeholder, setClearButtonEnabled, textChanged→_on_search_changed)`. `_on_search_changed`: empty results guard, `q=strip+lower`, `filter(q in r.text.lower())`, empty `q`→all, `image_id` grouping, `setPlainText`, filtered suffix `(n/total)`, `avg_conf` over all results, `_preview_label.setText`. `_clear_preview`: `blockSignals`.
+- `tests/gui/test_search_bar.py` — 15 source-scan + 7 logic + 3 @gui+@skip. (2228 passed, 338 skipped).
