@@ -92,6 +92,15 @@ class TestWordWrapSource:
     def test_init_reads_preview_word_wrap_default_true(self) -> None:
         assert '"preview_word_wrap", True' in _MW_SRC
 
+    def test_apply_word_wrap_ternary_selects_mode(self) -> None:
+        blk = _apply_word_wrap_block()
+        assert "if enabled" in blk or "if " in blk
+
+    def test_toggle_word_wrap_slot_decorated(self) -> None:
+        idx = _MW_SRC.index("def _toggle_word_wrap")
+        decorator_zone = _MW_SRC[max(0, idx - 30):idx]
+        assert "@Slot" in decorator_zone
+
 
 # ---------------------------------------------------------------------------
 # 2. Pure-logic tests

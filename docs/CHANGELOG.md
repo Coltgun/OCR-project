@@ -289,3 +289,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_export_format_combo.py` — Extended: 26 source-scan + 9 logic + 3 @gui+@skip. (2366 passed, 350 skipped).
 - **FEAT-dark-mode** `gui/main_window.py` — Already implemented: `_dark_mode_action` `QAction(checkable, triggered→_toggle_dark_mode)`. Init: `setChecked(dark)+_apply_theme(dark)`. `_toggle_dark_mode`: `config.set+save+_apply_theme`. `_apply_theme`: None app guard, dark→`Fusion+QPalette(45/30/220/42,130,218)+setPalette`, light→`Fusion+standardPalette`.
 - `tests/gui/test_dark_mode.py` — Extended: 29 source-scan + 6 logic + 3 @gui+@skip. (2370 passed, 350 skipped).
+- **FEAT-word-wrap** `gui/main_window.py` — Already implemented: `_word_wrap_action` `QAction(checkable, triggered→_toggle_word_wrap, view_menu)`. Init: `setChecked(wrap)+_apply_word_wrap(wrap)`. `_toggle_word_wrap`: `config.set+save+_apply_word_wrap`. `_apply_word_wrap`: ternary `WidgetWidth/NoWrap+setLineWrapMode`.
+- `tests/gui/test_word_wrap.py` — Extended: 26 source-scan + 7 logic + 3 @gui+@skip. (2372 passed, 350 skipped).

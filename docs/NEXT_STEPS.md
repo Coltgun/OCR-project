@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-dark-mode complete. 2370 passed, 350 skipped. Ready for FEAT-word-wrap (MainWindow: audit _word_wrap_action QAction, _toggle_word_wrap, preview_word_wrap config persist, _preview_pane.setLineWrapMode; write source-scan + logic tests).
+FEAT-word-wrap complete. 2372 passed, 350 skipped. Ready for FEAT-state-machine-ui (_update_ui_for_state: per-AppState button enable/disable map, status messages, border overlay, progress bar hide; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-word-wrap: MainWindow: audit _word_wrap_action QAction (checkable, triggered→_toggle_word_wrap), _toggle_word_wrap (config.set+save, _preview_pane.setLineWrapMode WidgetWidth/NoWrap), init sync checked state from preview_word_wrap config; write source-scan + logic tests.
+- [ ] FEAT-state-machine-ui: MainWindow: audit _update_ui_for_state (AppState enum, per-state button enable/disable, state_messages dict, status bar, border_overlay show/hide, progress_bar hide); write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -124,3 +124,4 @@ FEAT-dark-mode complete. 2370 passed, 350 skipped. Ready for FEAT-word-wrap (Mai
 - [x] FEAT-pipeline-mode-combo: Already implemented: _pipeline_mode_combo QComboBox(tooltip, PIPELINE_MODES items, currentIndexChanged→_on_pipeline_mode_changed). Init: findText+blockSignals sync. _on_pipeline_mode_changed: if mode+config.set+save+_cfg=_data+_update_pipeline_mode_label. _pipeline_mode_label addPermanentWidget+tooltip. Extended existing test: 25 source-scan + 7 logic + 3 @gui+@skip. (2364 passed, 350 skipped).
 - [x] FEAT-export-format-combo: Already implemented: _export_fmt_combo QComboBox(EPUB/txt/md items with userData). Init: findData+blockSignals sync. _on_export_format_changed: currentData+if fmt+config.set+save. Extended existing test: 26 source-scan + 9 logic + 3 @gui+@skip. (2366 passed, 350 skipped).
 - [x] FEAT-dark-mode: Already implemented: _dark_mode_action QAction(checkable, triggered→_toggle_dark_mode). Init: setChecked(dark)+_apply_theme(dark). _toggle_dark_mode: config.set+save+_apply_theme. _apply_theme: None app guard, dark→Fusion+QPalette(45/30/220/42,130,218 colours)+setPalette, light→Fusion+standardPalette. Extended existing test: 29 source-scan + 6 logic + 3 @gui+@skip. (2370 passed, 350 skipped).
+- [x] FEAT-word-wrap: Already implemented: _word_wrap_action QAction(checkable, triggered→_toggle_word_wrap, view_menu). Init: setChecked(wrap)+_apply_word_wrap(wrap). _toggle_word_wrap: config.set+save+_apply_word_wrap. _apply_word_wrap: ternary WidgetWidth/NoWrap+setLineWrapMode. Extended existing test: 26 source-scan + 7 logic + 3 @gui+@skip. (2372 passed, 350 skipped).
