@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-search-bar complete. 2576 passed, 368 skipped. Ready for FEAT-notes-panel (MainWindow: audit _notes_pane QTextEdit, _load_notes, _save_notes, notes_changed signal→autosave; write source-scan + logic tests).
+FEAT-notes-panel complete. 2581 passed, 368 skipped. Ready for FEAT-thumbnail (MainWindow: audit _update_thumbnail, _clear_thumbnail, _zoom_thumbnail_btn, _thumbnail_label; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-notes-panel: MainWindow: audit _notes_pane QTextEdit(placeholder, readOnly=False), _load_notes (session root notes.txt read), _save_notes (write to notes.txt, debounce timer), textChanged→_save_notes; write source-scan + logic tests.
+- [ ] FEAT-thumbnail: MainWindow: audit _thumbnail_label QLabel, _update_thumbnail (cv2 read+resize+QPixmap, setPixmap), _clear_thumbnail (setPixmap(None)+hide zoom btn), _zoom_thumbnail_btn (clicked→_open_zoom_window); write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -136,3 +136,4 @@ FEAT-search-bar complete. 2576 passed, 368 skipped. Ready for FEAT-notes-panel (
 - [x] FEAT-trigger-ocr: Already implemented: _trigger_run_ocr: session guard, run_ocr() guard, numeric folder+png sort, empty guard+ocr_done, OCRWorker(cfg,paths), signals(results_ready/error_occurred/progress), ocr_start_time, QThreadPool.start, status. _on_ocr_results: min_conf filter, kept_count, avg_conf, ocr_results, export_btn, ocr_done, progress_bar hidden, filtered_note, status, populate_preview, update_ui_idle. _on_ocr_error: logger.error, trigger(error), progress_bar, status, QMessageBox.critical, update_ui_idle. 32 source-scan + 7 logic + 3 @gui+@skip. (2532 passed, 365 skipped).
 - [x] FEAT-trigger-export: Already implemented: _trigger_export: ocr_results+export() guard, currentData fmt, _EXT/_FILTER/_TITLE_MAP, timestamp, session_name, export_filename_template, QFileDialog.getSaveFileName, cancel→state_machine.cancel, epub_output_dir persist, build_chapters, progress_bar(0,0), _FORMATTER_MAP(epub/txt/md), formatter.format, write_bytes, last_export_path, open_folder_btn visible, export_done; except logger.error+progress hidden+QMessageBox.critical+trigger(error)+update_ui_idle. 34 source-scan + 8 logic + 3 @gui+@skip. (2574 passed, 368 skipped).
 - [x] FEAT-search-bar: Already implemented: _search_bar QLineEdit(placeholder, setClearButtonEnabled, textChanged→_on_search_changed). @Slot(str) _on_search_changed: empty results guard, query.strip().lower(), filter(q in r.text.lower()), empty q→all results, grouping separator, setPlainText, filtered suffix label, avg_conf over all results. blockSignals in _clear_preview. Extended existing test: 27 source-scan + 10 logic + 3 @gui+@skip. (2576 passed, 368 skipped).
+- [x] FEAT-notes-panel: Already implemented: _notes_edit QTextEdit(placeholder, disabled, textChanged→timer.start). _notes_save_timer QTimer(singleShot, 2000ms, timeout→_on_notes_changed). _load_notes: no-session disable+blockSignals+clear, OSError guard, notes.txt read+setPlainText. _on_notes_changed: @Slot(), no-session guard, write_text, OSError→logger.warning. Extended existing test: 29 source-scan + 5 logic + 4 @gui+@skip. (2581 passed, 368 skipped).

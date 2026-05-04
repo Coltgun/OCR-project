@@ -88,6 +88,33 @@ class TestNotesAutosaveSource:
         block = _MW_SRC[idx:end]
         assert "_load_notes()" in block
 
+    def _load_block(self) -> str:
+        idx = _MW_SRC.index("def _load_notes")
+        end = _MW_SRC.index("\n    @Slot", idx + 1)
+        return _MW_SRC[idx:end]
+
+    def _changed_block(self) -> str:
+        idx = _MW_SRC.index("def _on_notes_changed")
+        end = _MW_SRC.index("\n    def _populate_preview", idx + 1)
+        return _MW_SRC[idx:end]
+
+    def test_load_blocks_signals_when_no_session(self) -> None:
+        blk = self._load_block()
+        assert "blockSignals(True)" in blk
+        assert "blockSignals(False)" in blk
+
+    def test_load_handles_oserror(self) -> None:
+        assert "except OSError" in self._load_block()
+
+    def test_on_notes_changed_guards_no_session(self) -> None:
+        assert "self._session is None" in self._changed_block()
+
+    def test_on_notes_changed_handles_oserror(self) -> None:
+        assert "except OSError" in self._changed_block()
+
+    def test_on_notes_changed_logs_warning_on_error(self) -> None:
+        assert "logger.warning(" in self._changed_block()
+
 
 # ---------------------------------------------------------------------------
 # 2. Pure-logic tests
