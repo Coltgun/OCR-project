@@ -299,3 +299,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_progress_ui.py` — Extended: 21 source-scan + 4 logic + 6 @gui+@skip. (2388 passed, 350 skipped).
 - **FEAT-preview-font** `gui/main_window.py` — Already implemented: `_apply_preview_font_size(size:int)`: `preview_pane.font()+setPointSize(max(8,min(size,24)))+setFont`. Config key `preview_font_size` default 11, `int`-cast on read. Called on init + settings accept.
 - `tests/gui/test_preview_font.py` — 12 source-scan + 6 logic + 3 @gui+@skip. (2406 passed, 353 skipped).
+- **FEAT-populate-preview** `gui/main_window.py` — Already implemented: `_populate_preview`: empty guard (`setPlainText+label "0 blocks"`), `image_id` grouping separator `"── id ──"`, `setPlainText("\n".join(lines))`, `avg_conf(sum/n:.2f)`, `_preview_label.setText`, `copy_btn+copy_section_btn` enable. `_clear_preview`: `search_bar blockSignals+clear`, `setPlainText("")`, label reset, copy btns disable.
+- `tests/gui/test_populate_preview.py` — 20 source-scan + 7 logic + 3 @gui+@skip. (2433 passed, 356 skipped).
