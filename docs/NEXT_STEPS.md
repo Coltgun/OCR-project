@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-preview-pane complete. 2104 passed, 323 skipped. Ready for FEAT-ocr-trigger (MainWindow: audit _trigger_run_ocr: idle+session+images guard, OCRWorker, QThreadPool, signal wiring; write source-scan + logic tests).
+FEAT-ocr-trigger complete. 2127 passed, 326 skipped. Ready for FEAT-capture-trigger (MainWindow: audit _trigger_capture: idle+session+region guard, state_machine.capture(), ScreenCapture, session.add_image, _update_thumbnail/_count_label; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-ocr-trigger: MainWindow: audit _trigger_run_ocr (idle+session+images guard, state_machine.ocr(), OCRWorker, QThreadPool.start), signal wiring (results, error, progress); write source-scan + logic tests.
+- [ ] FEAT-capture-trigger: MainWindow: audit _trigger_capture (idle+session+region guards, state_machine.capture(), ScreenCapture.capture(), session.add_image, _update_thumbnail, _update_count_label, capture_done); write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -108,3 +108,4 @@ FEAT-preview-pane complete. 2104 passed, 323 skipped. Ready for FEAT-ocr-trigger
 - [x] FEAT-open-folder: Already implemented: _open_folder_btn QPushButton(hidden, permanent, clicked→_on_open_export_folder). _last_export_path="". _on_open_export_folder: empty guard, Path.parent, os.startfile, OSError catch+logger.warning. _update_ui_for_state: hidden unless IDLE+last_export_path. Shown after export success. 15 source-scan + 6 logic + 3 @gui+@skip. (2060 passed, 320 skipped).
 - [x] FEAT-export-progress: Already implemented: _trigger_export: idle+results guard, fmt from combo, _EXT_MAP/_FILTER_MAP/_TITLE_MAP, QFileDialog, cancel path, epub_output_dir persist, _progress_bar(0,0)+setVisible(True), EpubFormatter/PlainTextFormatter/MarkdownFormatter, hide+open_folder_btn shown on success, hide+QMessageBox.critical on error. Extended existing test file: 20 source-scan + 9 logic + 2 @gui+@skip. (2073 passed, 320 skipped).
 - [x] FEAT-preview-pane: Already implemented: _preview_pane QTextEdit(readOnly, minHeight=80, Expanding, placeholder). _preview_label. _populate_preview: empty guard, image_id grouping, setPlainText, avg_conf label, enable btns. _clear_preview: blockSignals+clear, setPlainText(""), label reset, disable btns. _apply_preview_font_size: max(8,min(size,24))+setFont. 23 source-scan + 8 logic + 3 @gui+@skip. (2104 passed, 323 skipped).
+- [x] FEAT-ocr-trigger: Already implemented: _trigger_run_ocr: session+run_ocr() guards, numeric folder iteration (range+key=lambda x:x), PNG filter+sort(key=int(stem)), empty images guard+status+ocr_done, OCRWorker(cfg,paths)+signals wiring (results_ready, error_occurred, progress), _ocr_start_time=now(), QThreadPool.start, status msg. 17 source-scan + 6 logic + 3 @gui+@skip. (2127 passed, 326 skipped).
