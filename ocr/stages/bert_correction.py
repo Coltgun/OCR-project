@@ -185,7 +185,13 @@ import site
 import json
 import sys
 
-# Register NVIDIA CUDA DLL directories (torch cuDNN requires them on Windows)
+# 1. Conda env Library\\bin — required by cuDNN siblings without conda activate
+_lib_bin = os.path.join(sys.prefix, "Library", "bin")
+if os.path.isdir(_lib_bin):
+    os.add_dll_directory(_lib_bin)
+    os.environ["PATH"] = _lib_bin + os.pathsep + os.environ.get("PATH", "")
+
+# 2. Register NVIDIA CUDA DLL directories (torch cuDNN requires them on Windows)
 nvidia_subdirs = [
     "cublas", "cuda_runtime", "cudnn", "cufft",
     "curand", "cusolver", "cusparse", "nvjitlink",

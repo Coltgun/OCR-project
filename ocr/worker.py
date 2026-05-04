@@ -154,6 +154,14 @@ import site
 import json
 import sys
 
+# 1. Add conda env Library\\bin (mkl, zlib, openssl, etc.) — required by paddle's
+#    cuDNN siblings when the subprocess runs without conda activate.
+_lib_bin = os.path.join(sys.prefix, 'Library', 'bin')
+if os.path.isdir(_lib_bin):
+    os.add_dll_directory(_lib_bin)
+    os.environ['PATH'] = _lib_bin + os.pathsep + os.environ.get('PATH', '')
+
+# 2. Add pip-installed NVIDIA CUDA DLL dirs (cublas, cudnn, etc.)
 nvidia_subdirs = ['cublas','cuda_runtime','cudnn','cufft','curand','cusolver','cusparse','nvjitlink']
 extra = []
 for sp in site.getsitepackages():
