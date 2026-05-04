@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-FEAT-search-bar complete. 2228 passed, 338 skipped. Ready for FEAT-notes-panel (MainWindow: audit _notes_editor QTextEdit, _load_notes, _save_notes, _on_notes_changed debounce, notes file path; write source-scan + logic tests).
+FEAT-notes-panel complete. 2256 passed, 341 skipped. Ready for FEAT-thumbnail (MainWindow: audit _thumbnail_label, _update_thumbnail (cv2 load, QImage, QPixmap, scaled), _clear_thumbnail, _zoom_thumbnail_btn; write source-scan + logic tests).
 
 ## Up Next
-- [ ] FEAT-notes-panel: MainWindow: audit _notes_editor QTextEdit, _load_notes (session path, OSError guard), _save_notes (write to notes.txt, OSError catch), _on_notes_changed (QTimer debounce); write source-scan + logic tests.
+- [ ] FEAT-thumbnail: MainWindow: audit _thumbnail_label QLabel, _update_thumbnail (cv2.imread, QImage, QPixmap, scaled, setPixmap), _clear_thumbnail (setPixmap(QPixmap())), _zoom_thumbnail_btn (hidden, clicked); write source-scan + logic tests.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -113,3 +113,4 @@ FEAT-search-bar complete. 2228 passed, 338 skipped. Ready for FEAT-notes-panel (
 - [x] FEAT-build-chapters: Already implemented: _build_chapters_from_results: None-session fallback (Chapter(1,all)), chapters_map dict, iterate ocr_results+range(1,current_folder+1), root/str(fn)+image_id match, setdefault+append, else→folder-1 fallback, sorted(key=lambda x:x[0])+Chapter(fn,results). 12 source-scan + 6 logic + 3 @gui+@skip. (2173 passed, 332 skipped).
 - [x] FEAT-settings-keys: Already implemented: _FACTORY_DEFAULTS (20 keys incl. ocr_pipeline_mode, vram_tier, ocr_min_confidence, rotation_mode, preview_font_size, dark_mode, preview_word_wrap, keybindings). _save_values: 23 cfg.set() calls (pipeline, thresholds, API keys, vram, batch sizes, paths, template, threshold, delay*1000, font, keybindings)+cfg.save(). 27 source-scan + 6 logic + 3 @gui+@skip. (2206 passed, 335 skipped).
 - [x] FEAT-search-bar: Already implemented: _search_bar QLineEdit(placeholder, setClearButtonEnabled, textChanged→_on_search_changed). _on_search_changed: empty results guard, q=strip+lower, filter(q in r.text.lower()), empty q→all, image_id grouping, setPlainText, filtered suffix (n/total), avg_conf over all results, _preview_label.setText. _clear_preview: blockSignals. 15 source-scan + 7 logic + 3 @gui+@skip. (2228 passed, 338 skipped).
+- [x] FEAT-notes-panel: Already implemented: _notes_edit QTextEdit(placeholder, disabled, minH=60, maxH=160). _notes_save_timer QTimer(singleShot, 2000ms, timeout→_on_notes_changed). textChanged→timer.start(). _load_notes: None guard+disable+blockSignals+clear, notes.txt path, OSError→"", setPlainText+blockSignals. _on_notes_changed: None guard, notes.txt write_text, OSError+logger.warning. 22 source-scan + 6 logic + 3 @gui+@skip. (2256 passed, 341 skipped).
