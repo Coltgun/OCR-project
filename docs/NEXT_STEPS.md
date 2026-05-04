@@ -1,10 +1,10 @@
 # Next Steps
 
 ## Current Status
-ALL GUI AUDIT TICKETS COMPLETE. 2597 passed, 371 skipped. Every MainWindow method has source-scan + logic tests. All features implemented and verified end-to-end.
+FEAT-integration complete. 2641 passed, 374 skipped. Full end-to-end integration tests covering session lifecycle, state machine, pipeline+formatters, config round-trips, and numeric ordering P0.
 
 ## Up Next
-- [ ] FEAT-integration: End-to-end integration tests — full session workflow (new session → capture → OCR → export) using mock subsystems, verifying state transitions, file output, and config round-trips without a live QApplication.
+- [ ] FEAT-next: TBD — all current planned features complete. Consider: LLM-powered post-processing UI, batch export, or progress reporting improvements.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -139,3 +139,4 @@ ALL GUI AUDIT TICKETS COMPLETE. 2597 passed, 371 skipped. Every MainWindow metho
 - [x] FEAT-notes-panel: Already implemented: _notes_edit QTextEdit(placeholder, disabled, textChanged→timer.start). _notes_save_timer QTimer(singleShot, 2000ms, timeout→_on_notes_changed). _load_notes: no-session disable+blockSignals+clear, OSError guard, notes.txt read+setPlainText. _on_notes_changed: @Slot(), no-session guard, write_text, OSError→logger.warning. Extended existing test: 29 source-scan + 5 logic + 4 @gui+@skip. (2581 passed, 368 skipped).
 - [x] FEAT-thumbnail: Already fully covered by existing test_thumbnail.py+test_thumbnail_zoom.py (34+25=59 tests). _update_thumbnail: QPixmap, isNull, KeepAspectRatio, SmoothTransformation, setPixmap. _clear_thumbnail: clear, zoom_btn hidden, _last_capture_path=None. _zoom_thumbnail: path guards, QDialog, 600x450. No new tests needed. (2581 passed, 368 skipped).
 - [x] FEAT-misc-methods: Already implemented: _toggle_border_overlay @Slot(): isVisible guard, hide/show, capture_region None guard. _on_state_changed @Slot(object,object): logger.debug(old.name/new.name), _update_ui_for_state(new). 11 source-scan + 5 logic + 3 @gui+@skip. (2597 passed, 371 skipped).
+- [x] FEAT-integration: End-to-end integration tests (tests/test_integration.py): session lifecycle (9 tests), state machine source-scan (13 tests), pipeline+formatter (7 tests), config round-trips (5 tests), session+pipeline+formatter joint (3 tests), numeric ordering P0 (6 tests). 44 tests total. (2641 passed, 374 skipped).

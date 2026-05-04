@@ -318,3 +318,4 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - **FEAT-thumbnail** `gui/main_window.py` — Already fully covered by existing `test_thumbnail.py+test_thumbnail_zoom.py` (34+25=59 tests). No new tests needed. (2581 passed, 368 skipped).
 - **FEAT-misc-methods** `gui/main_window.py` — Already implemented: `_toggle_border_overlay` `@Slot()`: `isVisible` guard, `hide/show`, `capture_region is not None` guard. `_on_state_changed` `@Slot(object,object)`: `logger.debug(old.name/new.name)`, `_update_ui_for_state(new)`.
 - `tests/gui/test_misc_methods.py` — 11 source-scan + 5 logic + 3 @gui+@skip. (2597 passed, 371 skipped).
+- **FEAT-integration** `tests/test_integration.py` — End-to-end integration tests: session lifecycle (9), state machine source-scan (13), pipeline+formatter (7), config round-trips (5), session+pipeline+formatter joint (3), numeric ordering P0 (6). 44 tests. (2641 passed, 374 skipped).
