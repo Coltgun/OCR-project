@@ -297,3 +297,5 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `tests/gui/test_open_folder.py` — Extended: 27 source-scan + 8 logic + 3 @gui+@skip. (2384 passed, 350 skipped).
 - **FEAT-progress-bar** `gui/main_window.py` — Already implemented: `_progress_bar` `QProgressBar(fixedWidth=200, setTextVisible(True), setVisible(False), addPermanentWidget)`. OCR progress: `setRange(0,total)+setValue(done)+setVisible(True)`. Export: `setRange(0,0)+setVisible(True)`. Hidden on OCR results/error and export done/error.
 - `tests/gui/test_progress_ui.py` — Extended: 21 source-scan + 4 logic + 6 @gui+@skip. (2388 passed, 350 skipped).
+- **FEAT-preview-font** `gui/main_window.py` — Already implemented: `_apply_preview_font_size(size:int)`: `preview_pane.font()+setPointSize(max(8,min(size,24)))+setFont`. Config key `preview_font_size` default 11, `int`-cast on read. Called on init + settings accept.
+- `tests/gui/test_preview_font.py` — 12 source-scan + 6 logic + 3 @gui+@skip. (2406 passed, 353 skipped).
