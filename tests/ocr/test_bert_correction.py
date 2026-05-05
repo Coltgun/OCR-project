@@ -235,3 +235,162 @@ class TestBuildSubprocessScript:
         from ocr.stages.bert_correction import _build_subprocess_script
         script = _build_subprocess_script('{"texts":[],"model":"m","max_length":128,"batch_size":32}')
         assert "correct_batch" in script
+
+
+# ---------------------------------------------------------------------------
+# Persistent subprocess path — TorchSubprocessService mocked
+# ---------------------------------------------------------------------------
+
+class TestPersistentPath:
+    _cfg: dict = {"bert_persistent_subprocess": True}
+
+    def test_persistent_path_returns_corrected_texts(self) -> None:
+        stage = BertCorrectionStage()
+        results = [make_result("错误文字"), make_result("另一错误")]
+        corrected = ["正确文字", "另一正确"]
+
+        with patch(
+            "ocr.stages.bert_correction.TorchSubprocessService.call",
+            return_value=corrected,
+        ):
+            out = stage.process(results, self._cfg)
+
+        assert [r.text for r in out] == corrected
+
+    def test_persistent_path_preserves_confidence(self) -> None:
+        stage = BertCorrectionStage()
+        results = [make_result("文字", confidence=0.77)]
+
+        with patch(
+            "ocr.stages.bert_correction.TorchSubprocessService.call",
+            return_value=["文字"],
+        ):
+            out = stage.process(results, self._cfg)
+
+        assert out[0].confidence == 0.77
+
+    def test_service_reused_on_second_call(self) -> None:
+        stage = BertCorrectionStage()
+        results = [make_result("文字")]
+
+        with patch(
+            "ocr.stages.bert_correction.TorchSubprocessService.call",
+            return_value=["文字"],
+        ) as mock_call:
+            stage.process(results, self._cfg)
+            svc1 = stage._service
+            stage.process(results, self._cfg)
+            svc2 = stage._service
+
+        assert svc1 is svc2
+        assert mock_call.call_count == 2
+
+    def test_unload_shuts_down_service(self) -> None:
+        stage = BertCorrectionStage()
+        results = [make_result("文字")]
+
+        with patch(
+            "ocr.stages.bert_correction.TorchSubprocessService.call",
+            return_value=["文字"],
+        ):
+            stage.process(results, self._cfg)
+
+        mock_svc = MagicMock()
+        stage._service = mock_svc
+        stage.unload()
+
+        mock_svc.shutdown.assert_called_once()
+        assert stage._service is None
+
+    def test_persistent_failure_falls_back_to_unchanged(self) -> None:
+        stage = BertCorrectionStage()
+        results = [make_result("原始文字")]
+
+        with patch(
+            "ocr.stages.bert_correction.TorchSubprocessService.call",
+            side_effect=RuntimeError("child crashed"),
+        ):
+            out = stage.process(results, self._cfg)
+
+        assert out[0].text == "原始文字"
+
+
+# ---------------------------------------------------------------------------
+# TorchSubprocessService unit tests (mocked Popen)
+# ---------------------------------------------------------------------------
+
+class TestTorchSubprocessService:
+    from pathlib import Path as _Path
+
+    def _make_mock_proc(self, responses: list[str]) -> MagicMock:
+        proc = MagicMock()
+        proc.poll.return_value = None
+        lines = iter(responses)
+        proc.stdout.readline.side_effect = lambda: next(lines, "")
+        proc.stderr.__iter__ = MagicMock(return_value=iter([]))
+        proc.stdin.write = MagicMock()
+        proc.stdin.flush = MagicMock()
+        proc.stdin.close = MagicMock()
+        proc.wait = MagicMock(return_value=0)
+        proc.terminate = MagicMock()
+        return proc
+
+    def test_call_returns_result(self, tmp_path) -> None:
+        from ocr.stages._torch_service import TorchSubprocessService
+        ready = json.dumps({"ready": True})
+        resp = json.dumps({"ok": True, "result": ["corrected"]})
+        mock_proc = self._make_mock_proc([ready, resp])
+
+        script = tmp_path / "fake.py"
+        script.touch()
+        svc = TorchSubprocessService(script, {"model": "m"})
+
+        with patch("subprocess.Popen", return_value=mock_proc):
+            result = svc.call({"texts": ["text"], "max_length": 128, "batch_size": 32})
+
+        assert result == ["corrected"]
+
+    def test_child_eof_raises(self, tmp_path) -> None:
+        from ocr.stages._torch_service import TorchSubprocessService
+        ready = json.dumps({"ready": True})
+        mock_proc = self._make_mock_proc([ready, ""])  # EOF on request
+        mock_proc.poll.return_value = 1
+
+        script = tmp_path / "fake.py"
+        script.touch()
+        svc = TorchSubprocessService(script, {"model": "m"})
+
+        with patch("subprocess.Popen", return_value=mock_proc):
+            with pytest.raises(RuntimeError, match="EOF"):
+                svc.call({"texts": ["text"]})
+
+    def test_child_error_response_raises(self, tmp_path) -> None:
+        from ocr.stages._torch_service import TorchSubprocessService
+        ready = json.dumps({"ready": True})
+        resp = json.dumps({"ok": False, "error": "CUDA OOM"})
+        mock_proc = self._make_mock_proc([ready, resp])
+
+        script = tmp_path / "fake.py"
+        script.touch()
+        svc = TorchSubprocessService(script, {"model": "m"})
+
+        with patch("subprocess.Popen", return_value=mock_proc):
+            with pytest.raises(RuntimeError, match="CUDA OOM"):
+                svc.call({"texts": ["text"]})
+
+    def test_shutdown_sends_signal(self, tmp_path) -> None:
+        from ocr.stages._torch_service import TorchSubprocessService
+        ready = json.dumps({"ready": True})
+        resp = json.dumps({"ok": True, "result": []})
+        mock_proc = self._make_mock_proc([ready, resp])
+
+        script = tmp_path / "fake.py"
+        script.touch()
+        svc = TorchSubprocessService(script, {"model": "m"})
+
+        with patch("subprocess.Popen", return_value=mock_proc):
+            svc.call({"texts": []})
+            svc.shutdown()
+
+        written = [str(c) for c in mock_proc.stdin.write.call_args_list]
+        assert any("shutdown" in w for w in written)

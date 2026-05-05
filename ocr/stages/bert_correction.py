@@ -36,9 +36,12 @@ import logging
 import os
 import subprocess
 import sys
+from dataclasses import replace
+from pathlib import Path
 
 from core.types import OCRResult
 from ocr.stages.base import PostProcessStage
+from ocr.stages._torch_service import TorchSubprocessService
 
 logger = logging.getLogger(__name__)
 
@@ -55,10 +58,19 @@ class BertCorrectionStage(PostProcessStage, register_as="bert_correction"):
     On subprocess failure the original results are returned unchanged.
     """
 
+    def __init__(self) -> None:
+        self._service: TorchSubprocessService | None = None
+
     @property
     def stage_id(self) -> str:
         """Stage identifier."""
         return "bert_correction"
+
+    def unload(self) -> None:
+        """Shut down the persistent subprocess if running."""
+        if self._service is not None:
+            self._service.shutdown()
+            self._service = None
 
     def process(self, results: list[OCRResult], config: dict) -> list[OCRResult]:
         """Correct spelling errors in each OCRResult's text.
@@ -78,9 +90,13 @@ class BertCorrectionStage(PostProcessStage, register_as="bert_correction"):
         batch_size: int = int(config.get("bert_batch_size", _DEFAULT_BATCH_SIZE))
 
         texts = [r.text for r in results]
+        use_persistent = bool(config.get("bert_persistent_subprocess", False))
 
         try:
-            corrected = self._run_subprocess(texts, model, max_length, batch_size)
+            if use_persistent:
+                corrected = self._run_persistent(texts, model, max_length, batch_size, config)
+            else:
+                corrected = self._run_subprocess(texts, model, max_length, batch_size)
         except Exception as exc:
             logger.error(
                 "BertCorrectionStage: subprocess failed (%s) — "
@@ -99,17 +115,44 @@ class BertCorrectionStage(PostProcessStage, register_as="bert_correction"):
 
         output: list[OCRResult] = []
         for result, new_text in zip(results, corrected):
-            if new_text != result.text:
+            if logger.isEnabledFor(logging.DEBUG) and new_text != result.text:
                 logger.debug(
                     "BertCorrectionStage: corrected '%s' → '%s'",
                     result.text, new_text,
                 )
-            from dataclasses import replace
             output.append(replace(result, text=new_text))
         return output
 
     # ------------------------------------------------------------------
-    # Subprocess dispatch
+    # Persistent subprocess path
+    # ------------------------------------------------------------------
+
+    def _run_persistent(
+        self,
+        texts: list[str],
+        model: str,
+        max_length: int,
+        batch_size: int,
+        config: dict,
+    ) -> list[str]:
+        """Use long-lived TorchSubprocessService for BERT correction."""
+        if self._service is None:
+            script = Path(__file__).with_name("_bert_subprocess.py")
+            idle_timeout = float(config.get("bert_idle_timeout_s", 600))
+            self._service = TorchSubprocessService(
+                script_path=script,
+                init_payload={"model": model, "max_length": max_length, "batch_size": batch_size},
+                idle_timeout_s=idle_timeout,
+            )
+        result = self._service.call(
+            {"texts": texts, "max_length": max_length, "batch_size": batch_size}
+        )
+        if not isinstance(result, list):
+            raise RuntimeError(f"BertCorrectionStage: unexpected result type: {type(result)}")
+        return [str(t) for t in result]
+
+    # ------------------------------------------------------------------
+    # Fallback per-call subprocess path
     # ------------------------------------------------------------------
 
     @staticmethod

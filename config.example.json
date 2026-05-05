@@ -61,5 +61,8 @@
 
   "ocr_long_lived_worker": false,
   "ocr_worker_warmup": true,
-  "ocr_worker_idle_timeout_s": 60
+  "ocr_worker_idle_timeout_s": 60,
+
+  "bert_persistent_subprocess": false,
+  "bert_idle_timeout_s": 600
 }
