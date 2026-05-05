@@ -67,5 +67,8 @@
   "bert_idle_timeout_s": 600,
 
   "embedding_persistent_subprocess": false,
-  "embedding_idle_timeout_s": 600
+  "embedding_idle_timeout_s": 600,
+
+  "openrouter_concurrency": 1,
+  "ollama_concurrency": 1
 }

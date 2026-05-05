@@ -22,9 +22,11 @@ Config keys consumed:
 
 from __future__ import annotations
 
-from openai import OpenAI
+import os
 
-from llm.clients import get_openai_client
+from openai import AsyncOpenAI, OpenAI
+
+from llm.clients import get_async_openai_client, get_openai_client
 from ocr.stages.llm_correction_base import LlmCorrectionBase
 
 _DEFAULT_MODEL = "qwen/qwen-2.5-7b-instruct"
@@ -54,7 +56,6 @@ class OpenRouterCorrectionStage(LlmCorrectionBase, register_as="openrouter_corre
 
     def _make_client(self, config: dict) -> OpenAI:
         """Return a cached OpenAI client pointed at OpenRouter."""
-        import os
         api_key = str(
             config.get("openrouter_api_key")
             or os.environ.get("OPENROUTER_API_KEY", "")
@@ -75,6 +76,24 @@ class OpenRouterCorrectionStage(LlmCorrectionBase, register_as="openrouter_corre
             float(config.get("openrouter_timeout", _DEFAULT_TIMEOUT)),
             int(config.get("openrouter_batch_size", _DEFAULT_BATCH_SIZE)),
         )
+
+    def _make_async_client(self, config: dict) -> AsyncOpenAI:
+        """Return a cached AsyncOpenAI client for concurrent batch requests."""
+        api_key = str(
+            config.get("openrouter_api_key")
+            or os.environ.get("OPENROUTER_API_KEY", "")
+        )
+        base_url = str(config.get("openrouter_base_url") or _DEFAULT_BASE_URL)
+        timeout = float(config.get("openrouter_timeout", _DEFAULT_TIMEOUT))
+        return get_async_openai_client(
+            base_url=base_url,
+            api_key=api_key,
+            timeout=timeout,
+        )
+
+    def _max_concurrency(self, config: dict) -> int:
+        """Return openrouter_concurrency (default 1 = sequential)."""
+        return int(config.get("openrouter_concurrency", 1))
 
     def _extra_create_kwargs(self, config: dict) -> dict:
         """Return extra_headers for OpenRouter usage tracking."""

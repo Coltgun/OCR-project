@@ -245,3 +245,97 @@ class TestProcess:
             stage.process(results, cfg)
         call_kwargs = mock_client.chat.completions.create.call_args.kwargs
         assert call_kwargs["model"] == "anthropic/claude-3-haiku"
+
+
+# ---------------------------------------------------------------------------
+# Concurrent path (openrouter_concurrency > 1)
+# ---------------------------------------------------------------------------
+
+class TestConcurrentPath:
+    def _make_async_mock(self, responses: list[list[str]]) -> MagicMock:
+        """Build an AsyncMock client whose create() returns each response."""
+        from unittest.mock import AsyncMock
+        async_client = MagicMock()
+        async_client.chat.completions.create = AsyncMock(
+            side_effect=[make_response(r) for r in responses]
+        )
+        return async_client
+
+    def test_concurrent_path_returns_corrected_texts(self) -> None:
+        stage = OpenRouterCorrectionStage()
+        results = [make_result(f"文字{i}") for i in range(4)]
+        corrected = [[f"修正{i}", f"修正{i+1}"] for i in range(0, 4, 2)]
+        flat = [t for batch in corrected for t in batch]
+        cfg = {
+            "openrouter_api_key": "k",
+            "openrouter_batch_size": 2,
+            "openrouter_concurrency": 2,
+        }
+        async_mock = self._make_async_mock(corrected)
+        with patch("ocr.stages.openrouter_correction.get_async_openai_client", return_value=async_mock):
+            out = stage.process(results, cfg)
+        assert [r.text for r in out] == flat
+
+    def test_concurrent_calls_respect_semaphore(self) -> None:
+        """All batches are dispatched; call count equals number of batches."""
+        from unittest.mock import AsyncMock
+        stage = OpenRouterCorrectionStage()
+        results = [make_result(f"文字{i}") for i in range(6)]
+        responses = [[f"修正{i}", f"修正{i+1}"] for i in range(0, 6, 2)]
+        cfg = {
+            "openrouter_api_key": "k",
+            "openrouter_batch_size": 2,
+            "openrouter_concurrency": 3,
+        }
+        async_mock = MagicMock()
+        async_mock.chat.completions.create = AsyncMock(
+            side_effect=[make_response(r) for r in responses]
+        )
+        with patch("ocr.stages.openrouter_correction.get_async_openai_client", return_value=async_mock):
+            stage.process(results, cfg)
+        assert async_mock.chat.completions.create.call_count == 3
+
+    def test_concurrent_async_error_falls_back_per_batch(self) -> None:
+        """A failed async batch returns originals for that batch only."""
+        from openai import OpenAIError
+        from unittest.mock import AsyncMock
+        stage = OpenRouterCorrectionStage()
+        results = [make_result("文字A"), make_result("文字B")]
+        cfg = {
+            "openrouter_api_key": "k",
+            "openrouter_batch_size": 1,
+            "openrouter_concurrency": 2,
+        }
+        async_mock = MagicMock()
+        async_mock.chat.completions.create = AsyncMock(
+            side_effect=[make_response(["修正A"]), OpenAIError("timeout")]
+        )
+        with patch("ocr.stages.openrouter_correction.get_async_openai_client", return_value=async_mock):
+            out = stage.process(results, cfg)
+        assert out[0].text == "修正A"
+        assert out[1].text == "文字B"
+
+    def test_sequential_path_used_when_concurrency_is_1(self) -> None:
+        """With concurrency=1 the sync client path is taken, not async."""
+        stage = OpenRouterCorrectionStage()
+        results = [make_result("文字")]
+        cfg = {"openrouter_api_key": "k", "openrouter_concurrency": 1}
+        mock_sync = MagicMock()
+        mock_sync.chat.completions.create.return_value = make_response(["修正"])
+        with patch("ocr.stages.openrouter_correction.get_openai_client", return_value=mock_sync) as p_sync, \
+             patch("ocr.stages.openrouter_correction.get_async_openai_client") as p_async:
+            out = stage.process(results, cfg)
+        p_async.assert_not_called()
+        assert out[0].text == "修正"
+
+    def test_max_concurrency_reads_from_config(self) -> None:
+        stage = OpenRouterCorrectionStage()
+        assert stage._max_concurrency({"openrouter_concurrency": 4}) == 4
+        assert stage._max_concurrency({}) == 1
+
+    def test_make_async_client_returns_async_openai(self) -> None:
+        from openai import AsyncOpenAI
+        stage = OpenRouterCorrectionStage()
+        cfg = {"openrouter_api_key": "k", "openrouter_base_url": "https://openrouter.ai/api/v1"}
+        client = stage._make_async_client(cfg)
+        assert isinstance(client, AsyncOpenAI)

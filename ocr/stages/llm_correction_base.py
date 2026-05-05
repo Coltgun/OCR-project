@@ -11,16 +11,18 @@ fallback, and field-preservation logic in one place.
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import re
 from abc import abstractmethod
 from dataclasses import replace
+from typing import Optional
 
-from openai import OpenAI, OpenAIError
+from openai import AsyncOpenAI, OpenAI, OpenAIError
 
 from core.types import OCRResult
-from llm.clients import get_openai_client
+from llm.clients import get_async_openai_client, get_openai_client
 from ocr.stages.base import PostProcessStage
 
 logger = logging.getLogger(__name__)
@@ -64,14 +66,24 @@ class LlmCorrectionBase(PostProcessStage):
             return results
 
         model, temperature, timeout, batch_size = self._read_config(config)
-        client = self._make_client(config)
+        max_concurrency = self._max_concurrency(config)
+        async_client = self._make_async_client(config) if max_concurrency > 1 else None
+
+        batches = [results[i : i + batch_size] for i in range(0, len(results), batch_size)]
+
+        if async_client is not None and max_concurrency > 1:
+            batch_results = self._correct_batches_concurrent(
+                batches, async_client, model, temperature, timeout, config, max_concurrency
+            )
+        else:
+            sync_client = self._make_client(config)
+            batch_results = [
+                self._correct_batch(sync_client, b, model, temperature, timeout, config)
+                for b in batches
+            ]
 
         output: list[OCRResult] = []
-        for i in range(0, len(results), batch_size):
-            batch = results[i : i + batch_size]
-            corrected_texts = self._correct_batch(
-                client, batch, model, temperature, timeout, config
-            )
+        for batch, corrected_texts in zip(batches, batch_results):
             for result, new_text in zip(batch, corrected_texts):
                 if logger.isEnabledFor(logging.DEBUG) and new_text != result.text:
                     logger.debug(
@@ -101,9 +113,96 @@ class LlmCorrectionBase(PostProcessStage):
         """
         return {}
 
+    def _make_async_client(self, config: dict) -> Optional[AsyncOpenAI]:
+        """Return a cached AsyncOpenAI client for this provider, or None to use sync.
+
+        Override in subclasses that support concurrent async batches.
+        """
+        return None
+
+    def _max_concurrency(self, config: dict) -> int:
+        """Return maximum concurrent API calls. 1 = sequential (default)."""
+        return 1
+
     # ------------------------------------------------------------------
     # Shared implementation
     # ------------------------------------------------------------------
+
+    def _correct_batches_concurrent(
+        self,
+        batches: list[list[OCRResult]],
+        async_client: AsyncOpenAI,
+        model: str,
+        temperature: float,
+        timeout: float,
+        config: dict,
+        max_concurrency: int,
+    ) -> list[list[str]]:
+        """Send all batches concurrently using asyncio.gather with a semaphore.
+
+        Returns one list of corrected texts per batch, in the same order.
+        """
+        async def _run_all() -> list[list[str]]:
+            sem = asyncio.Semaphore(max_concurrency)
+
+            async def _one(batch: list[OCRResult]) -> list[str]:
+                async with sem:
+                    return await self._acorrect_batch(
+                        async_client, batch, model, temperature, timeout, config
+                    )
+
+            return list(await asyncio.gather(*(_one(b) for b in batches)))
+
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                import concurrent.futures
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                    return pool.submit(asyncio.run, _run_all()).result()
+            return loop.run_until_complete(_run_all())
+        except RuntimeError:
+            return asyncio.run(_run_all())
+
+    async def _acorrect_batch(
+        self,
+        async_client: AsyncOpenAI,
+        batch: list[OCRResult],
+        model: str,
+        temperature: float,
+        timeout: float,
+        config: dict,
+    ) -> list[str]:
+        """Async version of _correct_batch."""
+        texts = [r.text for r in batch]
+        user_content = json.dumps(texts, ensure_ascii=False)
+        extra = self._extra_create_kwargs(config)
+
+        try:
+            response = await async_client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": _SYSTEM_PROMPT},
+                    {"role": "user", "content": user_content},
+                ],
+                temperature=temperature,
+                timeout=timeout,
+                **extra,
+            )
+        except OpenAIError as exc:
+            logger.warning(
+                "%s: async API error for batch of %d: %s — keeping originals.",
+                self.stage_id, len(batch), exc,
+            )
+            return texts
+        except Exception as exc:
+            logger.warning(
+                "%s: async unexpected error for batch of %d: %s — keeping originals.",
+                self.stage_id, len(batch), exc,
+            )
+            return texts
+
+        raw = response.choices[0].message.content or ""
+        return self._parse_response(raw, texts)
 
     def _correct_batch(
         self,
