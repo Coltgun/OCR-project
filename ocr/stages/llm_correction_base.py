@@ -71,34 +71,46 @@ class LlmCorrectionBase(PostProcessStage):
         async_client = self._make_async_client(config) if max_concurrency > 1 else None
         cache = LlmResultCache.from_config(config)
 
-        batches = [results[i : i + batch_size] for i in range(0, len(results), batch_size)]
+        send_indices, send_results, skip_indices = self._partition_skip(results, config)
 
-        if async_client is not None and max_concurrency > 1:
-            batch_results = self._correct_batches_concurrent(
-                batches, async_client, model, temperature, timeout, config,
-                max_concurrency, cache,
-            )
-        else:
-            sync_client = self._make_client(config)
-            batch_results = [
-                self._correct_batch(
-                    sync_client, b, model, temperature, timeout, config, cache
-                )
-                for b in batches
+        if send_results:
+            batches = [
+                send_results[i : i + batch_size]
+                for i in range(0, len(send_results), batch_size)
             ]
 
-        if cache is not None:
-            cache.flush()
-
-        output: list[OCRResult] = []
-        for batch, corrected_texts in zip(batches, batch_results):
-            for result, new_text in zip(batch, corrected_texts):
-                if logger.isEnabledFor(logging.DEBUG) and new_text != result.text:
-                    logger.debug(
-                        "%s: corrected '%s' → '%s'",
-                        self.stage_id, result.text, new_text,
+            if async_client is not None and max_concurrency > 1:
+                batch_results = self._correct_batches_concurrent(
+                    batches, async_client, model, temperature, timeout, config,
+                    max_concurrency, cache,
+                )
+            else:
+                sync_client = self._make_client(config)
+                batch_results = [
+                    self._correct_batch(
+                        sync_client, b, model, temperature, timeout, config, cache
                     )
-                output.append(replace(result, text=new_text))
+                    for b in batches
+                ]
+
+            if cache is not None:
+                cache.flush()
+
+            corrected_send: list[OCRResult] = []
+            for batch, corrected_texts in zip(batches, batch_results):
+                for result, new_text in zip(batch, corrected_texts):
+                    if logger.isEnabledFor(logging.DEBUG) and new_text != result.text:
+                        logger.debug(
+                            "%s: corrected '%s' → '%s'",
+                            self.stage_id, result.text, new_text,
+                        )
+                    corrected_send.append(replace(result, text=new_text))
+        else:
+            corrected_send = []
+
+        output: list[OCRResult] = list(results)
+        for orig_idx, corrected in zip(send_indices, corrected_send):
+            output[orig_idx] = corrected
 
         return output
 
@@ -113,6 +125,41 @@ class LlmCorrectionBase(PostProcessStage):
     @abstractmethod
     def _read_config(self, config: dict) -> tuple[str, float, float, int]:
         """Return (model, temperature, timeout, batch_size) from config."""
+
+    def _partition_skip(
+        self,
+        results: list[OCRResult],
+        config: dict,
+    ) -> tuple[list[int], list[OCRResult], list[int]]:
+        """Partition results into those to send to the LLM and those to skip.
+
+        Returns:
+            send_indices:  original positions of results to be corrected.
+            send_results:  the corresponding OCRResult objects.
+            skip_indices:  original positions of results to skip unchanged.
+        """
+        threshold = float(
+            config.get("llm_skip_high_confidence_threshold", 0.97)
+        )
+        send_indices: list[int] = []
+        send_results: list[OCRResult] = []
+        skip_indices: list[int] = []
+        for i, r in enumerate(results):
+            if self._should_skip(r, threshold):
+                skip_indices.append(i)
+            else:
+                send_indices.append(i)
+                send_results.append(r)
+        return send_indices, send_results, skip_indices
+
+    @staticmethod
+    def _should_skip(result: OCRResult, threshold: float) -> bool:
+        """Return True if this result should bypass the LLM."""
+        if len(result.text.strip()) <= 1:
+            return True
+        if result.confidence >= threshold:
+            return True
+        return False
 
     def _extra_create_kwargs(self, config: dict) -> dict:
         """Extra kwargs to pass to chat.completions.create (e.g. extra_headers).

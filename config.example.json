@@ -74,5 +74,7 @@
 
   "llm_result_cache": "off",
   "llm_result_cache_path": "{working_root_dir}/.llm_cache.json",
-  "llm_result_cache_max_entries": 50000
+  "llm_result_cache_max_entries": 50000,
+
+  "llm_skip_high_confidence_threshold": 0.97
 }

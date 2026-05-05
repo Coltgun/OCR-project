@@ -268,3 +268,96 @@ class TestProcess:
         assert out[0].text == "修正0"
         assert out[1].text == "文字1"   # fallback
         assert out[2].text == "修正2"
+
+
+# ---------------------------------------------------------------------------
+# Skip gate — _should_skip and _partition_skip
+# ---------------------------------------------------------------------------
+
+class TestSkipGate:
+    def _r(self, text: str, confidence: float = 0.9) -> OCRResult:
+        return OCRResult(
+            text=text,
+            confidence=confidence,
+            bbox=BoundingBox(x1=0, y1=0, x2=10, y2=10),
+            image_id="1/0001",
+        )
+
+    def test_should_skip_short_text(self) -> None:
+        assert LlmCorrectionStage._should_skip(self._r(""), 0.97) is True
+        assert LlmCorrectionStage._should_skip(self._r(" "), 0.97) is True
+        assert LlmCorrectionStage._should_skip(self._r("一"), 0.5) is True
+
+    def test_should_skip_high_confidence(self) -> None:
+        assert LlmCorrectionStage._should_skip(self._r("正常文字", 0.97), 0.97) is True
+        assert LlmCorrectionStage._should_skip(self._r("正常文字", 0.99), 0.97) is True
+
+    def test_should_not_skip_normal(self) -> None:
+        assert LlmCorrectionStage._should_skip(self._r("错误文字", 0.85), 0.97) is False
+
+    def test_should_not_skip_at_threshold_boundary(self) -> None:
+        assert LlmCorrectionStage._should_skip(self._r("文字", 0.96), 0.97) is False
+
+    def test_partition_separates_skip_and_send(self) -> None:
+        stage = LlmCorrectionStage()
+        results = [
+            self._r("跳过", 0.99),       # skip: high confidence
+            self._r("发送", 0.8),        # send
+            self._r("一", 0.5),          # skip: short text
+            self._r("也发送", 0.85),     # send
+        ]
+        cfg = {"llm_skip_high_confidence_threshold": 0.97}
+        send_idx, send_res, skip_idx = stage._partition_skip(results, cfg)
+        assert send_idx == [1, 3]
+        assert skip_idx == [0, 2]
+        assert [r.text for r in send_res] == ["发送", "也发送"]
+
+    def test_high_confidence_results_preserved_in_output(self) -> None:
+        stage = LlmCorrectionStage()
+        results = [
+            self._r("高置信", 0.99),
+            self._r("低置信", 0.8),
+        ]
+        cfg = {"llm_skip_high_confidence_threshold": 0.97}
+        mock_client = MagicMock()
+        mock_client.chat.completions.create.return_value = make_response(["已修正"])
+        with patch("ocr.stages.llm_correction.get_openai_client", return_value=mock_client):
+            out = stage.process(results, cfg)
+        assert out[0].text == "高置信"
+        assert out[1].text == "已修正"
+        mock_client.chat.completions.create.call_count == 1
+        sent = json.loads(
+            mock_client.chat.completions.create.call_args.kwargs["messages"][1]["content"]
+        )
+        assert sent == ["低置信"]
+
+    def test_all_skipped_makes_no_api_call(self) -> None:
+        stage = LlmCorrectionStage()
+        results = [self._r("高", 0.99), self._r("一", 0.5)]
+        cfg = {"llm_skip_high_confidence_threshold": 0.97}
+        mock_client = MagicMock()
+        with patch("ocr.stages.llm_correction.get_openai_client", return_value=mock_client):
+            out = stage.process(results, cfg)
+        mock_client.chat.completions.create.assert_not_called()
+        assert [r.text for r in out] == ["高", "一"]
+
+    def test_custom_threshold_respected(self) -> None:
+        stage = LlmCorrectionStage()
+        r = self._r("文字", 0.85)
+        assert stage._should_skip(r, 0.80) is True
+        assert stage._should_skip(r, 0.90) is False
+
+    def test_reading_order_preserved_with_mixed_skip_send(self) -> None:
+        stage = LlmCorrectionStage()
+        results = [
+            self._r("一", 0.5),         # skip idx 0
+            self._r("错误A", 0.7),      # send idx 1
+            self._r("高置信", 0.99),    # skip idx 2
+            self._r("错误B", 0.6),      # send idx 3
+        ]
+        cfg = {"llm_skip_high_confidence_threshold": 0.97}
+        mock_client = MagicMock()
+        mock_client.chat.completions.create.return_value = make_response(["修正A", "修正B"])
+        with patch("ocr.stages.llm_correction.get_openai_client", return_value=mock_client):
+            out = stage.process(results, cfg)
+        assert [r.text for r in out] == ["一", "修正A", "高置信", "修正B"]
