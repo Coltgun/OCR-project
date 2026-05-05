@@ -68,10 +68,12 @@ class TestTierRouting:
     _cfg: dict = {"hybrid_high_threshold": 0.90, "hybrid_low_threshold": 0.70}
 
     def _patch_apply(self, mid_fn=passthrough, low_fn=passthrough):
-        def side_effect(stage_key, results, config):
-            if stage_key == "bert_correction":
+        from ocr.stages.bert_correction import BertCorrectionStage
+        from ocr.stages.llm_correction import LlmCorrectionStage
+        def side_effect(stage, results, config):
+            if isinstance(stage, BertCorrectionStage):
                 return mid_fn(results, config)
-            if stage_key == "llm_correction":
+            if isinstance(stage, LlmCorrectionStage):
                 return low_fn(results, config)
             return results
         return patch.object(HybridCorrectionStage, "_apply_stage", side_effect=side_effect)
@@ -134,10 +136,12 @@ class TestReadingOrder:
             make_result("E", confidence=0.75),   # mid  → _BERT
         ]
 
-        def apply_side(stage_key, res, config):
-            if stage_key == "bert_correction":
+        from ocr.stages.bert_correction import BertCorrectionStage
+        from ocr.stages.llm_correction import LlmCorrectionStage
+        def apply_side(s, res, config):
+            if isinstance(s, BertCorrectionStage):
                 return [replace(r, text=r.text + "_BERT") for r in res]
-            if stage_key == "llm_correction":
+            if isinstance(s, LlmCorrectionStage):
                 return [replace(r, text=r.text + "_LLM") for r in res]
             return res
 
@@ -152,7 +156,7 @@ class TestReadingOrder:
         stage = HybridCorrectionStage()
         results = [make_result(f"文字{i}", confidence=0.95) for i in range(5)]
 
-        def apply_side(stage_key, res, config):
+        def apply_side(s, res, config):
             return res
 
         with patch.object(HybridCorrectionStage, "_apply_stage", side_effect=apply_side):
@@ -182,7 +186,7 @@ class TestEdgeCases:
         results = [make_result("文字", confidence=0.80)]
         cfg = {"hybrid_high_threshold": 0.50, "hybrid_low_threshold": 0.80}
 
-        def apply_side(stage_key, res, config):
+        def apply_side(s, res, config):
             return [replace(r, text=r.text + "_BERT") for r in res]
 
         with patch.object(HybridCorrectionStage, "_apply_stage", side_effect=apply_side):
@@ -191,13 +195,14 @@ class TestEdgeCases:
         assert out[0].text == "文字_BERT"
 
     def test_default_thresholds_applied_when_absent(self) -> None:
+        from ocr.stages.bert_correction import BertCorrectionStage
         stage = HybridCorrectionStage()
         r_high = make_result("高", confidence=0.95)
         r_mid = make_result("中", confidence=0.80)
         r_low = make_result("低", confidence=0.60)
 
-        def apply_side(stage_key, res, config):
-            if stage_key == "bert_correction":
+        def apply_side(s, res, config):
+            if isinstance(s, BertCorrectionStage):
                 return [replace(r, text=r.text + "_B") for r in res]
             return [replace(r, text=r.text + "_L") for r in res]
 
@@ -213,24 +218,42 @@ class TestEdgeCases:
 # ---------------------------------------------------------------------------
 
 class TestApplyStage:
-    def test_unregistered_stage_returns_originals(self) -> None:
-        results = [make_result("文字", confidence=0.5)]
-        out = HybridCorrectionStage._apply_stage("nonexistent_stage", results, {})
-        assert out == results
-
     def test_stage_exception_returns_originals(self) -> None:
+        from ocr.stages.bert_correction import BertCorrectionStage
         results = [make_result("文字", confidence=0.5)]
-        mock_stage = type(
-            "BrokenStage", (),
-            {"process": staticmethod(lambda r, c: (_ for _ in ()).throw(RuntimeError("boom")))}
-        )()
-        with patch.object(PostProcessStage, "get", return_value=lambda: mock_stage):
-            out = HybridCorrectionStage._apply_stage("broken", results, {})
+        broken = BertCorrectionStage()
+        broken.process = lambda r, c: (_ for _ in ()).throw(RuntimeError("boom"))  # type: ignore
+        out = HybridCorrectionStage._apply_stage(broken, results, {})
         assert out == results
 
     def test_empty_results_returns_empty(self) -> None:
-        out = HybridCorrectionStage._apply_stage("bert_correction", [], {})
+        from ocr.stages.bert_correction import BertCorrectionStage
+        out = HybridCorrectionStage._apply_stage(BertCorrectionStage(), [], {})
         assert out == []
+
+
+# ---------------------------------------------------------------------------
+# Instance reuse
+# ---------------------------------------------------------------------------
+
+class TestInstanceReuse:
+    def test_child_stages_instantiated_once(self) -> None:
+        from ocr.stages.bert_correction import BertCorrectionStage
+        from ocr.stages.llm_correction import LlmCorrectionStage
+        stage = HybridCorrectionStage()
+        assert isinstance(stage._bert_stage, BertCorrectionStage)
+        assert isinstance(stage._llm_stage, LlmCorrectionStage)
+
+    def test_same_instances_used_across_calls(self) -> None:
+        """Calling process() twice must use the same child instances."""
+        stage = HybridCorrectionStage()
+        bert_id = id(stage._bert_stage)
+        llm_id = id(stage._llm_stage)
+        with patch.object(HybridCorrectionStage, "_apply_stage", side_effect=lambda s, r, c: r):
+            stage.process([make_result("a", 0.5)], {})
+            stage.process([make_result("b", 0.5)], {})
+        assert id(stage._bert_stage) == bert_id
+        assert id(stage._llm_stage) == llm_id
 
 
 # ---------------------------------------------------------------------------

@@ -30,6 +30,8 @@ import logging
 
 from core.types import OCRResult
 from ocr.stages.base import PostProcessStage
+from ocr.stages.bert_correction import BertCorrectionStage
+from ocr.stages.llm_correction import LlmCorrectionStage
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +47,14 @@ class HybridCorrectionStage(PostProcessStage, register_as="hybrid_correction"):
     - Low confidence   (< low_threshold):    LlmCorrectionStage.
 
     Results are merged back into their original reading order.
+    Child stage instances are created once in __init__ so they preserve the
+    long-lived subprocess connections and cached OpenAI clients across calls.
     """
+
+    def __init__(self) -> None:
+        """Instantiate child stages once for reuse across process() calls."""
+        self._bert_stage: BertCorrectionStage = BertCorrectionStage()
+        self._llm_stage: LlmCorrectionStage = LlmCorrectionStage()
 
     @property
     def stage_id(self) -> str:
@@ -95,9 +104,9 @@ class HybridCorrectionStage(PostProcessStage, register_as="hybrid_correction"):
         )
 
         # Correct mid tier with BERT
-        mid_corrected = self._apply_stage("bert_correction", [r for _, r in mid_tier], config)
+        mid_corrected = self._apply_stage(self._bert_stage, [r for _, r in mid_tier], config)
         # Correct low tier with LLM
-        low_corrected = self._apply_stage("llm_correction", [r for _, r in low_tier], config)
+        low_corrected = self._apply_stage(self._llm_stage, [r for _, r in low_tier], config)
 
         # Merge all three tiers back into original order
         merged: dict[int, OCRResult] = {}
@@ -115,13 +124,13 @@ class HybridCorrectionStage(PostProcessStage, register_as="hybrid_correction"):
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _apply_stage(stage_key: str, results: list[OCRResult], config: dict) -> list[OCRResult]:
-        """Apply a registered stage by key; return originals if unavailable.
+    def _apply_stage(stage: PostProcessStage, results: list[OCRResult], config: dict) -> list[OCRResult]:
+        """Apply a stage instance; return originals on any error.
 
         Args:
-            stage_key: Registry key of the stage to apply.
-            results:   Results to process.
-            config:    Full application config dict.
+            stage:   The stage instance to apply.
+            results: Results to process.
+            config:  Full application config dict.
 
         Returns:
             Processed results, or originals on any error.
@@ -130,20 +139,11 @@ class HybridCorrectionStage(PostProcessStage, register_as="hybrid_correction"):
             return results
 
         try:
-            cls = PostProcessStage.get(stage_key)
-            stage = cls()
             return stage.process(results, config)
-        except KeyError:
-            logger.warning(
-                "HybridCorrectionStage: stage '%s' not registered — "
-                "keeping tier unchanged.",
-                stage_key,
-            )
-            return results
         except Exception as exc:
             logger.error(
                 "HybridCorrectionStage: stage '%s' raised %s: %s — "
                 "keeping tier unchanged.",
-                stage_key, type(exc).__name__, exc,
+                stage.stage_id, type(exc).__name__, exc,
             )
             return results
