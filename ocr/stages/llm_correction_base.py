@@ -22,6 +22,7 @@ from typing import Optional
 from openai import AsyncOpenAI, OpenAI, OpenAIError
 
 from core.types import OCRResult
+from llm.cache import LlmResultCache
 from llm.clients import get_async_openai_client, get_openai_client
 from ocr.stages.base import PostProcessStage
 
@@ -68,19 +69,26 @@ class LlmCorrectionBase(PostProcessStage):
         model, temperature, timeout, batch_size = self._read_config(config)
         max_concurrency = self._max_concurrency(config)
         async_client = self._make_async_client(config) if max_concurrency > 1 else None
+        cache = LlmResultCache.from_config(config)
 
         batches = [results[i : i + batch_size] for i in range(0, len(results), batch_size)]
 
         if async_client is not None and max_concurrency > 1:
             batch_results = self._correct_batches_concurrent(
-                batches, async_client, model, temperature, timeout, config, max_concurrency
+                batches, async_client, model, temperature, timeout, config,
+                max_concurrency, cache,
             )
         else:
             sync_client = self._make_client(config)
             batch_results = [
-                self._correct_batch(sync_client, b, model, temperature, timeout, config)
+                self._correct_batch(
+                    sync_client, b, model, temperature, timeout, config, cache
+                )
                 for b in batches
             ]
+
+        if cache is not None:
+            cache.flush()
 
         output: list[OCRResult] = []
         for batch, corrected_texts in zip(batches, batch_results):
@@ -137,6 +145,7 @@ class LlmCorrectionBase(PostProcessStage):
         timeout: float,
         config: dict,
         max_concurrency: int,
+        cache: Optional[LlmResultCache] = None,
     ) -> list[list[str]]:
         """Send all batches concurrently using asyncio.gather with a semaphore.
 
@@ -148,7 +157,7 @@ class LlmCorrectionBase(PostProcessStage):
             async def _one(batch: list[OCRResult]) -> list[str]:
                 async with sem:
                     return await self._acorrect_batch(
-                        async_client, batch, model, temperature, timeout, config
+                        async_client, batch, model, temperature, timeout, config, cache
                     )
 
             return list(await asyncio.gather(*(_one(b) for b in batches)))
@@ -171,10 +180,17 @@ class LlmCorrectionBase(PostProcessStage):
         temperature: float,
         timeout: float,
         config: dict,
+        cache: Optional[LlmResultCache] = None,
     ) -> list[str]:
         """Async version of _correct_batch."""
         texts = [r.text for r in batch]
-        user_content = json.dumps(texts, ensure_ascii=False)
+        uncached_indices, uncached_texts, corrected = self._apply_cache_hits(
+            texts, model, cache
+        )
+        if not uncached_texts:
+            return corrected
+
+        user_content = json.dumps(uncached_texts, ensure_ascii=False)
         extra = self._extra_create_kwargs(config)
 
         try:
@@ -202,7 +218,11 @@ class LlmCorrectionBase(PostProcessStage):
             return texts
 
         raw = response.choices[0].message.content or ""
-        return self._parse_response(raw, texts)
+        llm_results = self._parse_response(raw, uncached_texts)
+        self._populate_cache(uncached_indices, uncached_texts, llm_results, model, cache)
+        for idx, text in zip(uncached_indices, llm_results):
+            corrected[idx] = text
+        return corrected
 
     def _correct_batch(
         self,
@@ -212,14 +232,20 @@ class LlmCorrectionBase(PostProcessStage):
         temperature: float,
         timeout: float,
         config: dict,
+        cache: Optional[LlmResultCache] = None,
     ) -> list[str]:
         """Send one batch to the LLM and return corrected texts.
 
         On any error falls back to original texts.
         """
         texts = [r.text for r in batch]
-        user_content = json.dumps(texts, ensure_ascii=False)
+        uncached_indices, uncached_texts, corrected = self._apply_cache_hits(
+            texts, model, cache
+        )
+        if not uncached_texts:
+            return corrected
 
+        user_content = json.dumps(uncached_texts, ensure_ascii=False)
         extra = self._extra_create_kwargs(config)
 
         try:
@@ -247,7 +273,53 @@ class LlmCorrectionBase(PostProcessStage):
             return texts
 
         raw = response.choices[0].message.content or ""
-        return self._parse_response(raw, texts)
+        llm_results = self._parse_response(raw, uncached_texts)
+        self._populate_cache(uncached_indices, uncached_texts, llm_results, model, cache)
+        for idx, text in zip(uncached_indices, llm_results):
+            corrected[idx] = text
+        return corrected
+
+    def _apply_cache_hits(
+        self,
+        texts: list[str],
+        model: str,
+        cache: Optional[LlmResultCache],
+    ) -> tuple[list[int], list[str], list[str]]:
+        """Split *texts* into cache hits and misses.
+
+        Returns:
+            uncached_indices: positions in *texts* that were not in cache.
+            uncached_texts:   the texts at those positions.
+            corrected:        full-length list, pre-filled with cached values
+                              where available, originals elsewhere.
+        """
+        corrected = list(texts)
+        uncached_indices: list[int] = []
+        uncached_texts: list[str] = []
+        if cache is None:
+            return list(range(len(texts))), list(texts), corrected
+        for i, text in enumerate(texts):
+            hit = cache.get(self.stage_id, model, _SYSTEM_PROMPT, text)
+            if hit is None:
+                uncached_indices.append(i)
+                uncached_texts.append(text)
+            else:
+                corrected[i] = hit
+        return uncached_indices, uncached_texts, corrected
+
+    def _populate_cache(
+        self,
+        indices: list[int],
+        original_texts: list[str],
+        corrected_texts: list[str],
+        model: str,
+        cache: Optional[LlmResultCache],
+    ) -> None:
+        """Store LLM results in cache, skipping no-op corrections."""
+        if cache is None:
+            return
+        for orig, corrected in zip(original_texts, corrected_texts):
+            cache.put(self.stage_id, model, _SYSTEM_PROMPT, orig, corrected)
 
     @staticmethod
     def _parse_response(raw: str, originals: list[str]) -> list[str]:

@@ -70,5 +70,9 @@
   "embedding_idle_timeout_s": 600,
 
   "openrouter_concurrency": 1,
-  "ollama_concurrency": 1
+  "ollama_concurrency": 1,
+
+  "llm_result_cache": "off",
+  "llm_result_cache_path": "{working_root_dir}/.llm_cache.json",
+  "llm_result_cache_max_entries": 50000
 }
