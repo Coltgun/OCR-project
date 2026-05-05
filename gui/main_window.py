@@ -1152,9 +1152,21 @@ class MainWindow(QMainWindow):
             self._status_bar.showMessage("OCR text copied to clipboard.", 3000)
 
     def _build_chapters_from_results(self) -> list[Chapter]:
-        """Group OCRResults into Chapter objects by image_id prefix."""
+        """Group OCRResults into Chapter objects by image_id prefix.
+
+        Chapter numbers are offset by the session name so that session "135"
+        produces chapters 135, 136, 137… instead of 1, 2, 3….
+        If the session name is not a plain integer, offset defaults to 0
+        (i.e. chapters start at the folder number).
+        """
         if self._session is None:
             return [Chapter(number=1, results=self._ocr_results)]
+
+        session_name = self._session.root.name
+        try:
+            session_offset = int(session_name) - 1
+        except ValueError:
+            session_offset = 0
 
         chapters_map: dict[int, list[OCRResult]] = {}
         for r in self._ocr_results:
@@ -1171,7 +1183,7 @@ class MainWindow(QMainWindow):
                 chapters_map.setdefault(1, []).append(r)
 
         return [
-            Chapter(number=fn, results=results)
+            Chapter(number=fn + session_offset, results=results)
             for fn, results in sorted(chapters_map.items(), key=lambda x: x[0])
         ]
 

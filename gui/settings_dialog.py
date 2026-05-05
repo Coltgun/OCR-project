@@ -150,11 +150,77 @@ class SettingsDialog(QDialog):
         layout.addStretch()
         return widget
 
+    # --- Model preset data ---------------------------------------------
+
+    _OPENROUTER_PRESETS: list[tuple[str, str, str]] = [
+        (
+            "DeepSeek V3.2  ★ Recommended",
+            "deepseek/deepseek-v3.2",
+            "Best value — native Chinese training, ~GPT-4 quality. $0.25/$0.38 per M tokens.",
+        ),
+        (
+            "Qwen3-235B-A22B  — Best value",
+            "qwen/qwen3-235b-a22b",
+            "MoE: only 22B active params, outstanding quality, ultra-cheap ($0.07/$0.10/M).",
+        ),
+        (
+            "Qwen3.5-27B",
+            "qwen/qwen3.5-27b",
+            "Alibaba flagship — excellent native Chinese. ~$0.20/$1.56/M.",
+        ),
+        (
+            "Qwen3.5-Flash  — High volume",
+            "qwen/qwen3.5-flash",
+            "Fastest/cheapest option. Still very good Chinese quality. $0.065/$0.15/M.",
+        ),
+        (
+            "Gemini 3.1 Flash Lite",
+            "google/gemini-3.1-flash-lite",
+            "Fast, good multilingual support. $0.25/$1.50/M.",
+        ),
+        (
+            "Claude Sonnet 4.6  — Premium",
+            "anthropic/claude-sonnet-4-6",
+            "Highest quality. Use only when content demands it. $3/$15/M.",
+        ),
+        (
+            "(custom — type below)",
+            "",
+            "Enter any OpenRouter model ID manually in the field below.",
+        ),
+    ]
+
+    _OLLAMA_PRESETS: list[tuple[str, str, str]] = [
+        (
+            "Qwen2.5-7B Q4_K_M  ★ Recommended",
+            "qwen2.5:7b-instruct-q4_K_M",
+            "~5 GB VRAM. Fits 8 GB tier. Fast (~52 tok/s). Best local default.",
+        ),
+        (
+            "Qwen3.5-9B Q4",
+            "qwen3.5:9b-instruct-q4_K_M",
+            "~5–6 GB VRAM. Better reasoning than 7B. Fits 8 GB tier.",
+        ),
+        (
+            "Qwen2.5-14B Q4_K_M  (16 GB tier only)",
+            "qwen2.5:14b-instruct-q4_K_M",
+            "~10 GB VRAM. Requires 16 GB tier. Do NOT use on 8 GB — will OOM.",
+        ),
+        (
+            "(custom — type below)",
+            "",
+            "Enter any Ollama model tag manually in the field below.",
+        ),
+    ]
+
     # --- API Keys tab ---------------------------------------------------
 
     def _build_api_tab(self) -> QWidget:
         widget = QWidget()
-        layout = QVBoxLayout(widget)
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        inner = QWidget()
+        layout = QVBoxLayout(inner)
         layout.setSpacing(10)
 
         or_group = QGroupBox("OpenRouter")
@@ -165,13 +231,27 @@ class SettingsDialog(QDialog):
         self._openrouter_key.setPlaceholderText("sk-or-…")
         or_form.addRow("API key:", self._openrouter_key)
 
+        self._openrouter_model_combo = QComboBox()
+        for label, model_id, _ in self._OPENROUTER_PRESETS:
+            self._openrouter_model_combo.addItem(label, userData=model_id)
+        or_form.addRow("Quick-select:", self._openrouter_model_combo)
+
+        self._openrouter_model_desc = QLabel()
+        self._openrouter_model_desc.setWordWrap(True)
+        self._openrouter_model_desc.setStyleSheet("color: #555; font-style: italic; font-size: 11px;")
+        or_form.addRow("", self._openrouter_model_desc)
+
         self._openrouter_model = QLineEdit()
-        self._openrouter_model.setPlaceholderText("qwen/qwen-2.5-7b-instruct")
-        or_form.addRow("Default model:", self._openrouter_model)
+        self._openrouter_model.setPlaceholderText("model ID (populated by quick-select or type manually)")
+        or_form.addRow("Model ID:", self._openrouter_model)
 
         self._openrouter_base_url = QLineEdit()
         self._openrouter_base_url.setPlaceholderText("https://openrouter.ai/api/v1")
         or_form.addRow("Base URL:", self._openrouter_base_url)
+
+        self._openrouter_model_combo.currentIndexChanged.connect(
+            self._on_openrouter_preset_changed
+        )
 
         layout.addWidget(or_group)
 
@@ -182,13 +262,32 @@ class SettingsDialog(QDialog):
         self._llm_base_url.setPlaceholderText("http://localhost:11434/v1")
         ollama_form.addRow("Base URL:", self._llm_base_url)
 
+        self._llm_model_combo = QComboBox()
+        for label, model_id, _ in self._OLLAMA_PRESETS:
+            self._llm_model_combo.addItem(label, userData=model_id)
+        ollama_form.addRow("Quick-select:", self._llm_model_combo)
+
+        self._llm_model_desc = QLabel()
+        self._llm_model_desc.setWordWrap(True)
+        self._llm_model_desc.setStyleSheet("color: #555; font-style: italic; font-size: 11px;")
+        ollama_form.addRow("", self._llm_model_desc)
+
         self._llm_model = QLineEdit()
-        self._llm_model.setPlaceholderText("qwen2.5:7b-instruct-q4_K_M")
-        ollama_form.addRow("Model:", self._llm_model)
+        self._llm_model.setPlaceholderText("model tag (populated by quick-select or type manually)")
+        ollama_form.addRow("Model tag:", self._llm_model)
+
+        self._llm_model_combo.currentIndexChanged.connect(
+            self._on_llm_preset_changed
+        )
 
         layout.addWidget(ollama_group)
         layout.addStretch()
-        return widget
+        scroll.setWidget(inner)
+        outer = QWidget()
+        outer_layout = QVBoxLayout(outer)
+        outer_layout.setContentsMargins(0, 0, 0, 0)
+        outer_layout.addWidget(scroll)
+        return outer
 
     # --- VRAM tab -------------------------------------------------------
 
@@ -435,18 +534,22 @@ class SettingsDialog(QDialog):
         self._openrouter_key.setText(
             cfg.get_str("openrouter_api_key", "")
         )
-        self._openrouter_model.setText(
-            cfg.get_str("openrouter_model", "")
-        )
+        or_model = cfg.get_str("openrouter_model", "")
+        self._openrouter_model.setText(or_model)
+        self._sync_combo_to_model(self._openrouter_model_combo, self._OPENROUTER_PRESETS, or_model)
+        self._update_desc_label(self._openrouter_model_desc, self._OPENROUTER_PRESETS,
+                                self._openrouter_model_combo.currentIndex())
         self._openrouter_base_url.setText(
             cfg.get_str("openrouter_base_url", "")
         )
         self._llm_base_url.setText(
             cfg.get_str("llm_base_url", "")
         )
-        self._llm_model.setText(
-            cfg.get_str("llm_model", "")
-        )
+        llm_model = cfg.get_str("llm_model", "")
+        self._llm_model.setText(llm_model)
+        self._sync_combo_to_model(self._llm_model_combo, self._OLLAMA_PRESETS, llm_model)
+        self._update_desc_label(self._llm_model_desc, self._OLLAMA_PRESETS,
+                                self._llm_model_combo.currentIndex())
 
         # VRAM
         vram = cfg.get_str("vram_tier", "8gb")
@@ -541,6 +644,43 @@ class SettingsDialog(QDialog):
     # ------------------------------------------------------------------
     # Slots
     # ------------------------------------------------------------------
+
+    def _on_openrouter_preset_changed(self, index: int) -> None:
+        """Populate the OpenRouter model text field when a preset is chosen."""
+        model_id: str = self._openrouter_model_combo.itemData(index) or ""
+        self._openrouter_model.setText(model_id)
+        self._update_desc_label(self._openrouter_model_desc, self._OPENROUTER_PRESETS, index)
+
+    def _on_llm_preset_changed(self, index: int) -> None:
+        """Populate the Ollama model text field when a preset is chosen."""
+        model_id: str = self._llm_model_combo.itemData(index) or ""
+        self._llm_model.setText(model_id)
+        self._update_desc_label(self._llm_model_desc, self._OLLAMA_PRESETS, index)
+
+    @staticmethod
+    def _update_desc_label(
+        label: QLabel,
+        presets: list[tuple[str, str, str]],
+        index: int,
+    ) -> None:
+        """Set the description label text for the given preset index."""
+        if 0 <= index < len(presets):
+            label.setText(presets[index][2])
+        else:
+            label.setText("")
+
+    @staticmethod
+    def _sync_combo_to_model(
+        combo: QComboBox,
+        presets: list[tuple[str, str, str]],
+        model_id: str,
+    ) -> None:
+        """Set the combo to the matching preset, or the sentinel if none match."""
+        for i, (_, pid, _) in enumerate(presets):
+            if pid == model_id:
+                combo.setCurrentIndex(i)
+                return
+        combo.setCurrentIndex(len(presets) - 1)
 
     def _on_accept(self) -> None:
         """Validate thresholds, save, and close."""

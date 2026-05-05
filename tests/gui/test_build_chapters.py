@@ -73,7 +73,11 @@ class TestBuildChaptersSource:
         assert "sorted(chapters_map.items(), key=lambda x: x[0])" in _build_chapters_block()
 
     def test_chapter_namedtuple_constructed(self) -> None:
-        assert "Chapter(number=fn, results=results)" in _build_chapters_block()
+        src = _build_chapters_block()
+        assert "Chapter(number=fn + session_offset, results=results)" in src
+
+    def test_session_offset_applied(self) -> None:
+        assert "session_offset = int(session_name) - 1" in _build_chapters_block()
 
     def test_returns_list(self) -> None:
         assert "return [" in _build_chapters_block()
@@ -124,6 +128,24 @@ class TestBuildChaptersLogic:
             for fn, results in sorted(chapters_map.items(), key=lambda x: x[0])
         ]
         assert result == []
+
+    def test_session_offset_numeric(self) -> None:
+        session_name = "135"
+        session_offset = int(session_name) - 1
+        chapters_map = {1: ["a"], 2: ["b"], 3: ["c"]}
+        numbers = [fn + session_offset for fn in sorted(chapters_map)]
+        assert numbers == [135, 136, 137]
+
+    def test_session_offset_non_numeric_defaults_to_zero(self) -> None:
+        session_name = "my_session"
+        try:
+            session_offset = int(session_name) - 1
+        except ValueError:
+            session_offset = 0
+        assert session_offset == 0
+        chapters_map = {1: ["a"], 2: ["b"]}
+        numbers = [fn + session_offset for fn in sorted(chapters_map)]
+        assert numbers == [1, 2]
 
 
 # ---------------------------------------------------------------------------
