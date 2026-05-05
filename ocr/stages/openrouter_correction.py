@@ -31,7 +31,7 @@ from ocr.stages.llm_correction_base import LlmCorrectionBase
 
 _DEFAULT_MODEL = "qwen/qwen-2.5-7b-instruct"
 _DEFAULT_BASE_URL = "https://openrouter.ai/api/v1"
-_DEFAULT_BATCH_SIZE = 10
+_DEFAULT_BATCH_SIZE = 25
 _DEFAULT_TEMPERATURE = 0.0
 _DEFAULT_TIMEOUT = 60.0
 _DEFAULT_SITE_URL = "https://github.com/Coltgun/OCR-project"

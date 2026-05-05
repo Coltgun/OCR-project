@@ -69,6 +69,11 @@
   "embedding_persistent_subprocess": false,
   "embedding_idle_timeout_s": 600,
 
+  "openrouter_batch_size": 25,
+  "llm_batch_size": 20,
+  "bert_batch_size": 64,
+  "max_batch_tokens": 4000,
+
   "openrouter_concurrency": 1,
   "ollama_concurrency": 1,
   "openrouter_use_json_mode": false,

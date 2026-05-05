@@ -47,7 +47,7 @@ logger = logging.getLogger(__name__)
 
 _DEFAULT_MODEL = "shibing624/macbert4csc-base-chinese"
 _DEFAULT_MAX_LENGTH = 128
-_DEFAULT_BATCH_SIZE = 32
+_DEFAULT_BATCH_SIZE = 64
 
 
 class BertCorrectionStage(PostProcessStage, register_as="bert_correction"):

@@ -53,6 +53,67 @@ def make_response(texts: list[str]) -> MagicMock:
 # Registry
 # ---------------------------------------------------------------------------
 
+class TestBuildBatches:
+    def _r(self, text: str) -> OCRResult:
+        return OCRResult(
+            text=text,
+            confidence=0.9,
+            bbox=BoundingBox(x1=0, y1=0, x2=10, y2=10),
+            image_id="1/0001",
+        )
+
+    def test_count_cap_splits_evenly(self) -> None:
+        results = [self._r("文字") for _ in range(6)]
+        batches = LlmCorrectionStage._build_batches(results, batch_size=2, config={})
+        assert len(batches) == 3
+        assert all(len(b) == 2 for b in batches)
+
+    def test_empty_input_returns_no_batches(self) -> None:
+        assert LlmCorrectionStage._build_batches([], batch_size=10, config={}) == []
+
+    def test_token_cap_splits_long_texts(self) -> None:
+        long_text = "字" * 2500
+        results = [self._r(long_text), self._r(long_text)]
+        batches = LlmCorrectionStage._build_batches(
+            results, batch_size=20, config={"max_batch_tokens": 4000}
+        )
+        assert len(batches) == 2
+
+    def test_single_oversized_item_sent_alone(self) -> None:
+        big = self._r("字" * 5000)
+        small = self._r("短文字")
+        results = [big, small]
+        batches = LlmCorrectionStage._build_batches(
+            results, batch_size=20, config={"max_batch_tokens": 4000}
+        )
+        assert len(batches) == 2
+        assert batches[0][0].text == big.text
+        assert batches[1][0].text == small.text
+
+    def test_count_cap_takes_precedence_over_tokens(self) -> None:
+        results = [self._r("短") for _ in range(5)]
+        batches = LlmCorrectionStage._build_batches(
+            results, batch_size=2, config={"max_batch_tokens": 4000}
+        )
+        assert len(batches) == 3
+        assert len(batches[0]) == 2
+        assert len(batches[2]) == 1
+
+    def test_default_batch_size_is_20(self) -> None:
+        from ocr.stages.llm_correction_base import _DEFAULT_BATCH_SIZE as BASE_DEFAULT
+        from ocr.stages.llm_correction import _DEFAULT_BATCH_SIZE as LLM_DEFAULT
+        assert BASE_DEFAULT == 20
+        assert LLM_DEFAULT == 20
+
+    def test_openrouter_default_batch_size_is_25(self) -> None:
+        from ocr.stages.openrouter_correction import _DEFAULT_BATCH_SIZE as OR_DEFAULT
+        assert OR_DEFAULT == 25
+
+    def test_bert_default_batch_size_is_64(self) -> None:
+        from ocr.stages.bert_correction import _DEFAULT_BATCH_SIZE as BERT_DEFAULT
+        assert BERT_DEFAULT == 64
+
+
 class TestSystemPrompt:
     def test_prompt_under_150_chars(self) -> None:
         """Regression: compressed prompt must stay compact."""

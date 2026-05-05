@@ -26,7 +26,7 @@ from ocr.stages.llm_correction_base import LlmCorrectionBase
 _DEFAULT_MODEL = "qwen2.5:7b-instruct-q4_K_M"
 _DEFAULT_BASE_URL = "http://localhost:11434/v1"
 _DEFAULT_API_KEY = "ollama"
-_DEFAULT_BATCH_SIZE = 10
+_DEFAULT_BATCH_SIZE = 20
 _DEFAULT_TEMPERATURE = 0.0
 _DEFAULT_TIMEOUT = 60.0
 

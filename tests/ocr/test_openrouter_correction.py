@@ -116,7 +116,7 @@ class TestReadConfig:
         assert model == "qwen/qwen-2.5-7b-instruct"
         assert temp == 0.0
         assert timeout == 60.0
-        assert batch == 10
+        assert batch == 25
 
     def test_custom_values(self) -> None:
         stage = OpenRouterCorrectionStage()

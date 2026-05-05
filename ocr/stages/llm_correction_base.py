@@ -28,7 +28,7 @@ from ocr.stages.base import PostProcessStage
 
 logger = logging.getLogger(__name__)
 
-_DEFAULT_BATCH_SIZE = 10
+_DEFAULT_BATCH_SIZE = 20
 _DEFAULT_TEMPERATURE = 0.0
 _DEFAULT_TIMEOUT = 60.0
 
@@ -68,10 +68,7 @@ class LlmCorrectionBase(PostProcessStage):
         send_indices, send_results, skip_indices = self._partition_skip(results, config)
 
         if send_results:
-            batches = [
-                send_results[i : i + batch_size]
-                for i in range(0, len(send_results), batch_size)
-            ]
+            batches = self._build_batches(send_results, batch_size, config)
 
             if async_client is not None and max_concurrency > 1:
                 batch_results = self._correct_batches_concurrent(
@@ -119,6 +116,37 @@ class LlmCorrectionBase(PostProcessStage):
     @abstractmethod
     def _read_config(self, config: dict) -> tuple[str, float, float, int]:
         """Return (model, temperature, timeout, batch_size) from config."""
+
+    @staticmethod
+    def _build_batches(
+        results: list[OCRResult],
+        batch_size: int,
+        config: dict,
+    ) -> list[list[OCRResult]]:
+        """Split *results* into batches respecting both count and token caps.
+
+        Each batch contains at most *batch_size* items and at most
+        ``max_batch_tokens`` estimated tokens (1 token ≈ 1 CJK character).
+        A single item that exceeds the token cap is sent alone.
+        """
+        max_tokens: int = int(config.get("max_batch_tokens", 4000))
+        batches: list[list[OCRResult]] = []
+        current: list[OCRResult] = []
+        current_tokens: int = 0
+
+        for r in results:
+            tokens = len(r.text)
+            if current and (len(current) >= batch_size or current_tokens + tokens > max_tokens):
+                batches.append(current)
+                current = []
+                current_tokens = 0
+            current.append(r)
+            current_tokens += tokens
+
+        if current:
+            batches.append(current)
+
+        return batches
 
     def _partition_skip(
         self,
