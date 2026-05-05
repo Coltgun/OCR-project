@@ -25,6 +25,7 @@ from typing import Sequence
 from core.types import OCRResult
 import ocr.stages  # noqa: F401 — triggers stage self-registration via __init__.py
 from ocr.stages.base import PostProcessStage
+from utils.perf import StageTimings, Timer
 
 logger = logging.getLogger(__name__)
 
@@ -114,19 +115,29 @@ class Pipeline:
             "Pipeline[%s]: processing %d results through %d stage(s).",
             self._mode, len(results), len(self._stages),
         )
+        perf_enabled = bool(self._config.get("perf_timing", False))
+        timings = StageTimings() if perf_enabled else None
         current = results
         for stage in self._stages:
             try:
-                current = stage.process(current, self._config)
-                logger.debug(
-                    "Pipeline[%s]: after stage '%s': %d results.",
-                    self._mode, stage.stage_id, len(current),
-                )
+                with Timer(stage.stage_id, timings, results_in=len(current)) as t:
+                    current = stage.process(current, self._config)
+                    t.results_out = len(current)
+                if logger.isEnabledFor(logging.DEBUG):
+                    logger.debug(
+                        "Pipeline[%s]: after stage '%s': %d results.",
+                        self._mode, stage.stage_id, len(current),
+                    )
             except Exception as exc:
                 logger.error(
                     "Pipeline[%s]: stage '%s' raised %s: %s — skipping stage.",
                     self._mode, stage.stage_id, type(exc).__name__, exc,
                 )
+        if perf_enabled and timings is not None:
+            logger.info(
+                "[PERF] pipeline=%s total_ms=%.1f",
+                self._mode, timings.total_ms(),
+            )
         return current
 
     @staticmethod

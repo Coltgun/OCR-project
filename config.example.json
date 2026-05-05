@@ -55,5 +55,7 @@
   "recommended_pipeline_mode": "HYBRID_TIERED",
 
   "output_format": "epub",
-  "enabled_modules": ["epub"]
+  "enabled_modules": ["epub"],
+
+  "perf_timing": false
 }

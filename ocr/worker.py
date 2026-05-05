@@ -23,6 +23,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 from typing import Any
 
@@ -71,9 +72,19 @@ class OCRWorker(QRunnable):
         all_results: list[list[dict]] = []
         total = len(self._image_paths)
 
+        perf_enabled = bool(self._config.get("perf_timing", False))
         for idx, path in enumerate(self._image_paths):
             try:
+                _t0 = time.perf_counter()
+                if perf_enabled:
+                    logger.info("[PERF] ocr_subprocess start image=%s", path.name)
                 page_results = self._run_single_subprocess(path)
+                if perf_enabled:
+                    _ms = (time.perf_counter() - _t0) * 1000.0
+                    logger.info(
+                        "[PERF] ocr_subprocess end image=%s ms=%.1f results=%d",
+                        path.name, _ms, len(page_results),
+                    )
                 all_results.append(page_results)
                 self.signals.progress.emit(idx + 1, total)
             except Exception as exc:
