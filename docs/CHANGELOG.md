@@ -319,3 +319,32 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - **FEAT-misc-methods** `gui/main_window.py` — Already implemented: `_toggle_border_overlay` `@Slot()`: `isVisible` guard, `hide/show`, `capture_region is not None` guard. `_on_state_changed` `@Slot(object,object)`: `logger.debug(old.name/new.name)`, `_update_ui_for_state(new)`.
 - `tests/gui/test_misc_methods.py` — 11 source-scan + 5 logic + 3 @gui+@skip. (2597 passed, 371 skipped).
 - **FEAT-integration** `tests/test_integration.py` — End-to-end integration tests: session lifecycle (9), state machine source-scan (13), pipeline+formatter (7), config round-trips (5), session+pipeline+formatter joint (3), numeric ordering P0 (6). 44 tests. (2641 passed, 374 skipped).
+
+### Added — 2026-05-05
+- **SPEED-06** `ocr/stages/llm_correction_base.py` — Concurrent LLM batch processing. `_correct_batches_concurrent()` uses `AsyncOpenAI` + `asyncio.Semaphore` to cap in-flight requests. `_acorrect_batch()` is the async counterpart to `_correct_batch()`. `process()` dispatches to async path when `max_concurrency > 1` and an async client is available; otherwise falls back to sequential. `_make_async_client()` and `_max_concurrency()` are new overridable hooks.
+- `ocr/stages/openrouter_correction.py` — Implements `_make_async_client()` (returns `AsyncOpenAI`) and `_max_concurrency()` (reads `openrouter_concurrency`, default 1).
+- `config.example.json` — Added `openrouter_concurrency` (1), `ollama_concurrency` (1).
+- `tests/ocr/test_openrouter_correction.py` — Added `TestConcurrentPath`: 6 tests (returns corrected texts, semaphore respected, async error fallback, sequential path when concurrency=1, config reading, async client type). (2735 passed, 374 skipped).
+- **SPEED-07** `llm/cache.py` — New `LlmResultCache`: in-memory dict + optional disk-backed JSON persistence. Cache key = `sha1(stage_id + model + system_prompt + text)`. FIFO eviction: evicts oldest 10% when `len > max_entries`. `from_config()` factory reads `llm_result_cache` ("off"/"memory"/"disk"). `flush()` writes dirty cache to disk.
+- `ocr/stages/llm_correction_base.py` — Integrated cache: `_apply_cache_hits()` separates cached vs uncached texts; `_populate_cache()` stores new results; both `_correct_batch()` and `_acorrect_batch()` use it. `cache.flush()` called after all batches complete.
+- `config.example.json` — Added `llm_result_cache` ("off"), `llm_result_cache_path` ("{working_root_dir}/.llm_cache.json"), `llm_result_cache_max_entries` (50000).
+- `tests/llm/test_cache.py` — New: `TestGetPut`, `TestEviction`, `TestDiskPersistence`, `TestFromConfig`, `TestCorrectionBaseIntegration`. (2735 passed, 374 skipped).
+- **SPEED-08** `ocr/stages/llm_correction_base.py` — Heuristic skip-the-LLM gate. `_should_skip(result, threshold)`: returns True if `len(text.strip()) <= 1` or `confidence >= threshold`. `_partition_skip()`: splits input into `(send_indices, send_results, skip_indices)`. `process()` calls `_partition_skip` before batching; skipped results are spliced back by original index after LLM processing, preserving reading order.
+- `config.example.json` — Added `llm_skip_high_confidence_threshold` (0.97).
+- `tests/ocr/test_llm_correction.py` — Added `TestSkipGate`: 9 tests (_should_skip short/high-conf/normal/boundary, partition, high-conf preserved, all-skipped no API call, custom threshold, reading order). (2740 passed, 374 skipped).
+- **SPEED-09** `ocr/stages/llm_correction_base.py` — Compressed `_SYSTEM_PROMPT` from ~300 to ~90 chars while preserving all rules and one example.
+- `ocr/stages/openrouter_dedup.py` — Compressed `_SYSTEM_PROMPT` from ~250 to ~95 chars.
+- `ocr/stages/openrouter_correction.py` — `_extra_create_kwargs()`: when `openrouter_use_json_mode=True`, adds `extra_body={"response_format": {"type": "json_object"}}` alongside existing headers.
+- `config.example.json` — Added `openrouter_use_json_mode` (false).
+- `tests/ocr/test_llm_correction.py` — Added `TestSystemPrompt`: 2 tests (prompt <150 chars, contains "OCR"/"JSON"). (2740 passed, 374 skipped).
+- `tests/ocr/test_openrouter_correction.py` — Added 3 JSON mode tests to `TestExtraCreateKwargs` (off by default, adds extra_body, forwarded to API call). (2740 passed, 374 skipped).
+- **SPEED-10** `ocr/stages/llm_correction_base.py` — `_DEFAULT_BATCH_SIZE` 10→20. `_build_batches(results, batch_size, config)`: new static method that enforces both count cap and `max_batch_tokens` (default 4000) soft token cap (1 char ≈ 1 token for CJK). Single oversized item always sent alone.
+- `ocr/stages/openrouter_correction.py` — `_DEFAULT_BATCH_SIZE` 10→25.
+- `ocr/stages/llm_correction.py` — `_DEFAULT_BATCH_SIZE` 10→20.
+- `ocr/stages/bert_correction.py` — `_DEFAULT_BATCH_SIZE` 32→64.
+- `config.example.json` — Added `openrouter_batch_size` (25), `llm_batch_size` (20), `bert_batch_size` (64), `max_batch_tokens` (4000).
+- `tests/ocr/test_llm_correction.py` — Added `TestBuildBatches`: 8 tests (count cap, empty, token cap, oversized item, count-over-tokens precedence, default size constants for base/llm/openrouter/bert). (2748 passed, 374 skipped).
+- **SPEED-11** `ocr/stages/hybrid_correction.py` — `__init__()` now instantiates `BertCorrectionStage` and `LlmCorrectionStage` once and stores them as `self._bert_stage` / `self._llm_stage`. `_apply_stage()` signature changed from `(stage_key: str, …)` to `(stage: PostProcessStage, …)`: no longer calls `PostProcessStage.get()` per invocation. Child subprocess connections and cached OpenAI clients are preserved across `process()` calls.
+- `tests/ocr/test_hybrid_correction.py` — Updated all mock side-effects to use `isinstance(stage, BertCorrectionStage/LlmCorrectionStage)` instead of `stage_key ==`. Replaced `TestApplyStage.test_unregistered_stage_returns_originals` (no longer applicable). Added `TestInstanceReuse`: 2 tests (correct types on init, same identity across calls). (2749 passed, 374 skipped).
+- **SPEED-12** `ocr/worker_subprocess.py` — `_warmup()` already present from prior session: calls `engine.predict(np.zeros((32,32,3), dtype=np.uint8))` after model load when `ocr_worker_warmup=True`. No changes required.
+- **SPEED-13** `ocr/stages/llm_correction_base.py` / `ocr/pipeline.py` — Both per-result and per-stage `logger.debug` hot paths already guarded with `if logger.isEnabledFor(logging.DEBUG)`. No changes required.

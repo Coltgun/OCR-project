@@ -1,10 +1,11 @@
 # Next Steps
 
 ## Current Status
-FEAT-integration complete. 2641 passed, 374 skipped. Full end-to-end integration tests covering session lifecycle, state machine, pipeline+formatters, config round-trips, and numeric ordering P0.
+SPEED tasks 06–13 complete. 2749 passed, 374 skipped. dev branch is 10 commits ahead of origin/dev.
 
 ## Up Next
-- [ ] FEAT-next: TBD — all current planned features complete. Consider: LLM-powered post-processing UI, batch export, or progress reporting improvements.
+- [ ] Push dev branch to origin (`git push origin dev`).
+- [ ] FEAT-next: TBD — consider LLM-powered post-processing UI, batch export, or progress reporting improvements.
 
 ## Completed
 - [x] ARCH-001: Core Registry System — core/registry.py, core/vram_manager.py, core/event_bus.py (58 tests passing)
@@ -140,3 +141,11 @@ FEAT-integration complete. 2641 passed, 374 skipped. Full end-to-end integration
 - [x] FEAT-thumbnail: Already fully covered by existing test_thumbnail.py+test_thumbnail_zoom.py (34+25=59 tests). _update_thumbnail: QPixmap, isNull, KeepAspectRatio, SmoothTransformation, setPixmap. _clear_thumbnail: clear, zoom_btn hidden, _last_capture_path=None. _zoom_thumbnail: path guards, QDialog, 600x450. No new tests needed. (2581 passed, 368 skipped).
 - [x] FEAT-misc-methods: Already implemented: _toggle_border_overlay @Slot(): isVisible guard, hide/show, capture_region None guard. _on_state_changed @Slot(object,object): logger.debug(old.name/new.name), _update_ui_for_state(new). 11 source-scan + 5 logic + 3 @gui+@skip. (2597 passed, 371 skipped).
 - [x] FEAT-integration: End-to-end integration tests (tests/test_integration.py): session lifecycle (9 tests), state machine source-scan (13 tests), pipeline+formatter (7 tests), config round-trips (5 tests), session+pipeline+formatter joint (3 tests), numeric ordering P0 (6 tests). 44 tests total. (2641 passed, 374 skipped).
+- [x] SPEED-06: Concurrent LLM batch processing (OpenRouter). AsyncOpenAI client, asyncio.Semaphore concurrency gate, async/sync dispatch in LlmCorrectionBase. Config: openrouter_concurrency, ollama_concurrency. (2735 passed, 374 skipped).
+- [x] SPEED-07: LLM result memoization. LlmResultCache (llm/cache.py): in-memory + optional disk JSON persistence, SHA-1 cache key (stage_id+model+prompt+text), FIFO eviction at 10% when max_entries exceeded. Integrated into _correct_batch/_acorrect_batch. Config: llm_result_cache, llm_result_cache_path, llm_result_cache_max_entries. (2735 passed, 374 skipped).
+- [x] SPEED-08: Heuristic skip-the-LLM gate. _partition_skip / _should_skip in LlmCorrectionBase: skips len<=1 or confidence>=threshold; skipped results splice back in original order. Config: llm_skip_high_confidence_threshold (0.97). (2740 passed, 374 skipped).
+- [x] SPEED-09: Compressed system prompts + JSON mode. Both correction and dedup system prompts reduced to <100 chars. OpenRouterCorrectionStage._extra_create_kwargs adds extra_body={"response_format":{"type":"json_object"}} when openrouter_use_json_mode=true. (2740 passed, 374 skipped).
+- [x] SPEED-10: Larger default batch sizes + token-capped batching. openrouter_batch_size→25, llm_batch_size→20, bert_batch_size→64. _build_batches() in LlmCorrectionBase enforces both count cap and max_batch_tokens (default 4000) soft cap. (2748 passed, 374 skipped).
+- [x] SPEED-11: Hybrid stage pre-instantiates child stages. HybridCorrectionStage.__init__ creates BertCorrectionStage and LlmCorrectionStage once; _apply_stage now accepts a stage instance (not a key), preserving subprocess connections and cached clients across calls. (2749 passed, 374 skipped).
+- [x] SPEED-12: OCR worker warmup / cuDNN algo bake. Already implemented in ocr/worker_subprocess.py: _warmup() runs engine.predict(np.zeros((32,32,3))) after model load when ocr_worker_warmup=true. No changes needed.
+- [x] SPEED-13: Drain logging hot paths. Already implemented: llm_correction_base.py per-result debug log and pipeline.py per-stage debug log both guarded with if logger.isEnabledFor(logging.DEBUG). No changes needed.
