@@ -1172,11 +1172,7 @@ class MainWindow(QMainWindow):
         for r in self._ocr_results:
             for fn in range(1, self._session.current_folder + 1):
                 folder_path = self._session.root / str(fn)
-                if any(
-                    folder_path / f"{r.image_id}.png" == p
-                    or r.image_id.startswith(str(fn) + "/")
-                    for p in [folder_path / f"{r.image_id}.png"]
-                ):
+                if (folder_path / f"{r.image_id}.png").exists():
                     chapters_map.setdefault(fn, []).append(r)
                     break
             else:

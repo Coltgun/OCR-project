@@ -83,6 +83,16 @@ class TestPipelineConstruction:
         p = Pipeline("API_FULL", {})
         assert "openrouter_dedup" in p.stage_ids
 
+    def test_api_standard_uses_openrouter_dedup_not_embedding(self) -> None:
+        p = Pipeline("API_STANDARD", {})
+        assert "openrouter_dedup" in p.stage_ids
+        assert "embedding_dedup" not in p.stage_ids
+
+    def test_api_standard_has_no_local_gpu_stages(self) -> None:
+        local_gpu_stages = {"bert_correction", "embedding_dedup", "llm_correction", "hybrid_correction"}
+        p = Pipeline("API_STANDARD", {})
+        assert local_gpu_stages.isdisjoint(set(p.stage_ids))
+
     def test_unregistered_stage_skipped_gracefully(self) -> None:
         """_build_stages skips unknown keys without raising."""
         import ocr.pipeline as pipeline_mod

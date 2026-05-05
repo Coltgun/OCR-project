@@ -60,8 +60,9 @@ class TestBuildChaptersSource:
     def test_folder_path_constructed(self) -> None:
         assert "self._session.root / str(fn)" in _build_chapters_block()
 
-    def test_image_id_prefix_matching(self) -> None:
-        assert "r.image_id" in _build_chapters_block()
+    def test_image_id_exists_check(self) -> None:
+        src = _build_chapters_block()
+        assert "(folder_path / f\"{r.image_id}.png\").exists()" in src
 
     def test_setdefault_append(self) -> None:
         assert "chapters_map.setdefault(fn, []).append(r)" in _build_chapters_block()
@@ -146,6 +147,37 @@ class TestBuildChaptersLogic:
         chapters_map = {1: ["a"], 2: ["b"]}
         numbers = [fn + session_offset for fn in sorted(chapters_map)]
         assert numbers == [1, 2]
+
+    def test_multi_folder_grouping_via_exists(self, tmp_path: Path) -> None:
+        """Simulate the .exists() grouping: results route to the folder
+        where their image file actually lives on disk."""
+        from types import SimpleNamespace
+
+        session_root = tmp_path / "135"
+        (session_root / "1").mkdir(parents=True)
+        (session_root / "2").mkdir(parents=True)
+        (session_root / "1" / "0001.png").write_bytes(b"")
+        (session_root / "2" / "0001.png").write_bytes(b"")
+
+        results_in = [
+            SimpleNamespace(image_id="0001"),  # lives in folder 1
+            SimpleNamespace(image_id="0001"),  # lives in folder 2? — same stem, folder 1 wins first
+        ]
+
+        chapters_map: dict[int, list] = {}
+        current_folder = 2
+        for r in results_in:
+            for fn in range(1, current_folder + 1):
+                folder_path = session_root / str(fn)
+                if (folder_path / f"{r.image_id}.png").exists():
+                    chapters_map.setdefault(fn, []).append(r)
+                    break
+            else:
+                chapters_map.setdefault(1, []).append(r)
+
+        # Both results have image_id="0001"; folder 1 has 0001.png so both route there
+        assert set(chapters_map.keys()) == {1}
+        assert len(chapters_map[1]) == 2
 
 
 # ---------------------------------------------------------------------------

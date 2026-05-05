@@ -60,7 +60,7 @@ PIPELINE_MODES: dict[str, list[str]] = {
         "rule_corrections",
         "openrouter_correction",
         "minhash_dedup",
-        "embedding_dedup",
+        "openrouter_dedup",
     ],
     "API_FULL": [
         "cleanup",
