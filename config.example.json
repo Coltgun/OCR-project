@@ -57,5 +57,9 @@
   "output_format": "epub",
   "enabled_modules": ["epub"],
 
-  "perf_timing": false
+  "perf_timing": false,
+
+  "ocr_long_lived_worker": false,
+  "ocr_worker_warmup": true,
+  "ocr_worker_idle_timeout_s": 60
 }

@@ -23,6 +23,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 from pathlib import Path
 from typing import Any
@@ -71,26 +72,38 @@ class OCRWorker(QRunnable):
         """Execute OCR in a subprocess for each image path."""
         all_results: list[list[dict]] = []
         total = len(self._image_paths)
-
         perf_enabled = bool(self._config.get("perf_timing", False))
-        for idx, path in enumerate(self._image_paths):
+        use_longlived = bool(self._config.get("ocr_long_lived_worker", False))
+
+        if use_longlived and total > 0:
             try:
-                _t0 = time.perf_counter()
-                if perf_enabled:
-                    logger.info("[PERF] ocr_subprocess start image=%s", path.name)
-                page_results = self._run_single_subprocess(path)
-                if perf_enabled:
-                    _ms = (time.perf_counter() - _t0) * 1000.0
-                    logger.info(
-                        "[PERF] ocr_subprocess end image=%s ms=%.1f results=%d",
-                        path.name, _ms, len(page_results),
-                    )
-                all_results.append(page_results)
-                self.signals.progress.emit(idx + 1, total)
+                all_results = self._run_longlived_batch(perf_enabled)
+                for idx in range(total):
+                    self.signals.progress.emit(idx + 1, total)
             except Exception as exc:
-                logger.error("OCRWorker: error on '%s': %s", path, exc)
-                self.signals.error_occurred.emit(str(exc))
-                return
+                logger.error("OCRWorker: long-lived batch failed: %s — falling back to per-image mode.", exc)
+                all_results = []
+                use_longlived = False
+
+        if not use_longlived:
+            for idx, path in enumerate(self._image_paths):
+                try:
+                    _t0 = time.perf_counter()
+                    if perf_enabled:
+                        logger.info("[PERF] ocr_subprocess start image=%s", path.name)
+                    page_results = self._run_single_subprocess(path)
+                    if perf_enabled:
+                        _ms = (time.perf_counter() - _t0) * 1000.0
+                        logger.info(
+                            "[PERF] ocr_subprocess end image=%s ms=%.1f results=%d",
+                            path.name, _ms, len(page_results),
+                        )
+                    all_results.append(page_results)
+                    self.signals.progress.emit(idx + 1, total)
+                except Exception as exc:
+                    logger.error("OCRWorker: error on '%s': %s", path, exc)
+                    self.signals.error_occurred.emit(str(exc))
+                    return
 
         ocr_results = [
             OCRResult(
@@ -119,6 +132,115 @@ class OCRWorker(QRunnable):
 
         self.signals.results_ready.emit(ocr_results)
 
+    def _run_longlived_batch(self, perf_enabled: bool) -> list[list[dict]]:
+        """Start worker_subprocess.py once, send all images, collect responses.
+
+        Returns a list-of-lists parallel to self._image_paths.
+        Raises RuntimeError on child crash or protocol error.
+        """
+        subprocess_script = Path(__file__).with_name("worker_subprocess.py")
+        clean_env = _build_clean_env()
+        config_json = json.dumps(self._config)
+
+        proc = subprocess.Popen(
+            [sys.executable, str(subprocess_script)],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            encoding="utf-8",
+            env=clean_env,
+            bufsize=1,
+        )
+
+        stderr_lines: list[str] = []
+
+        def _drain_stderr() -> None:
+            for line in proc.stderr:  # type: ignore[union-attr]
+                stderr_lines.append(line.rstrip())
+
+        stderr_thread = threading.Thread(target=_drain_stderr, daemon=True)
+        stderr_thread.start()
+
+        try:
+            # Send config as first line
+            proc.stdin.write(config_json + "\n")  # type: ignore[union-attr]
+            proc.stdin.flush()  # type: ignore[union-attr]
+
+            # Wait for ready signal
+            ready_line = proc.stdout.readline()  # type: ignore[union-attr]
+            try:
+                ready = json.loads(ready_line)
+                if not ready.get("ready"):
+                    raise RuntimeError(f"Worker did not signal ready: {ready_line!r}")
+            except json.JSONDecodeError as exc:
+                raise RuntimeError(f"Worker ready-line not JSON: {ready_line!r}") from exc
+
+            all_results: list[list[dict]] = []
+            idle_timeout = float(self._config.get("ocr_worker_idle_timeout_s", 60))
+
+            for path in self._image_paths:
+                req = json.dumps({"image_path": str(path)})
+                if perf_enabled:
+                    logger.info("[PERF] ocr_longlived start image=%s", path.name)
+                _t0 = time.perf_counter()
+
+                proc.stdin.write(req + "\n")  # type: ignore[union-attr]
+                proc.stdin.flush()  # type: ignore[union-attr]
+
+                # Blocking readline — safe because the stderr drain thread
+                # prevents the child's stderr pipe from filling and blocking.
+                # If the child crashes, readline returns "" (EOF).
+                resp_line = proc.stdout.readline()  # type: ignore[union-attr]
+                if not resp_line:
+                    raise RuntimeError(
+                        f"OCR worker EOF (process likely crashed) on image {path.name}. "
+                        f"Exit code: {proc.poll()}"
+                    )
+
+                if perf_enabled:
+                    _ms = (time.perf_counter() - _t0) * 1000.0
+
+                try:
+                    resp = json.loads(resp_line)
+                except json.JSONDecodeError as exc:
+                    raise RuntimeError(f"Worker response not JSON for {path.name}: {resp_line!r}") from exc
+
+                if not resp.get("ok"):
+                    err = resp.get("error", "unknown")
+                    logger.warning("OCRWorker: worker reported error for '%s': %s", path.name, err)
+                    all_results.append([])
+                else:
+                    page = resp.get("results", [])
+                    if perf_enabled:
+                        logger.info(
+                            "[PERF] ocr_longlived end image=%s ms=%.1f results=%d",
+                            path.name, _ms, len(page),
+                        )
+                    all_results.append(page)
+
+            # Graceful shutdown
+            try:
+                proc.stdin.write(json.dumps({"shutdown": True}) + "\n")  # type: ignore[union-attr]
+                proc.stdin.flush()  # type: ignore[union-attr]
+                proc.stdin.close()  # type: ignore[union-attr]
+            except OSError:
+                pass
+            proc.wait(timeout=10)
+            return all_results
+
+        except Exception:
+            try:
+                proc.terminate()
+                proc.wait(timeout=5)
+            except OSError:
+                pass
+            if stderr_lines:
+                logger.error("OCR worker stderr: %s", "\n".join(stderr_lines[-20:]))
+            raise
+        finally:
+            stderr_thread.join(timeout=2.0)
+
     def _run_single_subprocess(self, image_path: Path) -> list[dict]:
         """Run OCR on one image in a clean subprocess, return list of result dicts.
 
@@ -128,20 +250,7 @@ class OCRWorker(QRunnable):
         """
         config_json = json.dumps(self._config)
         script = _build_subprocess_script(str(image_path), config_json)
-
-        # Minimal env: keep only variables the subprocess needs to locate itself.
-        # Explicitly exclude PATH so the subprocess bootstrap owns it entirely.
-        clean_env = {
-            k: v for k, v in os.environ.items()
-            if k.upper() in (
-                "SYSTEMROOT", "SYSTEMDRIVE", "WINDIR", "TEMP", "TMP",
-                "USERPROFILE", "HOMEDRIVE", "HOMEPATH",
-                "PYTHONPATH", "PYTHONHOME",
-                "CONDA_PREFIX", "CONDA_DEFAULT_ENV",
-            )
-        }
-        # Always provide a minimal PATH so Windows can find system32 DLLs
-        clean_env["PATH"] = os.path.join(os.environ.get("SYSTEMROOT", "C:\\Windows"), "System32")
+        clean_env = _build_clean_env()
 
         result = subprocess.run(
             [sys.executable, "-c", script],
@@ -168,6 +277,21 @@ class OCRWorker(QRunnable):
             raise RuntimeError(
                 f"OCR subprocess returned invalid JSON for '{image_path}': {exc}"
             ) from exc
+
+
+def _build_clean_env() -> dict[str, str]:
+    """Return a minimal env dict for subprocess isolation."""
+    env = {
+        k: v for k, v in os.environ.items()
+        if k.upper() in (
+            "SYSTEMROOT", "SYSTEMDRIVE", "WINDIR", "TEMP", "TMP",
+            "USERPROFILE", "HOMEDRIVE", "HOMEPATH",
+            "PYTHONPATH", "PYTHONHOME",
+            "CONDA_PREFIX", "CONDA_DEFAULT_ENV",
+        )
+    }
+    env["PATH"] = os.path.join(os.environ.get("SYSTEMROOT", "C:\\Windows"), "System32")
+    return env
 
 
 def _build_subprocess_script(image_path: str, config_json: str) -> str:
