@@ -38,6 +38,7 @@ import os
 from openai import OpenAI, OpenAIError
 
 from core.types import OCRResult
+from llm.clients import get_openai_client
 from ocr.stages.base import PostProcessStage
 
 logger = logging.getLogger(__name__)
@@ -102,7 +103,7 @@ class OpenRouterDeduplicationStage(PostProcessStage, register_as="openrouter_ded
         site_url: str = str(config.get("openrouter_site_url", _DEFAULT_SITE_URL))
         site_name: str = str(config.get("openrouter_site_name", _DEFAULT_SITE_NAME))
 
-        client = OpenAI(base_url=base_url, api_key=api_key)
+        client = get_openai_client(base_url=base_url, api_key=api_key, timeout=timeout)
 
         try:
             group_assignments = self._request_assignments(

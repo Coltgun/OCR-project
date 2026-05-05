@@ -69,36 +69,39 @@ class TestRegistry:
 class TestMakeClient:
     def test_uses_config_api_key(self) -> None:
         stage = OpenRouterCorrectionStage()
-        with patch("ocr.stages.openrouter_correction.OpenAI") as mock_cls:
-            mock_cls.return_value = MagicMock()
+        with patch("ocr.stages.openrouter_correction.get_openai_client") as mock_fn:
+            mock_fn.return_value = MagicMock()
             stage._make_client({"openrouter_api_key": "test-key-123"})
-        mock_cls.assert_called_once_with(
+        mock_fn.assert_called_once_with(
             base_url="https://openrouter.ai/api/v1",
             api_key="test-key-123",
+            timeout=60.0,
         )
 
     def test_uses_env_var_when_config_key_absent(self) -> None:
         stage = OpenRouterCorrectionStage()
         with patch.dict(os.environ, {"OPENROUTER_API_KEY": "env-key-456"}):
-            with patch("ocr.stages.openrouter_correction.OpenAI") as mock_cls:
-                mock_cls.return_value = MagicMock()
+            with patch("ocr.stages.openrouter_correction.get_openai_client") as mock_fn:
+                mock_fn.return_value = MagicMock()
                 stage._make_client({})
-            mock_cls.assert_called_once_with(
+            mock_fn.assert_called_once_with(
                 base_url="https://openrouter.ai/api/v1",
                 api_key="env-key-456",
+                timeout=60.0,
             )
 
     def test_custom_base_url(self) -> None:
         stage = OpenRouterCorrectionStage()
-        with patch("ocr.stages.openrouter_correction.OpenAI") as mock_cls:
-            mock_cls.return_value = MagicMock()
+        with patch("ocr.stages.openrouter_correction.get_openai_client") as mock_fn:
+            mock_fn.return_value = MagicMock()
             stage._make_client({
                 "openrouter_api_key": "k",
                 "openrouter_base_url": "https://custom.api/v1",
             })
-        mock_cls.assert_called_once_with(
+        mock_fn.assert_called_once_with(
             base_url="https://custom.api/v1",
             api_key="k",
+            timeout=60.0,
         )
 
 
@@ -157,7 +160,7 @@ class TestExtraCreateKwargs:
         cfg = {"openrouter_api_key": "k", "openrouter_site_url": "https://test.com"}
         mock_client = MagicMock()
         mock_client.chat.completions.create.return_value = make_response(["文字"])
-        with patch("ocr.stages.openrouter_correction.OpenAI", return_value=mock_client):
+        with patch("ocr.stages.openrouter_correction.get_openai_client", return_value=mock_client):
             stage.process(results, cfg)
         call_kwargs = mock_client.chat.completions.create.call_args.kwargs
         assert "extra_headers" in call_kwargs
@@ -175,7 +178,7 @@ class TestProcess:
             make_response(r) for r in responses
         ]
         return patch(
-            "ocr.stages.openrouter_correction.OpenAI", return_value=mock_client
+            "ocr.stages.openrouter_correction.get_openai_client", return_value=mock_client
         )
 
     def test_empty_returns_empty(self) -> None:
@@ -216,7 +219,7 @@ class TestProcess:
         results = [make_result("文字一"), make_result("文字二")]
         mock_client = MagicMock()
         mock_client.chat.completions.create.side_effect = OpenAIError("rate limit")
-        with patch("ocr.stages.openrouter_correction.OpenAI", return_value=mock_client):
+        with patch("ocr.stages.openrouter_correction.get_openai_client", return_value=mock_client):
             out = stage.process(results, {"openrouter_api_key": "k"})
         assert [r.text for r in out] == ["文字一", "文字二"]
 
@@ -238,7 +241,7 @@ class TestProcess:
         }
         mock_client = MagicMock()
         mock_client.chat.completions.create.return_value = make_response(["文字"])
-        with patch("ocr.stages.openrouter_correction.OpenAI", return_value=mock_client):
+        with patch("ocr.stages.openrouter_correction.get_openai_client", return_value=mock_client):
             stage.process(results, cfg)
         call_kwargs = mock_client.chat.completions.create.call_args.kwargs
         assert call_kwargs["model"] == "anthropic/claude-3-haiku"

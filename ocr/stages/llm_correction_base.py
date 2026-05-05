@@ -20,6 +20,7 @@ from dataclasses import replace
 from openai import OpenAI, OpenAIError
 
 from core.types import OCRResult
+from llm.clients import get_openai_client
 from ocr.stages.base import PostProcessStage
 
 logger = logging.getLogger(__name__)
@@ -72,7 +73,7 @@ class LlmCorrectionBase(PostProcessStage):
                 client, batch, model, temperature, timeout, config
             )
             for result, new_text in zip(batch, corrected_texts):
-                if new_text != result.text:
+                if logger.isEnabledFor(logging.DEBUG) and new_text != result.text:
                     logger.debug(
                         "%s: corrected '%s' → '%s'",
                         self.stage_id, result.text, new_text,

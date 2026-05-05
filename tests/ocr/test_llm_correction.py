@@ -127,12 +127,12 @@ class TestProcess:
     _cfg: dict = {}
 
     def _patch_client(self, responses: list[list[str]]):
-        """Patch OpenAI so completions.create returns each response in sequence."""
+        """Patch get_openai_client so completions.create returns each response in sequence."""
         mock_client = MagicMock()
         mock_client.chat.completions.create.side_effect = [
             make_response(r) for r in responses
         ]
-        return patch("ocr.stages.llm_correction.OpenAI", return_value=mock_client)
+        return patch("ocr.stages.llm_correction.get_openai_client", return_value=mock_client)
 
     def test_empty_returns_empty(self) -> None:
         stage = LlmCorrectionStage()
@@ -190,7 +190,7 @@ class TestProcess:
         results = [make_result("文字一"), make_result("文字二")]
         mock_client = MagicMock()
         mock_client.chat.completions.create.side_effect = OpenAIError("timeout")
-        with patch("ocr.stages.llm_correction.OpenAI", return_value=mock_client):
+        with patch("ocr.stages.llm_correction.get_openai_client", return_value=mock_client):
             out = stage.process(results, self._cfg)
         assert [r.text for r in out] == ["文字一", "文字二"]
 
@@ -205,7 +205,7 @@ class TestProcess:
         resp.choices = [choice]
         mock_client = MagicMock()
         mock_client.chat.completions.create.return_value = resp
-        with patch("ocr.stages.llm_correction.OpenAI", return_value=mock_client):
+        with patch("ocr.stages.llm_correction.get_openai_client", return_value=mock_client):
             out = stage.process(results, self._cfg)
         assert out[0].text == "文字"
 
@@ -239,11 +239,12 @@ class TestProcess:
         }
         mock_client = MagicMock()
         mock_client.chat.completions.create.return_value = make_response(["文字"])
-        with patch("ocr.stages.llm_correction.OpenAI", return_value=mock_client) as mock_cls:
+        with patch("ocr.stages.llm_correction.get_openai_client", return_value=mock_client) as mock_fn:
             stage.process(results, cfg)
-        mock_cls.assert_called_once_with(
+        mock_fn.assert_called_once_with(
             base_url="http://localhost:11434/v1",
             api_key="ollama",
+            timeout=30.0,
         )
         call_kwargs = mock_client.chat.completions.create.call_args
         assert call_kwargs.kwargs["model"] == "qwen2.5:7b-instruct-q4_K_M"
@@ -262,7 +263,7 @@ class TestProcess:
             OpenAIError("error on batch 2"),
             make_response(["修正2"]),
         ]
-        with patch("ocr.stages.llm_correction.OpenAI", return_value=mock_client):
+        with patch("ocr.stages.llm_correction.get_openai_client", return_value=mock_client):
             out = stage.process(results, cfg)
         assert out[0].text == "修正0"
         assert out[1].text == "文字1"   # fallback

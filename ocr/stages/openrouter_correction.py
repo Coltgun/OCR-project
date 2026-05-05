@@ -24,6 +24,7 @@ from __future__ import annotations
 
 from openai import OpenAI
 
+from llm.clients import get_openai_client
 from ocr.stages.llm_correction_base import LlmCorrectionBase
 
 _DEFAULT_MODEL = "qwen/qwen-2.5-7b-instruct"
@@ -52,16 +53,18 @@ class OpenRouterCorrectionStage(LlmCorrectionBase, register_as="openrouter_corre
         return "openrouter_correction"
 
     def _make_client(self, config: dict) -> OpenAI:
-        """Return an OpenAI client pointed at OpenRouter."""
+        """Return a cached OpenAI client pointed at OpenRouter."""
         import os
         api_key = str(
             config.get("openrouter_api_key")
             or os.environ.get("OPENROUTER_API_KEY", "")
         )
         base_url = str(config.get("openrouter_base_url") or _DEFAULT_BASE_URL)
-        return OpenAI(
+        timeout = float(config.get("openrouter_timeout", _DEFAULT_TIMEOUT))
+        return get_openai_client(
             base_url=base_url,
             api_key=api_key,
+            timeout=timeout,
         )
 
     def _read_config(self, config: dict) -> tuple[str, float, float, int]:

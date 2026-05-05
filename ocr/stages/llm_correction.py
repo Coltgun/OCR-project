@@ -20,6 +20,7 @@ from __future__ import annotations
 
 from openai import OpenAI
 
+from llm.clients import get_openai_client
 from ocr.stages.llm_correction_base import LlmCorrectionBase
 
 _DEFAULT_MODEL = "qwen2.5:7b-instruct-q4_K_M"
@@ -44,10 +45,12 @@ class LlmCorrectionStage(LlmCorrectionBase, register_as="llm_correction"):
         return "llm_correction"
 
     def _make_client(self, config: dict) -> OpenAI:
-        """Return an OpenAI client pointed at the local Ollama server."""
-        return OpenAI(
+        """Return a cached OpenAI client pointed at the local Ollama server."""
+        timeout = float(config.get("llm_timeout", _DEFAULT_TIMEOUT))
+        return get_openai_client(
             base_url=str(config.get("llm_base_url") or _DEFAULT_BASE_URL),
             api_key=str(config.get("llm_api_key") or _DEFAULT_API_KEY),
+            timeout=timeout,
         )
 
     def _read_config(self, config: dict) -> tuple[str, float, float, int]:

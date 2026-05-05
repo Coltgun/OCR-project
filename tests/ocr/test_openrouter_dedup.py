@@ -244,12 +244,13 @@ class TestProcess:
         stage = OpenRouterDeduplicationStage()
         results = [make_result("a"), make_result("b")]
         with self._patch_request([0, 1]):
-            with patch("ocr.stages.openrouter_dedup.OpenAI") as mock_cls:
-                mock_cls.return_value = MagicMock()
+            with patch("ocr.stages.openrouter_dedup.get_openai_client") as mock_fn:
+                mock_fn.return_value = MagicMock()
                 stage.process(results, {"openrouter_api_key": "key-123"})
-        mock_cls.assert_called_once_with(
+        mock_fn.assert_called_once_with(
             base_url="https://openrouter.ai/api/v1",
             api_key="key-123",
+            timeout=60.0,
         )
 
     def test_env_var_api_key_used(self) -> None:
@@ -257,12 +258,13 @@ class TestProcess:
         results = [make_result("a"), make_result("b")]
         with self._patch_request([0, 1]):
             with patch.dict(os.environ, {"OPENROUTER_API_KEY": "env-key"}):
-                with patch("ocr.stages.openrouter_dedup.OpenAI") as mock_cls:
-                    mock_cls.return_value = MagicMock()
+                with patch("ocr.stages.openrouter_dedup.get_openai_client") as mock_fn:
+                    mock_fn.return_value = MagicMock()
                     stage.process(results, {})
-        mock_cls.assert_called_once_with(
+        mock_fn.assert_called_once_with(
             base_url="https://openrouter.ai/api/v1",
             api_key="env-key",
+            timeout=60.0,
         )
 
     def test_custom_model_forwarded(self) -> None:
