@@ -96,12 +96,15 @@ class OpenRouterCorrectionStage(LlmCorrectionBase, register_as="openrouter_corre
         return int(config.get("openrouter_concurrency", 1))
 
     def _extra_create_kwargs(self, config: dict) -> dict:
-        """Return extra_headers for OpenRouter usage tracking."""
+        """Return extra_headers and optional JSON mode for OpenRouter."""
         site_url = str(config.get("openrouter_site_url", _DEFAULT_SITE_URL))
         site_name = str(config.get("openrouter_site_name", _DEFAULT_SITE_NAME))
-        return {
+        kwargs: dict = {
             "extra_headers": {
                 "HTTP-Referer": site_url,
                 "X-Title": site_name,
             }
         }
+        if config.get("openrouter_use_json_mode", False):
+            kwargs["extra_body"] = {"response_format": {"type": "json_object"}}
+        return kwargs

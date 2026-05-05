@@ -18,6 +18,7 @@ import pytest
 from core.types import BoundingBox, OCRResult
 from ocr.stages.base import PostProcessStage
 from ocr.stages.llm_correction import LlmCorrectionStage
+from ocr.stages.llm_correction_base import _SYSTEM_PROMPT
 
 
 # ---------------------------------------------------------------------------
@@ -51,6 +52,18 @@ def make_response(texts: list[str]) -> MagicMock:
 # ---------------------------------------------------------------------------
 # Registry
 # ---------------------------------------------------------------------------
+
+class TestSystemPrompt:
+    def test_prompt_under_150_chars(self) -> None:
+        """Regression: compressed prompt must stay compact."""
+        assert len(_SYSTEM_PROMPT) < 150, (
+            f"_SYSTEM_PROMPT is {len(_SYSTEM_PROMPT)} chars — should be < 150"
+        )
+
+    def test_prompt_contains_key_rules(self) -> None:
+        assert "OCR" in _SYSTEM_PROMPT
+        assert "JSON" in _SYSTEM_PROMPT
+
 
 class TestRegistry:
     def test_registered_as_llm_correction(self) -> None:

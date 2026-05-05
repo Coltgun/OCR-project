@@ -166,6 +166,29 @@ class TestExtraCreateKwargs:
         assert "extra_headers" in call_kwargs
         assert call_kwargs["extra_headers"]["HTTP-Referer"] == "https://test.com"
 
+    def test_json_mode_off_by_default(self) -> None:
+        stage = OpenRouterCorrectionStage()
+        extra = stage._extra_create_kwargs({})
+        assert "extra_body" not in extra
+
+    def test_json_mode_adds_extra_body(self) -> None:
+        stage = OpenRouterCorrectionStage()
+        extra = stage._extra_create_kwargs({"openrouter_use_json_mode": True})
+        assert "extra_body" in extra
+        assert extra["extra_body"] == {"response_format": {"type": "json_object"}}
+
+    def test_json_mode_forwarded_to_api_call(self) -> None:
+        stage = OpenRouterCorrectionStage()
+        results = [make_result("文字")]
+        cfg = {"openrouter_api_key": "k", "openrouter_use_json_mode": True}
+        mock_client = MagicMock()
+        mock_client.chat.completions.create.return_value = make_response(["文字"])
+        with patch("ocr.stages.openrouter_correction.get_openai_client", return_value=mock_client):
+            stage.process(results, cfg)
+        call_kwargs = mock_client.chat.completions.create.call_args.kwargs
+        assert "extra_body" in call_kwargs
+        assert call_kwargs["extra_body"]["response_format"]["type"] == "json_object"
+
 
 # ---------------------------------------------------------------------------
 # process() — end-to-end via mocked client

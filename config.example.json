@@ -71,6 +71,7 @@
 
   "openrouter_concurrency": 1,
   "ollama_concurrency": 1,
+  "openrouter_use_json_mode": false,
 
   "llm_result_cache": "off",
   "llm_result_cache_path": "{working_root_dir}/.llm_cache.json",
