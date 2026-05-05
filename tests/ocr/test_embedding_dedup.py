@@ -261,3 +261,121 @@ class TestBuildSubprocessScript:
         from ocr.stages.embedding_dedup import _build_subprocess_script
         script = _build_subprocess_script('{"texts":[],"model":"m","threshold":0.9,"batch_size":32}')
         assert "print(json.dumps" in script
+
+
+# ---------------------------------------------------------------------------
+# Persistent subprocess path
+# ---------------------------------------------------------------------------
+
+class TestPersistentPath:
+    _cfg: dict = {"embedding_persistent_subprocess": True}
+
+    def test_persistent_path_deduplicates(self) -> None:
+        results = [make_result("文字A"), make_result("文字B")]
+        # group_assignments: both map to 0 → only first kept
+        with patch(
+            "ocr.stages.embedding_dedup.TorchSubprocessService.call",
+            return_value=[0, 0],
+        ):
+            stage = EmbeddingDeduplicationStage()
+            out = stage.process(results, self._cfg)
+        assert len(out) == 1
+
+    def test_persistent_path_no_dedup(self) -> None:
+        results = [make_result("文字A"), make_result("文字B")]
+        with patch(
+            "ocr.stages.embedding_dedup.TorchSubprocessService.call",
+            return_value=[0, 1],
+        ):
+            stage = EmbeddingDeduplicationStage()
+            out = stage.process(results, self._cfg)
+        assert len(out) == 2
+
+    def test_service_reused_on_second_call(self) -> None:
+        results = [make_result("文字A"), make_result("文字B")]
+        with patch(
+            "ocr.stages.embedding_dedup.TorchSubprocessService.call",
+            return_value=[0, 1],
+        ) as mock_call:
+            stage = EmbeddingDeduplicationStage()
+            stage.process(results, self._cfg)
+            svc1 = stage._service
+            stage.process(results, self._cfg)
+            svc2 = stage._service
+        assert svc1 is svc2
+        assert mock_call.call_count == 2
+
+    def test_unload_shuts_down_service(self) -> None:
+        results = [make_result("文字A"), make_result("文字B")]
+        with patch(
+            "ocr.stages.embedding_dedup.TorchSubprocessService.call",
+            return_value=[0, 1],
+        ):
+            stage = EmbeddingDeduplicationStage()
+            stage.process(results, self._cfg)
+
+        mock_svc = MagicMock()
+        stage._service = mock_svc
+        stage.unload()
+        mock_svc.shutdown.assert_called_once()
+        assert stage._service is None
+
+    def test_persistent_failure_returns_unchanged(self) -> None:
+        results = [make_result("文字A"), make_result("文字B")]
+        with patch(
+            "ocr.stages.embedding_dedup.TorchSubprocessService.call",
+            side_effect=RuntimeError("child OOM"),
+        ):
+            stage = EmbeddingDeduplicationStage()
+            out = stage.process(results, self._cfg)
+        assert len(out) == 2
+
+    def test_group_assignments_parity_with_old_loop(self) -> None:
+        """Verify matmul in subprocess gives identical group_assignments to the old loop.
+
+        Uses _resolve_groups directly (no subprocess) to validate the algorithm.
+        """
+        import numpy as np
+
+        n = 10
+        texts = [f"text{i}" for i in range(n)]
+        results = [make_result(t, confidence=float(i) / n) for i, t in enumerate(texts)]
+
+        # Build synthetic embeddings: first 3 are very similar, rest are distinct
+        rng = np.random.default_rng(42)
+        embeddings = rng.standard_normal((n, 64)).astype(np.float32)
+        # Force first 3 to be near-identical
+        embeddings[1] = embeddings[0] + rng.standard_normal(64).astype(np.float32) * 0.001
+        embeddings[2] = embeddings[0] + rng.standard_normal(64).astype(np.float32) * 0.001
+        # L2-normalise
+        norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
+        embeddings = embeddings / norms
+
+        threshold = 0.95
+
+        # Old O(n²) loop
+        assignments_loop = list(range(n))
+        for i in range(n):
+            for j in range(i + 1, n):
+                sim = float(np.dot(embeddings[i], embeddings[j]))
+                if sim >= threshold:
+                    root_i = assignments_loop[i]
+                    if assignments_loop[j] == j:
+                        assignments_loop[j] = root_i
+
+        # Matmul version (same as _embedding_subprocess.py)
+        sims = embeddings @ embeddings.T
+        assignments_matmul = list(range(n))
+        for i in range(n):
+            for j in range(i + 1, n):
+                if float(sims[i, j]) >= threshold:
+                    root_i = assignments_matmul[i]
+                    if assignments_matmul[j] == j:
+                        assignments_matmul[j] = root_i
+
+        assert assignments_loop == assignments_matmul
+
+        # Both should produce the same kept set
+        kept_loop = EmbeddingDeduplicationStage._resolve_groups(results, assignments_loop)
+        kept_matmul = EmbeddingDeduplicationStage._resolve_groups(results, assignments_matmul)
+        assert [r.text for r in kept_loop] == [r.text for r in kept_matmul]

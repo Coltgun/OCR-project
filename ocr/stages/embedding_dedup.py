@@ -35,9 +35,11 @@ import logging
 import os
 import subprocess
 import sys
+from pathlib import Path
 
 from core.types import OCRResult
 from ocr.stages.base import PostProcessStage
+from ocr.stages._torch_service import TorchSubprocessService
 
 logger = logging.getLogger(__name__)
 
@@ -53,10 +55,19 @@ class EmbeddingDeduplicationStage(PostProcessStage, register_as="embedding_dedup
     Group resolution keeps the highest-confidence result, preserving reading order.
     """
 
+    def __init__(self) -> None:
+        self._service: TorchSubprocessService | None = None
+
     @property
     def stage_id(self) -> str:
         """Stage identifier."""
         return "embedding_dedup"
+
+    def unload(self) -> None:
+        """Shut down the persistent subprocess if running."""
+        if self._service is not None:
+            self._service.shutdown()
+            self._service = None
 
     def process(self, results: list[OCRResult], config: dict) -> list[OCRResult]:
         """Remove semantic duplicates from *results*.
@@ -76,9 +87,13 @@ class EmbeddingDeduplicationStage(PostProcessStage, register_as="embedding_dedup
         batch_size: int = int(config.get("embedding_batch_size", _DEFAULT_BATCH_SIZE))
 
         texts = [r.text for r in results]
+        use_persistent = bool(config.get("embedding_persistent_subprocess", False))
 
         try:
-            group_assignments = self._run_subprocess(texts, model, threshold, batch_size)
+            if use_persistent:
+                group_assignments = self._run_persistent(texts, model, threshold, batch_size, config)
+            else:
+                group_assignments = self._run_subprocess(texts, model, threshold, batch_size)
         except Exception as exc:
             logger.error(
                 "EmbeddingDeduplicationStage: subprocess failed (%s) — "
@@ -98,7 +113,37 @@ class EmbeddingDeduplicationStage(PostProcessStage, register_as="embedding_dedup
         return kept
 
     # ------------------------------------------------------------------
-    # Subprocess dispatch
+    # Persistent subprocess path
+    # ------------------------------------------------------------------
+
+    def _run_persistent(
+        self,
+        texts: list[str],
+        model: str,
+        threshold: float,
+        batch_size: int,
+        config: dict,
+    ) -> list[int]:
+        """Use long-lived TorchSubprocessService for embedding dedup."""
+        if self._service is None:
+            script = Path(__file__).with_name("_embedding_subprocess.py")
+            idle_timeout = float(config.get("embedding_idle_timeout_s", 600))
+            self._service = TorchSubprocessService(
+                script_path=script,
+                init_payload={"model": model, "batch_size": batch_size, "threshold": threshold},
+                idle_timeout_s=idle_timeout,
+            )
+        result = self._service.call(
+            {"texts": texts, "threshold": threshold, "batch_size": batch_size}
+        )
+        if not isinstance(result, list) or len(result) != len(texts):
+            raise RuntimeError(
+                f"EmbeddingDeduplicationStage: unexpected result shape: {result!r}"
+            )
+        return [int(x) for x in result]
+
+    # ------------------------------------------------------------------
+    # Fallback per-call subprocess path
     # ------------------------------------------------------------------
 
     @staticmethod

@@ -64,5 +64,8 @@
   "ocr_worker_idle_timeout_s": 60,
 
   "bert_persistent_subprocess": false,
-  "bert_idle_timeout_s": 600
+  "bert_idle_timeout_s": 600,
+
+  "embedding_persistent_subprocess": false,
+  "embedding_idle_timeout_s": 600
 }
