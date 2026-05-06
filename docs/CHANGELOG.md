@@ -4,6 +4,10 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### Changed — 2026-05-05
+- **PERF-ocr-longlived-default** `ocr/worker.py` — Long-lived PaddleOCR worker is now the default (`ocr_long_lived_worker: true` in `config.example.json` and runtime default). Progress is emitted incrementally per image instead of all at once after batch completes. Per-image cold-start eliminated (~12–15 s per image saved). Fallback to per-image mode remains with warning log when long-lived path fails.
+- `tests/ocr/test_worker_compat.py` — Updated `test_happy_path_two_images` to verify incremental progress emission (once per image). Added `_make_signals_mock` helper to `TestLongLivedBatch`. (2238 passed, 374 skipped).
+
 ### Added — 2026-05-02
 - **ARCH-001** `core/registry.py` — `Registrable` base with `__init_subclass__` auto-registration. Registration keyword is `register_as=` (not `name=`, which conflicts with `ABCMeta`).
 - **ARCH-001** `core/vram_manager.py` — `VRAMManager` with `allocate`/`release`/`can_allocate`; `make_vram_manager(config)` factory; tier defaults 7680 MB (8 GB) / 15360 MB (16 GB).

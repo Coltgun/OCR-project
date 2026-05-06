@@ -59,7 +59,7 @@
 
   "perf_timing": false,
 
-  "ocr_long_lived_worker": false,
+  "ocr_long_lived_worker": true,
   "ocr_worker_warmup": true,
   "ocr_worker_idle_timeout_s": 60,
 
@@ -82,5 +82,7 @@
   "llm_result_cache_path": "{working_root_dir}/.llm_cache.json",
   "llm_result_cache_max_entries": 50000,
 
-  "llm_skip_high_confidence_threshold": 0.97
+  "llm_skip_high_confidence_threshold": 0.97,
+
+  "epub_char_limit": 20000
 }
